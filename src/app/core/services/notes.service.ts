@@ -46,6 +46,24 @@ export class NotesService {
     );
   }
 
+  updateNote(id: string, note: Omit<Note, 'id'>): Observable<Note> {
+    const today = new Date().toISOString().split('T')[0];
+    const updatedNote: Omit<Note, 'id'> = {
+      ...note,
+      fechaActualizacion: today
+    };
+    return this.http.put<Note>(`${this.apiUrl}/${id}.json`, updatedNote).pipe(
+      map(response => ({ ...response, id })),
+      catchError(this.handleError('actualizar la nota'))
+    );
+  }
+
+  deleteNote(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}.json`).pipe(
+      catchError(this.handleError('eliminar la nota'))
+    );
+  }
+
   private handleError(accion: string) {
     return (error: HttpErrorResponse): Observable<never> => {
       let mensaje = `No se pudo ${accion}.`;
