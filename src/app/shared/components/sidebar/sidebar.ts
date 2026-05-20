@@ -1,31 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MockNotesService } from '../../services/mock-notes';
-import { Note } from '../../../core/models/note.model';
+import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './sidebar.html',
-  styleUrls: ['./sidebar.scss'],
 })
-export class SidebarComponent implements OnInit {
-  notes: Note[] = [];
+export class SidebarComponent {
+  ui = inject(UiService);
 
-  constructor(private mockNotesService: MockNotesService) {}
+  // Controla si el submenú de "More" está desplegado
+  isMoreMenuOpen = signal(false);
 
-  ngOnInit(): void {
-    this.mockNotesService.getNotes().subscribe((notes) => {
-      this.notes = notes;
-    });
-  }
+  toggleMoreMenu() {
+    this.isMoreMenuOpen.update((v) => !v);
 
-  createNote(): void {
-    this.mockNotesService.createNote();
-  }
-
-  selectNote(id: string): void {
-    this.mockNotesService.selectNote(id);
+    // Mejora UX: Abre el sidebar completo si estaba colapsado al intentar abrir "More"
+    if (!this.ui.isSidebarOpen() && this.isMoreMenuOpen()) {
+      this.ui.toggleSidebar();
+    }
   }
 }

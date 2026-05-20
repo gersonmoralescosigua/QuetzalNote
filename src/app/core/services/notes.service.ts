@@ -6,30 +6,29 @@ import { environment } from '../../../environments/environment';
 import { Note } from '../models/note.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NotesService {
-
   private http = inject(HttpClient);
   private apiUrl = `${environment.firebaseUrl}notas`;
 
   getNotes(): Observable<Note[]> {
     return this.http.get<{ [key: string]: Note } | null>(`${this.apiUrl}.json`).pipe(
-      map(response => {
+      map((response) => {
         if (!response) return [];
-        return Object.keys(response).map(key => ({
+        return Object.keys(response).map((key) => ({
           ...response[key],
-          id: key
+          id: key,
         }));
       }),
-      catchError(this.handleError('cargar las notas'))
+      catchError(this.handleError('cargar las notas')),
     );
   }
 
   getNoteById(id: string): Observable<Note> {
     return this.http.get<Note>(`${this.apiUrl}/${id}.json`).pipe(
-      map(note => ({ ...note, id })),
-      catchError(this.handleError('cargar la nota'))
+      map((note) => ({ ...note, id })),
+      catchError(this.handleError('cargar la nota')),
     );
   }
 
@@ -38,11 +37,11 @@ export class NotesService {
     const newNote: Omit<Note, 'id'> = {
       ...note,
       fechaCreacion: today,
-      fechaActualizacion: today
+      fechaActualizacion: today,
     };
     return this.http.post<{ name: string }>(`${this.apiUrl}.json`, newNote).pipe(
-      map(response => response.name),
-      catchError(this.handleError('crear la nota'))
+      map((response) => response.name),
+      catchError(this.handleError('crear la nota')),
     );
   }
 
@@ -50,18 +49,18 @@ export class NotesService {
     const today = new Date().toISOString().split('T')[0];
     const updatedNote: Omit<Note, 'id'> = {
       ...note,
-      fechaActualizacion: today
+      fechaActualizacion: today,
     };
     return this.http.put<Note>(`${this.apiUrl}/${id}.json`, updatedNote).pipe(
-      map(response => ({ ...response, id })),
-      catchError(this.handleError('actualizar la nota'))
+      map((response) => ({ ...response, id })),
+      catchError(this.handleError('actualizar la nota')),
     );
   }
 
   deleteNote(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}.json`).pipe(
-      catchError(this.handleError('eliminar la nota'))
-    );
+    return this.http
+      .delete<void>(`${this.apiUrl}/${id}.json`)
+      .pipe(catchError(this.handleError('eliminar la nota')));
   }
 
   private handleError(accion: string) {

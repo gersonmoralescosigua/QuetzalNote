@@ -1,29 +1,50 @@
-<div class="editor-wrapper">
-  <!-- Caso: hay nota seleccionada -->
-  <div *ngIf="selectedNote; else noNote" class="editor-container">
-    <!-- Campo TÍTULO -->
-    <input
-      type="text"
-      [(ngModel)]="selectedNote.titulo"
-      (ngModelChange)="onTitleChange($event)"
-      class="title-input"
-      placeholder="Título de la nota"
-    />
+<div class="h-full w-full max-w-5xl mx-auto pt-6 px-8 flex flex-col pb-16">
+  <button
+    [class.hidden]="hasText()"
+    class="w-fit mb-4 flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 px-4 py-1.5 rounded-full shadow-sm hover:shadow-md transition-shadow text-[14px] font-medium text-gray-700 dark:text-gray-200"
+  >
+    <span class="material-icons text-teal-500 text-[18px]">auto_awesome</span>
+    Help me write
+  </button>
 
-    <!-- Campo CONTENIDO -->
-    <textarea
-      [(ngModel)]="selectedNote.contenido"
-      (ngModelChange)="onContentChange($event)"
-      class="content-textarea"
-      placeholder="Escribe el contenido de tu nota aquí..."
-    ></textarea>
-  </div>
+  <quill-editor
+    (onContentChanged)="onEditorChanged($event)"
+    [modules]="editorModules"
+    placeholder="Start writing, press '/' for commands..."
+    class="flex-1 text-gray-800 dark:text-gray-100 border-none outline-none"
+  >
+  </quill-editor>
 
-  <!-- Caso: no hay nota seleccionada -->
-  <ng-template #noNote>
-    <div class="editor-placeholder">
-      <h1>Selecciona una nota</h1>
-      <p>o crea una nueva para empezar</p>
+  <div
+    class="absolute bottom-4 left-6 right-6 flex items-center justify-between text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 pt-2"
+  >
+    <div class="flex items-center">
+      <button
+        *ngIf="!hasText()"
+        class="flex items-center gap-2 hover:text-gray-800 dark:hover:text-white transition-colors"
+      >
+        <span class="material-icons text-[18px]">upload</span>
+        <span class="text-[14px] font-medium">Upload Doc</span>
+      </button>
+
+      <div *ngIf="hasText()" class="text-[14px]">
+        Words: {{ wordCount() }} &nbsp;&nbsp; Characters: {{ charCount() }}
+      </div>
     </div>
-  </ng-template>
+
+    <div class="flex items-center gap-2">
+      <button class="p-1.5 rounded hover:bg-gray-100 transition-colors">
+        <span class="material-icons text-[20px]">content_copy</span>
+      </button>
+      <button class="p-1.5 rounded hover:bg-gray-100 transition-colors">
+        <span class="material-icons text-[20px]">file_download</span>
+      </button>
+      <button
+        (click)="promptClearEditor()"
+        class="p-1.5 rounded hover:bg-red-50 hover:text-red-500 transition-colors"
+      >
+        <span class="material-icons text-[20px]">delete_outline</span>
+      </button>
+    </div>
+  </div>
 </div>
