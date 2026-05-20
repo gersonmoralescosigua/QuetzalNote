@@ -1,15 +1,19 @@
-<div class="flex h-screen bg-gray-100 dark:bg-gray-900">
-  <!-- Sidebar -->
-  <app-sidebar></app-sidebar>
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <app-sidebar></app-sidebar>
+  </aside>
 
-  <!-- Main Content -->
-  <div class="flex flex-col flex-1">
-    <!-- Topbar -->
-    <app-topbar></app-topbar>
+  <!-- MAIN AREA -->
+  <main class="main-content">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <app-topbar></app-topbar>
+    </header>
 
-    <!-- Editor -->
-    <div class="flex-1 overflow-hidden">
+    <!-- EDITOR -->
+    <section class="editor-section">
       <app-note-editor></app-note-editor>
-    </div>
-  </div>
+    </section>
+  </main>
 </div>

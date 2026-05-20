@@ -1,0 +1,55 @@
+.app-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ===== SIDEBAR ===== */
+
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background-color: white;
+  border-right: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.dark .sidebar {
+  background-color: #1f2937;
+  border-right: 1px solid #374151;
+}
+
+/* ===== MAIN ===== */
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===== TOPBAR ===== */
+
+.topbar {
+  height: 72px;
+  min-height: 72px;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dark .topbar {
+  background-color: #1f2937;
+  border-bottom: 1px solid #374151;
+}
+
+/* ===== EDITOR ===== */
+
+.editor-section {
+  flex: 1;
+  overflow: hidden;
+  background-color: #f8fafc;
+}
+
+.dark .editor-section {
+  background-color: #111827;
+}

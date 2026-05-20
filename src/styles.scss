@@ -1,3 +1,46 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ===== GLOBAL RESET ===== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===== BODY ===== */
+
+body {
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  background-color: #f5f7fb;
+  color: #1f2937;
+}
+
+/* ===== DARK MODE ===== */
+
+.dark body {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+/* ===== SCROLLBAR ===== */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #374151;
+}

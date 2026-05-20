@@ -1,1 +1,30 @@
-<p>sidebar works!</p>
+<div class="sidebar-wrapper">
+  <!-- LOGO -->
+  <div class="logo-section">
+    <div class="logo-circle">Q</div>
+
+    <div>
+      <h1 class="logo-title">QuetzalNote</h1>
+
+      <p class="logo-subtitle">Smart workspace</p>
+    </div>
+  </div>
+
+  <!-- NEW NOTE -->
+  <button class="new-note-btn" (click)="createNote()">+ Nueva Nota</button>
+
+  <!-- SEARCH -->
+  <div class="search-container">
+    <input type="text" placeholder="Buscar notas..." class="search-input" />
+  </div>
+
+  <!-- NOTES -->
+  <div class="notes-section">
+    <div class="section-title">Notas recientes</div>
+
+    <div *ngFor="let note of notes" class="note-item" (click)="selectNote(note.id!)">
+      <h3>{{ note.titulo }}</h3>
+      <p>{{ note.fechaActualizacion | date: 'short' }}</p>
+    </div>
+  </div>
+</div>

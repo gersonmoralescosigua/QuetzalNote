@@ -1,1 +1,29 @@
-<p>note-editor works!</p>
+<div class="editor-wrapper">
+  <!-- Caso: hay nota seleccionada -->
+  <div *ngIf="selectedNote; else noNote" class="editor-container">
+    <!-- Campo TÍTULO -->
+    <input
+      type="text"
+      [(ngModel)]="selectedNote.titulo"
+      (ngModelChange)="onTitleChange($event)"
+      class="title-input"
+      placeholder="Título de la nota"
+    />
+
+    <!-- Campo CONTENIDO -->
+    <textarea
+      [(ngModel)]="selectedNote.contenido"
+      (ngModelChange)="onContentChange($event)"
+      class="content-textarea"
+      placeholder="Escribe el contenido de tu nota aquí..."
+    ></textarea>
+  </div>
+
+  <!-- Caso: no hay nota seleccionada -->
+  <ng-template #noNote>
+    <div class="editor-placeholder">
+      <h1>Selecciona una nota</h1>
+      <p>o crea una nueva para empezar</p>
+    </div>
+  </ng-template>
+</div>
