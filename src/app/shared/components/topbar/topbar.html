@@ -1,9 +1,20 @@
+<!-- ============================================= -->
+<!-- TOPBAR - BARRA SUPERIOR DE NAVEGACIÓN         -->
+<!-- Cambia su contenido según la vista actual:    -->
+<!-- editor de notas o conversor PDF               -->
+<!-- ============================================= -->
+
 <div class="flex w-full h-full items-center justify-between relative">
+  <!-- ========================================== -->
+  <!-- VISTA EDITOR DE NOTAS                      -->
+  <!-- ========================================== -->
   <ng-container *ngIf="ui.currentView() === 'editor'">
+    <!-- Lado izquierdo: Título de la nota -->
     <div class="flex items-center gap-2 w-1/3">
       <div
         class="border border-gray-200 dark:border-gray-600 rounded px-3 py-1.5 flex items-center w-64 bg-white dark:bg-gray-800 hover:border-gray-300 transition-colors"
       >
+        <!-- El título se conectará dinámicamente desde Firebase -->
         <input
           type="text"
           value="Untitled Document"
@@ -12,11 +23,14 @@
       </div>
     </div>
 
+    <!-- Lado derecho: Acciones y menú de usuario -->
     <div class="flex items-center justify-end gap-3 w-2/3 text-gray-500 dark:text-gray-400">
+      <!-- Barra de búsqueda - solo visible en desktop -->
       <div
         class="hidden md:flex items-center bg-[#f1f3f4] dark:bg-gray-700 px-3 py-1.5 rounded-md hover:bg-gray-200 transition-colors cursor-text"
       >
         <span class="material-icons text-[18px] mr-2">search</span>
+        <!-- Búsqueda de notas conectada a Firebase -->
         <input
           type="text"
           placeholder="Search..."
@@ -27,6 +41,8 @@
           >Ctrl K</span
         >
       </div>
+
+      <!-- Botón toggle tema claro/oscuro -->
       <button
         (click)="toggleTheme()"
         class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center justify-center"
@@ -35,21 +51,109 @@
           isDarkMode() ? 'light_mode' : 'dark_mode'
         }}</span>
       </button>
+
+      <!-- Botón soporte / ayuda -->
       <button
         class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center justify-center"
       >
         <span class="material-icons text-[20px]">headset_mic</span>
       </button>
-      <button
-        (click)="ui.isLoginOpen.set(true)"
-        class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center justify-center"
-      >
-        <span class="material-icons text-[20px]">person_outline</span>
-      </button>
+
+      <!-- ======================================== -->
+      <!-- MENÚ DESPLEGABLE DE USUARIO              -->
+      <!-- ======================================== -->
+      <!-- Reemplaza al botón simple de login       -->
+      <div class="relative">
+        <!-- Botón que abre/cierra el menú -->
+        <button
+          (click)="toggleUserMenu()"
+          class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center justify-center"
+        >
+          <span class="material-icons text-[20px]">person_outline</span>
+        </button>
+
+        <!-- Menú desplegable - se muestra cuando isUserMenuOpen es true -->
+        <div
+          *ngIf="isUserMenuOpen()"
+          class="absolute right-0 top-12 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 animate-fade-in"
+        >
+          <!-- Opción: Iniciar sesión -->
+          <!-- Al hacer click, abre el modal de login y cierra el menú -->
+          <button
+            (click)="ui.isLoginOpen.set(true); isUserMenuOpen.set(false)"
+            class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+          >
+            <span class="material-icons text-[18px]">login</span>
+            Sign in
+          </button>
+
+          <!-- ==================================== -->
+          <!-- SUBMENÚ DE IDIOMAS                   -->
+          <!-- ==================================== -->
+          <div class="relative">
+            <!-- Botón que despliega el submenú de idiomas -->
+            <button
+              (click)="isLanguageMenuOpen.update((v) => !v)"
+              class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+            >
+              <div class="flex items-center gap-3">
+                <span class="material-icons text-[18px]">translate</span>
+                English
+              </div>
+              <span class="material-icons text-[16px]">chevron_right</span>
+            </button>
+
+            <!-- Submenú de idiomas - aparece a la izquierda del menú principal -->
+            <div
+              *ngIf="isLanguageMenuOpen()"
+              class="absolute right-[105%] top-0 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 mr-1 animate-fade-in"
+            >
+              <div
+                class="px-4 py-2 text-[12px] text-gray-400 flex items-center justify-between border-b border-gray-100 dark:border-gray-700 mb-1"
+              >
+                Site Language <span class="material-icons text-[16px]">info_outline</span>
+              </div>
+              <!-- Opciones de idioma -->
+              <button
+                class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+              >
+                English <span class="material-icons text-[16px] text-teal-500">check</span>
+              </button>
+              <button
+                class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+              >
+                Spanish
+              </button>
+              <button
+                class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+              >
+                Français
+              </button>
+              <button
+                class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+              >
+                Português
+              </button>
+            </div>
+          </div>
+
+          <!-- Opción: Contacto -->
+          <button
+            class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+          >
+            <span class="material-icons text-[18px]">mail_outline</span>
+            Contact Us
+          </button>
+        </div>
+      </div>
     </div>
   </ng-container>
 
+  <!-- ========================================== -->
+  <!-- VISTA CONVERSOR PDF                        -->
+  <!-- ========================================== -->
   <ng-container *ngIf="ui.currentView() === 'pdf'">
+    <!-- Título centrado en el medio de la barra -->
     <div
       class="absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-none"
     >
@@ -58,9 +162,12 @@
       </h2>
     </div>
 
+    <!-- Espaciador izquierdo para mantener el equilibrio -->
     <div class="w-1/3"></div>
 
+    <!-- Lado derecho: Acciones y menú de usuario -->
     <div class="flex items-center justify-end gap-3 w-2/3 text-gray-500 dark:text-gray-400">
+      <!-- Botón toggle tema claro/oscuro -->
       <button
         (click)="toggleTheme()"
         class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center justify-center"
@@ -69,17 +176,89 @@
           isDarkMode() ? 'light_mode' : 'dark_mode'
         }}</span>
       </button>
+
+      <!-- Botón soporte / ayuda -->
       <button
         class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center justify-center"
       >
         <span class="material-icons text-[20px]">headset_mic</span>
       </button>
-      <button
-        (click)="ui.isLoginOpen.set(true)"
-        class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center justify-center"
-      >
-        <span class="material-icons text-[20px]">person_outline</span>
-      </button>
+
+      <!-- ======================================== -->
+      <!-- MENÚ DESPLEGABLE DE USUARIO              -->
+      <!-- ======================================== -->
+      <div class="relative">
+        <button
+          (click)="toggleUserMenu()"
+          class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center justify-center"
+        >
+          <span class="material-icons text-[20px]">person_outline</span>
+        </button>
+
+        <div
+          *ngIf="isUserMenuOpen()"
+          class="absolute right-0 top-12 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 animate-fade-in"
+        >
+          <button
+            (click)="ui.isLoginOpen.set(true); isUserMenuOpen.set(false)"
+            class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+          >
+            <span class="material-icons text-[18px]">login</span>
+            Sign in
+          </button>
+
+          <div class="relative">
+            <button
+              (click)="isLanguageMenuOpen.update((v) => !v)"
+              class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+            >
+              <div class="flex items-center gap-3">
+                <span class="material-icons text-[18px]">translate</span>
+                English
+              </div>
+              <span class="material-icons text-[16px]">chevron_right</span>
+            </button>
+
+            <div
+              *ngIf="isLanguageMenuOpen()"
+              class="absolute right-[105%] top-0 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 mr-1 animate-fade-in"
+            >
+              <div
+                class="px-4 py-2 text-[12px] text-gray-400 flex items-center justify-between border-b border-gray-100 dark:border-gray-700 mb-1"
+              >
+                Site Language <span class="material-icons text-[16px]">info_outline</span>
+              </div>
+              <button
+                class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+              >
+                English <span class="material-icons text-[16px] text-teal-500">check</span>
+              </button>
+              <button
+                class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+              >
+                Spanish
+              </button>
+              <button
+                class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+              >
+                Français
+              </button>
+              <button
+                class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+              >
+                Português
+              </button>
+            </div>
+          </div>
+
+          <button
+            class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+          >
+            <span class="material-icons text-[18px]">mail_outline</span>
+            Contact Us
+          </button>
+        </div>
+      </div>
     </div>
   </ng-container>
 </div>

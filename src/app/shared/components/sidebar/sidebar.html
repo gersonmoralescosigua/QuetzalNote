@@ -1,5 +1,14 @@
+<!-- =============================================== -->
+<!-- SECCIÓN: SIDEBAR - MENÚ LATERAL DE NAVEGACIÓN   -->
+<!-- Propósito: Navegación principal, lista de notas  -->
+<!-- y acceso a herramientas                          -->
+<!-- =============================================== -->
+
 <div class="flex flex-col h-full bg-white dark:bg-gray-800 font-sans whitespace-nowrap text-[14px]">
+  <!-- >>> ZONA: HEADER DEL SIDEBAR <<< -->
+  <!-- Botón colapsar/expandir + Logo -->
   <div class="flex items-center p-4 gap-4">
+    <!-- Botón toggle para abrir/cerrar sidebar -->
     <button
       (click)="ui.toggleSidebar()"
       class="text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 p-1.5 rounded transition-colors group"
@@ -9,7 +18,7 @@
         >menu_open</span
       >
     </button>
-
+    <!-- Logo y nombre de la app - Se oculta cuando sidebar está cerrado -->
     <div
       [class.opacity-0]="!ui.isSidebarOpen()"
       class="flex items-center gap-2 cursor-pointer transition-opacity duration-200"
@@ -21,6 +30,8 @@
     </div>
   </div>
 
+  <!-- >>> ZONA: BOTÓN NUEVA NOTA <<< -->
+  <!-- Estado dinámico: Cambia ancho según sidebar abierto/cerrado -->
   <div class="px-4 mt-3 mb-2 flex justify-start">
     <button
       (click)="ui.currentView.set('editor'); ui.isLoginOpen.set(false)"
@@ -32,7 +43,9 @@
     </button>
   </div>
 
+  <!-- >>> ZONA: LISTA DE NOTAS (SCROLLABLE) <<< -->
   <div class="flex-1 overflow-y-auto mt-2 custom-scrollbar">
+    <!-- Encabezado "Notes" - Solo visible cuando sidebar está abierto -->
     <div
       [class.hidden]="!ui.isSidebarOpen()"
       class="px-4 mb-1 flex justify-between items-center mt-2"
@@ -41,7 +54,13 @@
       <a href="#" class="text-[12px] text-blue-500 hover:underline">View all</a>
     </div>
 
+    <!-- >>> CONTENEDOR DINÁMICO DE NOTAS <<< -->
+    <!-- Aquí es donde Isidro debe inyectar su ciclo *ngFor de Firebase -->
+    <!-- Dato dinámico: Título de cada nota desde la base de datos -->
+    <!-- Dato dinámico: ID de la nota para operaciones CRUD -->
     <div class="mb-5 flex flex-col w-full">
+      <!-- EJEMPLO DE ITEM DE NOTA - Este es un item estático de ejemplo -->
+      <!-- El equipo debe reemplazar esto con un *ngFor que recorra las notas de Firebase -->
       <div
         (click)="ui.currentView.set('editor'); ui.isLoginOpen.set(false)"
         [ngClass]="
@@ -51,17 +70,21 @@
         "
         class="py-2 bg-[#F4F6F7] dark:bg-gray-700 border-l-[3px] border-[#18639c] text-gray-800 dark:text-white cursor-pointer flex items-center group/note transition-all"
       >
+        <!-- Icono o título según estado del sidebar -->
         <div class="flex items-center gap-3 overflow-hidden">
+          <!-- Icono cuando sidebar está cerrado -->
           <span
             [class.hidden]="ui.isSidebarOpen()"
             class="material-icons text-[18px] text-[#18639c]"
             >description</span
           >
+          <!-- Título cuando sidebar está abierto -->
           <span [class.hidden]="!ui.isSidebarOpen()" class="text-[14px] truncate"
             >Untitled Document</span
           >
         </div>
 
+        <!-- Botón eliminar nota - Solo visible al hacer hover -->
         <button
           [class.hidden]="!ui.isSidebarOpen()"
           class="opacity-0 group-hover/note:opacity-100 text-gray-400 hover:text-red-500 transition-opacity"
@@ -71,10 +94,14 @@
       </div>
     </div>
 
+    <!-- =========================================== -->
+    <!-- SECCIÓN: OTHER TOOLS                        -->
+    <!-- =========================================== -->
     <div [class.hidden]="!ui.isSidebarOpen()" class="px-4 mb-1 mt-4">
       <span class="text-[12px] text-gray-400 uppercase tracking-wide">Other Tools</span>
     </div>
     <ul class="mb-5 space-y-0.5">
+      <!-- Herramienta: Paraphraser -->
       <li>
         <a
           [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
@@ -84,6 +111,7 @@
           <span [class.hidden]="!ui.isSidebarOpen()">Paraphraser</span>
         </a>
       </li>
+      <!-- Herramienta: Text to PDF -->
       <li>
         <a
           (click)="ui.currentView.set('pdf'); ui.isLoginOpen.set(false)"
@@ -96,10 +124,14 @@
       </li>
     </ul>
 
+    <!-- =========================================== -->
+    <!-- SECCIÓN: OTHER (Configuración y extras)     -->
+    <!-- =========================================== -->
     <div [class.hidden]="!ui.isSidebarOpen()" class="px-4 mb-1 mt-4">
       <span class="text-[12px] text-gray-400 uppercase tracking-wide">Other</span>
     </div>
     <ul class="space-y-0.5 pb-4">
+      <!-- Feedback -->
       <li>
         <a
           (click)="ui.isFeedbackOpen.set(true)"
@@ -110,6 +142,7 @@
           <span [class.hidden]="!ui.isSidebarOpen()">Feedback</span>
         </a>
       </li>
+      <!-- Trash (Papelera) -->
       <li>
         <a
           (click)="ui.isTrashOpen.set(!ui.isTrashOpen())"
@@ -120,6 +153,7 @@
           <span [class.hidden]="!ui.isSidebarOpen()">Trash</span>
         </a>
       </li>
+      <!-- >>> BOTÓN MORE CON SUBMENÚ DESPLEGABLE <<< -->
       <li>
         <button
           (click)="toggleMoreMenu()"
@@ -132,6 +166,7 @@
             <span class="material-icons text-[18px]">expand_circle_down</span>
             <span [class.hidden]="!ui.isSidebarOpen()">More</span>
           </div>
+          <!-- Flecha animada que rota cuando el menú está abierto -->
           <span
             *ngIf="ui.isSidebarOpen()"
             class="material-icons text-[16px] text-gray-400 transition-transform duration-300"
@@ -141,6 +176,8 @@
         </button>
       </li>
 
+      <!-- >>> SUBMENÚ DESPLEGABLE "MORE" <<< -->
+      <!-- Estado dinámico: Se muestra/oculta con animación -->
       <div
         [ngClass]="
           isMoreMenuOpen() && ui.isSidebarOpen()
@@ -149,41 +186,51 @@
         "
         class="transition-all duration-300 ease-in-out flex flex-col space-y-0.5 bg-[#F4F6F7] dark:bg-gray-900/50 mx-4 rounded-lg"
       >
+        <!-- Enlaces externos (Apple Store, Play Store) -->
         <a
           class="py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 flex items-center justify-between cursor-pointer rounded-md text-[13px]"
-          ><span class="flex items-center gap-2"
-            ><span class="material-icons text-[15px] text-blue-500">storefront</span> Apple
-            Store</span
-          ><span class="material-icons text-[14px] text-gray-400">open_in_new</span></a
         >
+          <span class="flex items-center gap-2">
+            <span class="material-icons text-[15px] text-blue-500">storefront</span> Apple Store
+          </span>
+          <span class="material-icons text-[14px] text-gray-400">open_in_new</span>
+        </a>
         <a
           class="py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 flex items-center justify-between cursor-pointer rounded-md text-[13px]"
-          ><span class="flex items-center gap-2"
-            ><span class="material-icons text-[15px] text-green-500">play_arrow</span> Play
-            Store</span
-          ><span class="material-icons text-[14px] text-gray-400">open_in_new</span></a
         >
+          <span class="flex items-center gap-2">
+            <span class="material-icons text-[15px] text-green-500">play_arrow</span> Play Store
+          </span>
+          <span class="material-icons text-[14px] text-gray-400">open_in_new</span>
+        </a>
+        <!-- Enlaces internos -->
         <a
           class="py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 flex items-center gap-2 cursor-pointer rounded-md text-[13px]"
-          ><span class="material-icons text-[16px] text-gray-400">history</span>Change Log</a
         >
+          <span class="material-icons text-[16px] text-gray-400">history</span>Change Log
+        </a>
         <a
           class="py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 flex items-center gap-2 cursor-pointer rounded-md text-[13px]"
-          ><span class="material-icons text-[16px] text-gray-400">policy</span>Privacy Policy</a
         >
+          <span class="material-icons text-[16px] text-gray-400">policy</span>Privacy Policy
+        </a>
         <a
           class="py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 flex items-center gap-2 cursor-pointer rounded-md text-[13px]"
-          ><span class="material-icons text-[16px] text-gray-400">gavel</span>Terms of Use</a
         >
+          <span class="material-icons text-[16px] text-gray-400">gavel</span>Terms of Use
+        </a>
         <a
           class="py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 flex items-center gap-2 cursor-pointer rounded-md text-[13px]"
-          ><span class="material-icons text-[16px] text-gray-400">info</span>About this tool</a
         >
+          <span class="material-icons text-[16px] text-gray-400">info</span>About this tool
+        </a>
+        <!-- Settings - Abre el modal de login -->
         <a
           (click)="ui.isLoginOpen.set(true)"
           class="py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium flex items-center gap-2 cursor-pointer rounded-md text-[13px] mt-1 border-t border-gray-200 dark:border-gray-700 pt-2"
-          ><span class="material-icons text-[16px]">settings</span>Settings</a
         >
+          <span class="material-icons text-[16px]">settings</span>Settings
+        </a>
       </div>
     </ul>
   </div>

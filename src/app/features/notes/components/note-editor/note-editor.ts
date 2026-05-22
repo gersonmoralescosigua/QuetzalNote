@@ -40,8 +40,8 @@ export class NoteEditorComponent {
       title: '<span class="text-[18px] font-bold">Clear Editor</span>',
       html: '<span class="text-[14px] text-gray-500">Are you sure you want to clear the editor?</span>',
       showCancelButton: true,
-      confirmButtonColor: '#ff4d4f', // Rojo exacto de la imagen
-      cancelButtonColor: '#f3f4f6', // Gris claro
+      confirmButtonColor: '#ff4d4f',
+      cancelButtonColor: '#f3f4f6',
       confirmButtonText: 'Clear',
       cancelButtonText: '<span class="text-gray-700">Cancel</span>',
       width: '400px',

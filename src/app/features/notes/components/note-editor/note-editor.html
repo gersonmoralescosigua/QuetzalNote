@@ -1,4 +1,15 @@
+<!-- ============================================= -->
+<!-- NOTE EDITOR - ÁREA PRINCIPAL DE ESCRITURA     -->
+<!-- Este es el corazón de la aplicación, donde    -->
+<!-- el usuario escribe y edita sus notas          -->
+<!-- ============================================= -->
+
 <div class="h-full w-full max-w-5xl mx-auto pt-6 px-8 flex flex-col pb-16">
+  <!-- ------------------------------------------ -->
+  <!-- BOTÓN "HELP ME WRITE" - ASISTENTE IA       -->
+  <!-- ------------------------------------------ -->
+  <!-- Solo se muestra cuando el editor está vacío -->
+  <!-- Desaparece automáticamente al escribir     -->
   <button
     [class.hidden]="hasText()"
     class="w-fit mb-4 flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 px-4 py-1.5 rounded-full shadow-sm hover:shadow-md transition-shadow text-[14px] font-medium text-gray-700 dark:text-gray-200"
@@ -7,6 +18,12 @@
     Help me write
   </button>
 
+  <!-- ------------------------------------------ -->
+  <!-- EDITOR QUILL - COMPONENTE RICH TEXT        -->
+  <!-- ------------------------------------------ -->
+  <!-- Aquí se captura todo el contenido escrito  -->
+  <!-- onContentChanged dispara el conteo de      -->
+  <!-- palabras y caracteres en tiempo real       -->
   <quill-editor
     (onContentChanged)="onEditorChanged($event)"
     [modules]="editorModules"
@@ -15,10 +32,17 @@
   >
   </quill-editor>
 
+  <!-- ------------------------------------------ -->
+  <!-- BARRA INFERIOR DEL EDITOR                  -->
+  <!-- ------------------------------------------ -->
+  <!-- Flotante en la parte inferior, contiene    -->
+  <!-- contadores y botones de acción             -->
   <div
     class="absolute bottom-4 left-6 right-6 flex items-center justify-between text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 pt-2"
   >
+    <!-- Lado izquierdo: Upload o contadores -->
     <div class="flex items-center">
+      <!-- Botón subir documento - visible solo cuando no hay texto -->
       <button
         *ngIf="!hasText()"
         class="flex items-center gap-2 hover:text-gray-800 dark:hover:text-white transition-colors"
@@ -27,18 +51,24 @@
         <span class="text-[14px] font-medium">Upload Doc</span>
       </button>
 
+      <!-- Contador de palabras y caracteres - visible al escribir -->
+      <!-- Los valores vienen desde el componente TypeScript -->
       <div *ngIf="hasText()" class="text-[14px]">
         Words: {{ wordCount() }} &nbsp;&nbsp; Characters: {{ charCount() }}
       </div>
     </div>
 
+    <!-- Lado derecho: Botones de herramientas -->
     <div class="flex items-center gap-2">
+      <!-- Copiar contenido al portapapeles -->
       <button class="p-1.5 rounded hover:bg-gray-100 transition-colors">
         <span class="material-icons text-[20px]">content_copy</span>
       </button>
+      <!-- Descargar nota como archivo -->
       <button class="p-1.5 rounded hover:bg-gray-100 transition-colors">
         <span class="material-icons text-[20px]">file_download</span>
       </button>
+      <!-- Limpiar editor - abre confirmación -->
       <button
         (click)="promptClearEditor()"
         class="p-1.5 rounded hover:bg-red-50 hover:text-red-500 transition-colors"

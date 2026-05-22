@@ -1,6 +1,13 @@
+<!-- =============================================== -->
+<!-- SECCIÓN: MAIN LAYOUT - ESTRUCTURA PRINCIPAL     -->
+<!-- Propósito: Es el esqueleto de toda la aplicación -->
+<!-- =============================================== -->
+
 <div
   class="flex h-screen w-full bg-[#F4F6F7] dark:bg-gray-900 overflow-hidden font-sans text-gray-800 dark:text-gray-100 relative"
 >
+  <!-- >>> ZONA: SIDEBAR LATERAL <<< -->
+  <!-- Aquí va el menú lateral de navegación. Se colapsa a 68px cuando está cerrado -->
   <aside
     [ngClass]="ui.isSidebarOpen() ? 'w-[260px]' : 'w-[68px]'"
     class="flex-shrink-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-all duration-300 z-20"
@@ -9,42 +16,57 @@
   </aside>
 
   <main class="flex-1 flex flex-col min-w-0 relative">
+    <!-- =========================================== -->
+    <!-- VISTA PRINCIPAL (CUANDO NO HAY LOGIN)       -->
+    <!-- =========================================== -->
     <ng-container *ngIf="!ui.isLoginOpen()">
+      <!-- >>> ZONA: TOPBAR SUPERIOR <<< -->
+      <!-- Aquí va la barra superior con título, búsqueda y botones de usuario -->
       <header
         class="h-[60px] flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 flex items-center"
       >
         <app-topbar class="block w-full"></app-topbar>
       </header>
 
+      <!-- >>> ZONA: CONTENIDO PRINCIPAL (SCROLLABLE) <<< -->
       <section class="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
         <div
           class="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 rounded-lg h-full flex flex-col max-w-5xl mx-auto relative overflow-hidden"
         >
+          <!-- >>> ZONA: BARRA DE HERRAMIENTAS DEL EDITOR <<< -->
           <div
             class="h-[50px] flex-shrink-0 px-4 flex items-center border-b-[3px] border-[#18639c] dark:border-blue-500 w-full bg-white dark:bg-gray-800"
           >
             <app-editor-toolbar class="block w-full"></app-editor-toolbar>
           </div>
 
+          <!-- >>> ZONA: EDITOR DE NOTAS <<< -->
+          <!-- Estado dinámico: Se muestra cuando currentView === 'editor' -->
           <div *ngIf="ui.currentView() === 'editor'" class="flex-1 relative">
             <app-note-editor></app-note-editor>
           </div>
 
+          <!-- >>> ZONA: CONVERSOR PDF <<< -->
+          <!-- Estado dinámico: Se muestra cuando currentView === 'pdf' -->
           <div *ngIf="ui.currentView() === 'pdf'" class="flex-1 p-8 flex flex-col relative pb-16">
+            <!-- Dato dinámico: El texto que el usuario escribe para convertir a PDF -->
             <textarea
               placeholder="Enter or paste your text here"
               class="w-full flex-1 resize-none border-none outline-none bg-transparent text-[18px] text-gray-800 dark:text-gray-100 placeholder-gray-400 font-sans leading-relaxed"
             ></textarea>
 
+            <!-- Botón para cargar documento de ejemplo -->
             <button
               class="absolute top-16 left-8 flex items-center gap-2 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-300 px-3 py-1.5 rounded-full transition-colors text-[13px] font-medium w-fit"
             >
               <span class="material-icons text-[18px]">add</span> Sample Document
             </button>
 
+            <!-- >>> ZONA: BARRA INFERIOR DEL PDF <<< -->
             <div
               class="absolute bottom-6 left-8 right-8 flex items-center justify-between text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 pt-2 border-t border-gray-100 dark:border-gray-700"
             >
+              <!-- Botón para subir documento -->
               <button
                 class="flex items-center gap-2 hover:text-gray-800 dark:hover:text-white transition-colors"
               >
@@ -52,6 +74,7 @@
                 <span class="text-[13px] font-medium">Upload Doc</span>
               </button>
 
+              <!-- Botón principal de conversión a PDF -->
               <button
                 class="bg-[#18639c] hover:bg-[#145382] text-white px-8 py-2 rounded text-[14px] font-medium transition-colors shadow-sm absolute left-1/2 -translate-x-1/2"
               >
@@ -62,6 +85,9 @@
         </div>
       </section>
 
+      <!-- >>> ZONA: POPUP DE PAPELERA (TRASH) <<< -->
+      <!-- Estado dinámico: Visible solo cuando ui.isTrashOpen() es true -->
+      <!-- Posición dinámica: Se ajusta según si el sidebar está abierto o cerrado -->
       <div
         [ngClass]="
           ui.isTrashOpen()
@@ -71,6 +97,7 @@
         [style.left]="ui.isSidebarOpen() ? '275px' : '83px'"
         class="absolute bottom-20 w-[360px] bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 rounded-xl p-5 z-30 transition-all duration-200 ease-in-out"
       >
+        <!-- Buscador dentro de la papelera -->
         <div
           class="flex items-center gap-2 text-gray-400 mb-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-3 py-2 border border-gray-100 dark:border-gray-600"
         >
@@ -82,6 +109,9 @@
           />
         </div>
 
+        <!-- >>> ITEM DE NOTA EN PAPELERA <<< -->
+        <!-- Dato dinámico: Título de la nota eliminada -->
+        <!-- Dato dinámico: Fecha de eliminación -->
         <div
           class="flex justify-between items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 p-2 rounded transition-colors"
         >
@@ -92,10 +122,12 @@
             <p class="text-[11px] text-gray-500 mt-0.5">May 19, 2026</p>
           </div>
           <div class="flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+            <!-- Botón restaurar nota -->
             <span
               class="material-icons text-[16px] text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors"
               >undo</span
             >
+            <!-- Botón eliminar permanentemente -->
             <span
               class="material-icons text-[16px] text-gray-400 hover:text-red-500 transition-colors"
               >delete_outline</span
@@ -105,10 +137,14 @@
       </div>
     </ng-container>
 
+    <!-- =========================================== -->
+    <!-- VISTA DE LOGIN (CUANDO isLoginOpen ES TRUE) -->
+    <!-- =========================================== -->
     <ng-container *ngIf="ui.isLoginOpen()">
       <div
         class="flex-1 bg-white dark:bg-gray-900 overflow-y-auto flex items-center justify-center p-6 relative"
       >
+        <!-- Botón para volver a las notas -->
         <button
           (click)="ui.isLoginOpen.set(false)"
           class="absolute top-6 left-6 flex items-center gap-2 text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors text-[14px] font-medium z-10"
@@ -116,11 +152,13 @@
           <span class="material-icons text-[18px]">arrow_back</span> Back to notes
         </button>
 
+        <!-- >>> FORMULARIO DE LOGIN <<< -->
         <div class="w-full max-w-[440px] flex flex-col bg-white dark:bg-gray-900 p-2">
           <h2 class="text-center text-[32px] font-bold text-gray-800 dark:text-white mb-6">
             Welcome Back
           </h2>
 
+          <!-- Botón login con Google -->
           <button
             class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-[14px] font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 shadow-sm"
           >
@@ -154,27 +192,33 @@
             <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
           </div>
 
+          <!-- Campo Email -->
           <div class="space-y-4">
             <div>
               <label class="block text-[14px] font-medium text-gray-700 dark:text-gray-300 mb-1.5"
                 >Email</label
               >
+              <!-- Dato dinámico: email del usuario -->
               <input
                 type="email"
                 placeholder="Enter email"
                 class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-xl px-4 bg-gray-50/50 dark:bg-gray-800/50 text-[14px] outline-none focus:border-blue-500 text-gray-800 dark:text-gray-100"
               />
             </div>
+
+            <!-- Campo Password -->
             <div>
               <label class="block text-[14px] font-medium text-gray-700 dark:text-gray-300 mb-1.5"
                 >Password</label
               >
               <div class="relative flex items-center">
+                <!-- Dato dinámico: password del usuario -->
                 <input
                   type="password"
                   placeholder="Enter password"
                   class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-xl px-4 pr-12 bg-gray-50/50 dark:bg-gray-800/50 text-[14px] outline-none focus:border-blue-500 text-gray-800 dark:text-gray-100"
                 />
+                <!-- Botón toggle para mostrar/ocultar password -->
                 <span
                   class="material-icons absolute right-4 text-gray-400 cursor-pointer text-[20px] select-none"
                   >visibility_off</span
@@ -183,16 +227,21 @@
             </div>
           </div>
 
+          <!-- Enlace "Olvidé mi contraseña" -->
           <div class="flex justify-end mt-2.5">
             <a class="text-[13px] text-gray-500 hover:text-[#18639c] hover:underline cursor-pointer"
               >Forget Password?</a
             >
           </div>
+
+          <!-- Botón de Sign In -->
           <button
             class="w-full h-11 bg-[#18639c] hover:bg-[#145382] text-white font-medium rounded-xl text-[15px] mt-6 transition-colors shadow-sm"
           >
             Sign in
           </button>
+
+          <!-- Enlace para registrarse -->
           <p class="text-center text-[14px] text-gray-600 dark:text-gray-400 mt-6">
             Don't have an account?<a
               class="text-[#18639c] font-bold hover:underline cursor-pointer ml-1"
@@ -204,11 +253,15 @@
     </ng-container>
   </main>
 
+  <!-- =========================================== -->
+  <!-- MODAL DE FEEDBACK (OPINIÓN DEL USUARIO)    -->
+  <!-- =========================================== -->
   <div
     *ngIf="ui.isFeedbackOpen()"
     class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm transition-opacity"
   >
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-[540px] p-6 relative">
+      <!-- Botón cerrar modal -->
       <button
         (click)="ui.closeFeedback()"
         class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -221,10 +274,13 @@
         What do you feel about onlinenotepad.io?
       </p>
 
+      <!-- >>> PASO 1: SELECCIÓN DE EMOJI <<< -->
+      <!-- Estado dinámico: ui.feedbackStep() === 1 -->
       <div
         *ngIf="ui.feedbackStep() === 1"
         class="flex justify-between items-center gap-2 mt-2 animate-fade-in"
       >
+        <!-- Cada emoji envía a step 2 con el valor seleccionado -->
         <button (click)="ui.feedbackStep.set(2)" class="flex flex-col items-center gap-2 group">
           <div
             class="w-14 h-14 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center group-hover:bg-red-100 transition-colors border border-transparent"
@@ -292,15 +348,19 @@
         </button>
       </div>
 
+      <!-- >>> PASO 2: TEXTO DEL FEEDBACK <<< -->
+      <!-- Estado dinámico: ui.feedbackStep() === 2 -->
       <div
         *ngIf="ui.feedbackStep() === 2"
         class="relative mt-2 animate-fade-in flex items-center pr-4"
       >
+        <!-- Dato dinámico: mensaje de feedback del usuario -->
         <textarea
           placeholder="Write your message here"
           class="w-full h-[140px] p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none outline-none focus:border-blue-500 text-[14px] text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800"
         ></textarea>
 
+        <!-- Botón enviar feedback -->
         <button
           (click)="ui.closeFeedback()"
           class="absolute -right-2 bg-black dark:bg-gray-700 text-white w-12 h-12 flex items-center justify-center rounded-full hover:scale-105 hover:bg-gray-800 transition-all shadow-md"
