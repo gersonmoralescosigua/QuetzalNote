@@ -45,6 +45,7 @@ export class NoteEditorComponent {
       if (note && this.quillInstance && note.id !== this.currentNoteId) {
         this.currentNoteId = note.id || null;
         this.quillInstance.clipboard.dangerouslyPasteHTML(note.contenido || '');
+        this.quillInstance.blur();
         const text = this.quillInstance.getText().trim();
         this.hasText.set(text.length > 0);
         this.charCount.set(text.length);
@@ -60,6 +61,7 @@ export class NoteEditorComponent {
     if (note) {
       this.currentNoteId = note.id || null;
       quill.clipboard.dangerouslyPasteHTML(note.contenido || '');
+      quill.blur();
     }
   }
 

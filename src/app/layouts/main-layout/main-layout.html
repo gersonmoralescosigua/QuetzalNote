@@ -35,6 +35,7 @@
         >
           <!-- >>> ZONA: BARRA DE HERRAMIENTAS DEL EDITOR <<< -->
           <div
+            *ngIf="notesService.selectedNote()?.id"
             class="h-[50px] flex-shrink-0 px-4 flex items-center border-b-[3px] border-[#18639c] dark:border-blue-500 w-full bg-white dark:bg-gray-800"
           >
             <app-editor-toolbar class="block w-full"></app-editor-toolbar>
@@ -43,7 +44,7 @@
           <!-- >>> ZONA: EDITOR DE NOTAS <<< -->
           <!-- Estado dinámico: Se muestra cuando currentView === 'editor' -->
           <div *ngIf="ui.currentView() === 'editor'" class="flex-1 relative">
-            <app-note-editor *ngIf="notesService.selectedNote(); else emptyState"></app-note-editor>
+            <app-note-editor *ngIf="notesService.selectedNote()?.id; else emptyState"></app-note-editor>
             <ng-template #emptyState>
               <app-empty-notes></app-empty-notes>
             </ng-template>

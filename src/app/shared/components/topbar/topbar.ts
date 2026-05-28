@@ -58,20 +58,11 @@ export class TopbarComponent implements OnInit {
     }
   }
 
-  // Cuando el title input gana foco: blurear Quill explícitamente
-  // para evitar que el editor de notas robe el foco mientras se escribe el título
-  onTitleFocus() {
+  keepTitleFocus() {
     const quill = this.notesService.quillInstance();
     if (quill) {
       quill.blur();
     }
-    // Garantizar que el input sigue siendo el elemento activo
-    // luego de cualquier operación asíncrona de Quill
-    setTimeout(() => {
-      if (document.activeElement !== this.titleInput?.nativeElement) {
-        this.titleInput?.nativeElement?.focus();
-      }
-    }, 0);
   }
 
   updateTitle() {

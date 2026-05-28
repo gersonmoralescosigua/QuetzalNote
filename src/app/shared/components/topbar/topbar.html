@@ -18,6 +18,7 @@
           #titleInput
           type="text"
           placeholder="Untitled Document"
+          (mousedown)="keepTitleFocus()"
           (blur)="updateTitle()"
           class="border-none focus:ring-0 text-gray-700 dark:text-gray-200 text-[15px] p-0 w-full outline-none bg-transparent"
         />
