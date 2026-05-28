@@ -1,118 +1,197 @@
-<!-- =============================================== -->
-<!-- SECCIÓN: BARRA DE HERRAMIENTAS DEL EDITOR       -->
-<!-- Propósito: Formato de texto del editor principal -->
-<!-- =============================================== -->
-
 <div class="flex w-full h-full items-center gap-1 overflow-x-auto text-gray-600 dark:text-gray-300">
-  <!-- >>> ZONA: Deshacer/Rehacer <<< -->
-  <!-- Conectar estos botones con el historial de cambios de Firebase -->
-  <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+
+  <button (click)="undo()" class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
     <span class="material-icons text-[18px]">undo</span>
   </button>
-  <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors mr-2">
+  <button (click)="redo()" class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors mr-2">
     <span class="material-icons text-[18px]">redo</span>
   </button>
 
   <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
-  <!-- >>> ZONA: Selector de Fuente <<< -->
-  <!-- Aquí va el menú desplegable con las fuentes disponibles -->
-  <!-- Dato dinámico: Mostrar la fuente actual seleccionada (ej: "Arial") -->
+  <!-- Selector de fuente -->
   <button
+    (click)="toggleFontMenu($event)"
     class="flex items-center gap-1 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
   >
     <span class="text-[14px] font-serif">T</span>
-    <span class="text-[13px]">Arial</span>
+    <span class="text-[13px]">{{ currentFont() }}</span>
     <span class="material-icons text-[16px]">expand_more</span>
   </button>
 
   <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
-  <!-- >>> ZONA: Selector de Estilo de Párrafo <<< -->
-  <!-- Aquí va el menú para Normal/Título/Subtítulo -->
-  <!-- Dato dinámico: Mostrar el estilo actual ("Normal", "Heading 1", etc.) -->
+  <!-- Selector de párrafo -->
   <button
+    (click)="toggleHeadingMenu($event)"
     class="flex items-center gap-1 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
   >
     <span class="material-icons text-[18px]">format_align_left</span>
-    <span class="text-[13px]">Normal</span>
+    <span class="text-[13px]">{{ headingLabel() }}</span>
     <span class="material-icons text-[16px]">expand_more</span>
   </button>
 
   <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
-  <!-- >>> ZONA: Control de Tamaño de Fuente <<< -->
-  <!-- Conectar con el tamaño actual de la selección -->
-  <!-- Dato dinámico: Mostrar el número de píxeles actual (aquí estático "16") -->
+  <!-- Tamaño de fuente -->
   <div class="flex items-center gap-1">
-    <button class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+    <button (click)="decreaseFontSize()" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
       <span class="material-icons text-[16px]">remove</span>
     </button>
-    <span class="text-[13px] w-6 text-center">16</span>
-    <button class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+    <span class="text-[13px] w-6 text-center">{{ fontSize() }}</span>
+    <button (click)="increaseFontSize()" class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
       <span class="material-icons text-[16px]">add</span>
     </button>
   </div>
 
   <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
 
-  <!-- >>> ZONA: Formato Básico (Negrita, Cursiva, Subrayado) <<< -->
-  <!-- Enlazar estos botones con Quill o con el editor de texto -->
-  <!-- Estado dinámico: Añadir clase 'active' cuando el formato está aplicado -->
+  <!-- Negrita -->
   <button
+    (click)="toggleBold()"
+    [ngClass]="{'bg-gray-200 dark:bg-gray-600': isBold()}"
     class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors font-bold text-[14px]"
-  >
-    B
-  </button>
-  <button
-    class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors italic text-[14px] font-serif"
-  >
-    I
-  </button>
-  <button
-    class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors underline text-[14px]"
-  >
-    U
-  </button>
+  >B</button>
 
-  <!-- >>> ZONA: Código y Enlaces <<< -->
-  <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+  <!-- Cursiva -->
+  <button
+    (click)="toggleItalic()"
+    [ngClass]="{'bg-gray-200 dark:bg-gray-600': isItalic()}"
+    class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors italic text-[14px] font-serif"
+  >I</button>
+
+  <!-- Subrayado -->
+  <button
+    (click)="toggleUnderline()"
+    [ngClass]="{'bg-gray-200 dark:bg-gray-600': isUnderline()}"
+    class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors underline text-[14px]"
+  >U</button>
+
+  <!-- Código -->
+  <button
+    (click)="toggleCode()"
+    [ngClass]="{'bg-gray-200 dark:bg-gray-600': isCode()}"
+    class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+  >
     <span class="material-icons text-[18px]">code</span>
   </button>
-  <button class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+
+  <!-- Link -->
+  <button (click)="insertLink()" class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
     <span class="material-icons text-[18px]">link</span>
   </button>
 
-  <!-- >>> ZONA: Selector de Color de Texto <<< -->
-  <!-- Aquí va el color picker para el texto seleccionado -->
+  <!-- Color de texto -->
   <button
+    (click)="toggleColorMenu($event)"
     class="flex items-center gap-1 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
   >
-    <span class="material-icons text-[18px] border-b-2 border-black dark:border-white"
-      >format_color_text</span
-    >
+    <span class="material-icons text-[18px]" [style.border-bottom]="'3px solid ' + currentColor()">format_color_text</span>
     <span class="material-icons text-[16px]">expand_more</span>
   </button>
 
   <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1 flex-grow"></div>
 
-  <!-- >>> ZONA: Botón Insertar <<< -->
-  <!-- Menú para insertar tablas, imágenes, fechas, etc. -->
-  <button
-    class="flex items-center gap-1 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-  >
+  <!-- Insert -->
+  <button (click)="toggleInsertMenu($event)" class="flex items-center gap-1 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
     <span class="material-icons text-[18px]">add</span>
     <span class="text-[13px]">Insert</span>
     <span class="material-icons text-[16px]">expand_more</span>
   </button>
 
-  <!-- >>> ZONA: Alineación de Texto <<< -->
-  <!-- Cambiar entre Left/Center/Right/Justify -->
-  <!-- Estado dinámico: Mostrar icono según alineación actual -->
+  <!-- Alineación -->
   <button
+    (click)="toggleAlignMenu($event)"
     class="flex items-center gap-1 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
   >
-    <span class="material-icons text-[18px]">format_align_left</span>
-    <span class="text-[13px]">Left Align</span>
+    <span class="material-icons text-[18px]">{{ alignIcon() }}</span>
+    <span class="text-[13px]">{{ alignLabel() }}</span>
+  </button>
+</div>
+
+<!-- Dropdown: Fuente (fixed para escapar del overflow) -->
+<div
+  *ngIf="isFontMenuOpen()"
+  [style.top.px]="fontMenuPos().top"
+  [style.left.px]="fontMenuPos().left"
+  class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-[9999] py-1 min-w-[160px]"
+>
+  <button
+    *ngFor="let font of fonts"
+    (click)="setFont(font)"
+    [style.font-family]="font"
+    class="w-full text-left px-4 py-1.5 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+  >{{ font }}</button>
+</div>
+
+<!-- Dropdown: Párrafo -->
+<div
+  *ngIf="isHeadingMenuOpen()"
+  [style.top.px]="headingMenuPos().top"
+  [style.left.px]="headingMenuPos().left"
+  class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-[9999] py-1 min-w-[140px]"
+>
+  <button (click)="setHeading(false)" class="w-full text-left px-4 py-1.5 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">Normal</button>
+  <button (click)="setHeading(1)" class="w-full text-left px-4 py-1.5 text-[15px] font-bold hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">Heading 1</button>
+  <button (click)="setHeading(2)" class="w-full text-left px-4 py-1.5 text-[14px] font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">Heading 2</button>
+  <button (click)="setHeading(3)" class="w-full text-left px-4 py-1.5 text-[13px] font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">Heading 3</button>
+</div>
+
+<!-- Dropdown: Color -->
+<div
+  *ngIf="isColorMenuOpen()"
+  [style.top.px]="colorMenuPos().top"
+  [style.left.px]="colorMenuPos().left"
+  class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-[9999] p-2"
+>
+  <div class="grid grid-cols-6 gap-1">
+    <button
+      *ngFor="let color of colors"
+      (click)="setColor(color)"
+      [style.background-color]="color"
+      class="w-6 h-6 rounded hover:scale-110 transition-transform border border-gray-200 dark:border-gray-600"
+    ></button>
+  </div>
+</div>
+
+<!-- Dropdown: Insert -->
+<div
+  *ngIf="isInsertMenuOpen()"
+  [style.top.px]="insertMenuPos().top"
+  [style.left.px]="insertMenuPos().left"
+  class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-[9999] py-1 min-w-[160px]"
+>
+  <button (click)="insertDate()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px]">event</span> Current Date
+  </button>
+  <button (click)="insertTime()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px]">schedule</span> Current Time
+  </button>
+  <button (click)="insertImage()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px]">image</span> Image
+  </button>
+  <button (click)="insertHorizontalLine()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px]">horizontal_rule</span> Horizontal Line
+  </button>
+</div>
+
+<!-- Dropdown: Alineación -->
+<div
+  *ngIf="isAlignMenuOpen()"
+  [style.top.px]="alignMenuPos().top"
+  [style.left.px]="alignMenuPos().left"
+  class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-[9999] py-1 min-w-[140px]"
+>
+  <button (click)="setAlign('left')" class="w-full flex items-center gap-2 px-4 py-1.5 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px]">format_align_left</span> Left
+  </button>
+  <button (click)="setAlign('center')" class="w-full flex items-center gap-2 px-4 py-1.5 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px]">format_align_center</span> Center
+  </button>
+  <button (click)="setAlign('right')" class="w-full flex items-center gap-2 px-4 py-1.5 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px]">format_align_right</span> Right
+  </button>
+  <button (click)="setAlign('justify')" class="w-full flex items-center gap-2 px-4 py-1.5 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px]">format_align_justify</span> Justify
   </button>
 </div>

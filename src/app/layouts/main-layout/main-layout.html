@@ -43,7 +43,10 @@
           <!-- >>> ZONA: EDITOR DE NOTAS <<< -->
           <!-- Estado dinámico: Se muestra cuando currentView === 'editor' -->
           <div *ngIf="ui.currentView() === 'editor'" class="flex-1 relative">
-            <app-note-editor></app-note-editor>
+            <app-note-editor *ngIf="notesService.selectedNote(); else emptyState"></app-note-editor>
+            <ng-template #emptyState>
+              <app-empty-notes></app-empty-notes>
+            </ng-template>
           </div>
 
           <!-- >>> ZONA: CONVERSOR PDF <<< -->
@@ -113,23 +116,26 @@
         <!-- Dato dinámico: Título de la nota eliminada -->
         <!-- Dato dinámico: Fecha de eliminación -->
         <div
+          *ngFor="let note of trashedNotes()"
           class="flex justify-between items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 p-2 rounded transition-colors"
         >
           <div>
             <h4 class="text-[13px] font-medium text-gray-800 dark:text-gray-200">
-              Untitled Document
+              {{ note.titulo }}
             </h4>
-            <p class="text-[11px] text-gray-500 mt-0.5">May 19, 2026</p>
+            <p class="text-[11px] text-gray-500 mt-0.5">{{ note.fechaActualizacion }}</p>
           </div>
           <div class="flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
             <!-- Botón restaurar nota -->
             <span
-              class="material-icons text-[16px] text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors"
+              (click)="restoreNote(note)"
+              class="material-icons text-[16px] text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer"
               >undo</span
             >
             <!-- Botón eliminar permanentemente -->
             <span
-              class="material-icons text-[16px] text-gray-400 hover:text-red-500 transition-colors"
+              (click)="permanentDeleteNote(note)"
+              class="material-icons text-[16px] text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
               >delete_outline</span
             >
           </div>
@@ -252,6 +258,8 @@
       </div>
     </ng-container>
   </main>
+
+  <app-loader *ngIf="notesService.isLoading()"></app-loader>
 
   <!-- =========================================== -->
   <!-- MODAL DE FEEDBACK (OPINIÓN DEL USUARIO)    -->

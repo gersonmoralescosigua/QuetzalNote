@@ -34,7 +34,7 @@
   <!-- Estado dinámico: Cambia ancho según sidebar abierto/cerrado -->
   <div class="px-4 mt-3 mb-2 flex justify-start">
     <button
-      (click)="ui.currentView.set('editor'); ui.isLoginOpen.set(false)"
+      (click)="createNote()"
       [ngClass]="ui.isSidebarOpen() ? 'w-[130px] px-3' : 'w-[40px] px-0 justify-center'"
       class="flex items-center justify-start gap-2 bg-[#EBF5FE] hover:bg-[#d2e3fc] text-[#18639c] font-medium py-2 rounded-lg transition-all duration-300"
     >
@@ -55,38 +55,30 @@
     </div>
 
     <!-- >>> CONTENEDOR DINÁMICO DE NOTAS <<< -->
-    <!-- Aquí es donde Isidro debe inyectar su ciclo *ngFor de Firebase -->
-    <!-- Dato dinámico: Título de cada nota desde la base de datos -->
-    <!-- Dato dinámico: ID de la nota para operaciones CRUD -->
     <div class="mb-5 flex flex-col w-full">
-      <!-- EJEMPLO DE ITEM DE NOTA - Este es un item estático de ejemplo -->
-      <!-- El equipo debe reemplazar esto con un *ngFor que recorra las notas de Firebase -->
       <div
-        (click)="ui.currentView.set('editor'); ui.isLoginOpen.set(false)"
-        [ngClass]="
-          ui.isSidebarOpen()
-            ? 'px-4 justify-between w-full'
-            : 'justify-center w-[40px] mx-auto px-0'
-        "
-        class="py-2 bg-[#F4F6F7] dark:bg-gray-700 border-l-[3px] border-[#18639c] text-gray-800 dark:text-white cursor-pointer flex items-center group/note transition-all"
+        *ngFor="let note of notes()"
+        (click)="selectNote(note)"
+        [ngClass]="[
+          ui.isSidebarOpen() ? 'px-4 justify-between w-full' : 'justify-center w-[40px] mx-auto px-0',
+          notesService.selectedNote()?.id === note.id
+            ? 'bg-[#EBF5FE] dark:bg-blue-900/30'
+            : 'bg-[#F4F6F7] dark:bg-gray-700'
+        ]"
+        class="py-2 border-l-[3px] border-[#18639c] text-gray-800 dark:text-white cursor-pointer flex items-center group/note transition-all"
       >
-        <!-- Icono o título según estado del sidebar -->
         <div class="flex items-center gap-3 overflow-hidden">
-          <!-- Icono cuando sidebar está cerrado -->
           <span
             [class.hidden]="ui.isSidebarOpen()"
             class="material-icons text-[18px] text-[#18639c]"
             >description</span
           >
-          <!-- Título cuando sidebar está abierto -->
-          <span [class.hidden]="!ui.isSidebarOpen()" class="text-[14px] truncate"
-            >Untitled Document</span
-          >
+          <span [class.hidden]="!ui.isSidebarOpen()" class="text-[14px] truncate">{{ note.titulo }}</span>
         </div>
 
-        <!-- Botón eliminar nota - Solo visible al hacer hover -->
         <button
           [class.hidden]="!ui.isSidebarOpen()"
+          (click)="deleteNote(note); $event.stopPropagation()"
           class="opacity-0 group-hover/note:opacity-100 text-gray-400 hover:text-red-500 transition-opacity"
         >
           <span class="material-icons text-[16px]">delete_outline</span>

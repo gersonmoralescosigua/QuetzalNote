@@ -25,6 +25,7 @@
   <!-- onContentChanged dispara el conteo de      -->
   <!-- palabras y caracteres en tiempo real       -->
   <quill-editor
+    (onEditorCreated)="onEditorCreated($event)"
     (onContentChanged)="onEditorChanged($event)"
     [modules]="editorModules"
     placeholder="Start writing, press '/' for commands..."
@@ -61,11 +62,11 @@
     <!-- Lado derecho: Botones de herramientas -->
     <div class="flex items-center gap-2">
       <!-- Copiar contenido al portapapeles -->
-      <button class="p-1.5 rounded hover:bg-gray-100 transition-colors">
+      <button (click)="copyContent()" class="p-1.5 rounded hover:bg-gray-100 transition-colors">
         <span class="material-icons text-[20px]">content_copy</span>
       </button>
       <!-- Descargar nota como archivo -->
-      <button class="p-1.5 rounded hover:bg-gray-100 transition-colors">
+      <button (click)="downloadNote()" class="p-1.5 rounded hover:bg-gray-100 transition-colors">
         <span class="material-icons text-[20px]">file_download</span>
       </button>
       <!-- Limpiar editor - abre confirmación -->

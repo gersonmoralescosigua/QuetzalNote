@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
@@ -11,6 +11,28 @@ import { Note } from '../models/note.model';
 export class NotesService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.firebaseUrl}notas`;
+
+  selectedNote = signal<Note | null>(null);
+  reloadTrigger = signal(0);
+  isLoading = signal(false);
+  searchQuery = signal('');
+  quillInstance = signal<any>(null);
+
+  setQuillInstance(quill: any) {
+    this.quillInstance.set(quill);
+  }
+
+  selectNote(note: Note | null) {
+    this.selectedNote.set(note);
+  }
+
+  triggerReload() {
+    this.reloadTrigger.update(v => v + 1);
+  }
+
+  setSearchQuery(query: string) {
+    this.searchQuery.set(query);
+  }
 
   getNotes(): Observable<Note[]> {
     return this.http.get<{ [key: string]: Note } | null>(`${this.apiUrl}.json`).pipe(

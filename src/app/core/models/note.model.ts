@@ -5,6 +5,7 @@ export interface Note {
   categoria?: string;
   pinned?: boolean;
   archived?: boolean;
+  deleted?: boolean;
   fechaCreacion: string;
   fechaActualizacion: string;
 }
