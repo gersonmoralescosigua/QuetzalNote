@@ -29,7 +29,7 @@ export class SidebarComponent {
     effect(() => {
       this.notesService.reloadTrigger();
       this.loadNotes();
-    }, { allowSignalWrites: true });
+    });
   }
 
   private loadNotes() {

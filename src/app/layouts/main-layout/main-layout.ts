@@ -50,6 +50,11 @@ export class MainLayoutComponent {
   // ── Trash ─────────────────────────────────────────────────────────────────
   trashedNotes = signal<Note[]>([]);
 
+  // ── Auth (email/password form refs) ──────────────────────────────────────
+  @ViewChild('emailInput')    private emailInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('passwordInput') private passwordInputRef!: ElementRef<HTMLInputElement>;
+  showPassword = signal(false);
+
   // ── Feedback ──────────────────────────────────────────────────────────────
   @ViewChild('feedbackTextarea') private feedbackTextareaRef!: ElementRef<HTMLTextAreaElement>;
   isFeedbackSubmitting = signal(false);
@@ -75,6 +80,37 @@ export class MainLayoutComponent {
   // ═══════════════════════════════════════════════════════════════════════════
   // AUTH — Google Sign-In vía AuthService + GIS + Firebase REST API
   // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Inicia sesión con email y contraseña.
+   * Lee los valores del formulario y delega la autenticación a AuthService.
+   * Cierra la vista de login al completarse exitosamente.
+   */
+  signInWithEmailPassword(): void {
+    const email    = this.emailInputRef?.nativeElement?.value?.trim() || '';
+    const password = this.passwordInputRef?.nativeElement?.value || '';
+
+    if (!email || !password) {
+      this.showAlert('Campos requeridos', 'Por favor ingresa tu email y contraseña.');
+      return;
+    }
+
+    this.authService.signInWithEmail(email, password);
+
+    // Observar cuando el login se complete para cerrar la vista o mostrar error
+    const checkInterval = setInterval(() => {
+      if (this.authService.isAuthenticated()) {
+        clearInterval(checkInterval);
+        this.ui.isLoginOpen.set(false);
+      } else if (this.authService.authError()) {
+        clearInterval(checkInterval);
+        this.showAlert('Error de inicio de sesión', this.authService.authError()!);
+        this.authService.authError.set(null);
+      }
+    }, 300);
+
+    setTimeout(() => clearInterval(checkInterval), 15000);
+  }
 
   /**
    * Inicia el flujo de Google Sign-In.

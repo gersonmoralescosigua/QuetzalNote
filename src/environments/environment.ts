@@ -6,23 +6,13 @@ export const environment = {
 
   /**
    * Firebase Web API Key.
-   * Obtenerlo en: Firebase Console → tu proyecto → Project Settings → General → Web API Key
-   * Formato: AIzaSy...
+   * Extraída de tu configuración de Firebase.
    */
-  firebaseApiKey: 'REEMPLAZAR_CON_TU_FIREBASE_WEB_API_KEY',
+  firebaseApiKey: 'AIzaSyD96WK6Kx33qjTYrROr5n5v3iDiGyin38Q',
 
   /**
    * Google OAuth 2.0 Client ID.
-   * Obtenerlo en: Google Cloud Console → APIs & Services → Credentials → OAuth 2.0 Client IDs
-   * Formato: xxxxxx.apps.googleusercontent.com
-   *
-   * Pasos para crearlo:
-   * 1. Ir a https://console.cloud.google.com
-   * 2. Seleccionar el mismo proyecto de Firebase
-   * 3. APIs & Services → Credentials → Create Credentials → OAuth Client ID
-   * 4. Application type: Web application
-   * 5. Authorized JavaScript origins: http://localhost:4200
-   * 6. Authorized redirect URIs: http://localhost:4200
+   * El ID que acabas de generar.
    */
-  googleClientId: 'REEMPLAZAR_CON_TU_GOOGLE_CLIENT_ID',
+  googleClientId: '602717072072-k1b2fnur903b3c1r9ihl718vs3t30ktv.apps.googleusercontent.com',
 };

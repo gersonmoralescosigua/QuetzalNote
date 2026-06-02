@@ -211,29 +211,31 @@
         <!-- >>> ITEM DE NOTA EN PAPELERA <<< -->
         <!-- Dato dinámico: Título de la nota eliminada -->
         <!-- Dato dinámico: Fecha de eliminación -->
-        <div
-          *ngFor="let note of trashedNotes()"
-          class="flex justify-between items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 p-2 rounded transition-colors"
-        >
-          <div>
-            <h4 class="text-[13px] font-medium text-gray-800 dark:text-gray-200">
-              {{ note.titulo }}
-            </h4>
-            <p class="text-[11px] text-gray-500 mt-0.5">{{ note.fechaActualizacion }}</p>
-          </div>
-          <div class="flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-            <!-- Botón restaurar nota -->
-            <span
-              (click)="restoreNote(note)"
-              class="material-icons text-[16px] text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer"
-              >undo</span
-            >
-            <!-- Botón eliminar permanentemente -->
-            <span
-              (click)="permanentDeleteNote(note)"
-              class="material-icons text-[16px] text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
-              >delete_outline</span
-            >
+        <div class="max-h-[300px] overflow-y-auto pr-1">
+          <div
+            *ngFor="let note of trashedNotes()"
+            class="flex justify-between items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 p-2 rounded transition-colors"
+          >
+            <div>
+              <h4 class="text-[13px] font-medium text-gray-800 dark:text-gray-200">
+                {{ note.titulo }}
+              </h4>
+              <p class="text-[11px] text-gray-500 mt-0.5">{{ note.fechaActualizacion }}</p>
+            </div>
+            <div class="flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+              <!-- Botón restaurar nota -->
+              <span
+                (click)="restoreNote(note)"
+                class="material-icons text-[16px] text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer"
+                >undo</span
+              >
+              <!-- Botón eliminar permanentemente -->
+              <span
+                (click)="permanentDeleteNote(note)"
+                class="material-icons text-[16px] text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                >delete_outline</span
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -296,10 +298,11 @@
               <label class="block text-[14px] font-medium text-gray-700 dark:text-gray-300 mb-1.5"
                 >Email</label
               >
-              <!-- Dato dinámico: email del usuario -->
               <input
+                #emailInput
                 type="email"
                 placeholder="Enter email"
+                (keyup.enter)="signInWithEmailPassword()"
                 class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-xl px-4 bg-gray-50/50 dark:bg-gray-800/50 text-[14px] outline-none focus:border-blue-500 text-gray-800 dark:text-gray-100"
               />
             </div>
@@ -310,16 +313,18 @@
                 >Password</label
               >
               <div class="relative flex items-center">
-                <!-- Dato dinámico: password del usuario -->
                 <input
-                  type="password"
+                  #passwordInput
+                  [type]="showPassword() ? 'text' : 'password'"
                   placeholder="Enter password"
+                  (keyup.enter)="signInWithEmailPassword()"
                   class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-xl px-4 pr-12 bg-gray-50/50 dark:bg-gray-800/50 text-[14px] outline-none focus:border-blue-500 text-gray-800 dark:text-gray-100"
                 />
                 <!-- Botón toggle para mostrar/ocultar password -->
                 <span
+                  (click)="showPassword.set(!showPassword())"
                   class="material-icons absolute right-4 text-gray-400 cursor-pointer text-[20px] select-none"
-                  >visibility_off</span
+                  >{{ showPassword() ? 'visibility' : 'visibility_off' }}</span
                 >
               </div>
             </div>
@@ -334,9 +339,12 @@
 
           <!-- Botón de Sign In -->
           <button
-            class="w-full h-11 bg-[#18639c] hover:bg-[#145382] text-white font-medium rounded-xl text-[15px] mt-6 transition-colors shadow-sm"
+            (click)="signInWithEmailPassword()"
+            [disabled]="authService.isSigningIn()"
+            class="w-full h-11 bg-[#18639c] hover:bg-[#145382] disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium rounded-xl text-[15px] mt-6 transition-colors shadow-sm flex items-center justify-center gap-2"
           >
-            Sign in
+            <span *ngIf="authService.isSigningIn()" class="material-icons text-[18px] animate-spin">refresh</span>
+            {{ authService.isSigningIn() ? 'Signing in...' : 'Sign in' }}
           </button>
 
           <!-- Enlace para registrarse -->

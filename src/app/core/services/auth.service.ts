@@ -16,6 +16,17 @@ interface FirebaseSignInResponse {
   expiresIn:   string;
 }
 
+/** Tipado de la respuesta de signInWithPassword */
+interface FirebasePasswordSignInResponse {
+  localId:      string;
+  email:        string;
+  displayName?: string;
+  idToken:      string;
+  refreshToken: string;
+  expiresIn:    string;
+  registered:   boolean;
+}
+
 /** Tipado mínimo de la API de Google Identity Services */
 interface GoogleCredentialResponse {
   credential: string; // JWT firmado por Google
@@ -55,9 +66,13 @@ declare const google: {
 export class AuthService {
   private http = inject(HttpClient);
 
-  /** Endpoint de Firebase Identity Toolkit para sign-in con proveedor externo */
+  /** Endpoint de Firebase Identity Toolkit para sign-in con proveedor externo (Google) */
   private readonly SIGN_IN_URL =
     `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${environment.firebaseApiKey}`;
+
+  /** Endpoint de Firebase Identity Toolkit para sign-in con email y contraseña */
+  private readonly PASSWORD_SIGN_IN_URL =
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.firebaseApiKey}`;
 
   /** Clave para persistir la sesión en localStorage */
   private readonly STORAGE_KEY = 'qn_auth_user';
@@ -75,6 +90,9 @@ export class AuthService {
 
   /** True mientras se procesa el login (mostrando spinner). */
   readonly isSigningIn = signal<boolean>(false);
+
+  /** Mensaje de error del último intento de login. Null si no hay error. */
+  readonly authError = signal<string | null>(null);
 
   // ── API pública ──────────────────────────────────────────────────────────
 
@@ -122,6 +140,47 @@ export class AuthService {
       if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
         this.isSigningIn.set(false);
       }
+    });
+  }
+
+  /**
+   * Inicia sesión con email y contraseña usando Firebase Identity Toolkit REST API.
+   * Endpoint: POST /accounts:signInWithPassword
+   * Documentación: https://firebase.google.com/docs/reference/rest/auth#section-sign-in-email-password
+   */
+  signInWithEmail(email: string, password: string): void {
+    if (!email || !password) return;
+
+    this.isSigningIn.set(true);
+
+    const body = {
+      email,
+      password,
+      returnSecureToken: true,
+    };
+
+    this.authError.set(null);
+
+    this.http.post<FirebasePasswordSignInResponse>(this.PASSWORD_SIGN_IN_URL, body).pipe(
+      map((res): User => ({
+        uid:         res.localId,
+        email:       res.email       || '',
+        displayName: res.displayName || res.email.split('@')[0] || 'Usuario',
+        photoUrl:    '',
+        idToken:     res.idToken,
+      })),
+      catchError(this.handleError),
+    ).subscribe({
+      next: (user) => {
+        this.setUser(user);
+        this.isSigningIn.set(false);
+        console.log(`[AuthService] Login email exitoso: ${user.email}`);
+      },
+      error: (err: Error) => {
+        this.isSigningIn.set(false);
+        this.authError.set(err.message);
+        console.error('[AuthService] Error en login email:', err.message);
+      },
     });
   }
 
@@ -221,8 +280,12 @@ export class AuthService {
       const firebaseMsg: string = error.error.error.message;
       if (firebaseMsg.includes('INVALID_IDP_RESPONSE')) {
         mensaje = 'Credencial de Google inválida. Intenta de nuevo.';
-      } else if (firebaseMsg.includes('USER_DISABLED')) {
-        mensaje = 'Esta cuenta está deshabilitada.';
+      } else if (firebaseMsg.includes('EMAIL_NOT_FOUND') || firebaseMsg.includes('INVALID_LOGIN_CREDENTIALS') || firebaseMsg.includes('INVALID_EMAIL')) {
+        mensaje = 'Email o contraseña incorrectos.';
+      } else if (firebaseMsg.includes('WRONG_PASSWORD')) {
+        mensaje = 'Contraseña incorrecta.';
+      } else if (firebaseMsg.includes('TOO_MANY_ATTEMPTS_TRY_LATER') || firebaseMsg.includes('USER_DISABLED')) {
+        mensaje = 'Cuenta bloqueada temporalmente. Intenta más tarde.';
       } else {
         mensaje = `Error de autenticación: ${firebaseMsg}`;
       }
