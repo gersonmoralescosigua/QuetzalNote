@@ -17,6 +17,8 @@ export class SidebarComponent {
 
   isMoreMenuOpen = signal(false);
   private allNotes = signal<Note[]>([]);
+  /** Evita restaurar más de una vez (solo en el primer loadNotes tras arrancar) */
+  private restoredOnce = false;
 
   notes = computed(() => {
     const query = this.notesService.searchQuery().toLowerCase();
@@ -34,8 +36,28 @@ export class SidebarComponent {
     this.notesService.isLoading.set(true);
     this.notesService.getNotes().subscribe({
       next: (notes) => {
-        this.allNotes.set(notes.filter(n => !n.deleted));
+        const active = notes.filter(n => !n.deleted);
+        this.allNotes.set(active);
         this.notesService.isLoading.set(false);
+
+        // Solo en el primer arranque de la app
+        if (!this.restoredOnce) {
+          this.restoredOnce = true;
+
+          if (active.length === 0) {
+            // Sin notas → crear una nota vacía por defecto y abrirla
+            this.createNote();
+          } else {
+            // Hay notas → restaurar la última que estaba abierta
+            const lastId = this.notesService.getLastNoteId();
+            if (lastId && !this.notesService.selectedNote()) {
+              const saved = active.find(n => n.id === lastId);
+              if (saved) {
+                this.selectNote(saved);
+              }
+            }
+          }
+        }
       },
       error: () => {
         this.notesService.isLoading.set(false);
@@ -53,9 +75,23 @@ export class SidebarComponent {
     });
   }
 
+  /** Devuelve true si la nota no tiene contenido real (está vacía/sin usar) */
+  private isNoteEmpty(note: Note): boolean {
+    const raw = (note.contenido || '').replace(/<[^>]*>/g, '').trim();
+    return raw === '';
+  }
+
   createNote() {
+    // Si la nota actual ya está abierta y vacía, no crear otra — solo enfocarla
+    const current = this.notesService.selectedNote();
+    if (current && this.isNoteEmpty(current)) {
+      this.ui.currentView.set('editor');
+      this.ui.isLoginOpen.set(false);
+      return;
+    }
+
     this.notesService.createNote({
-      titulo: 'New Note',
+      titulo: 'Untitled Document',
       contenido: '',
       pinned: false,
       archived: false,

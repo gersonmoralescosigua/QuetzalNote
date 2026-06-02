@@ -43,7 +43,7 @@
 
           <!-- >>> ZONA: EDITOR DE NOTAS <<< -->
           <!-- Estado dinámico: Se muestra cuando currentView === 'editor' -->
-          <div *ngIf="ui.currentView() === 'editor'" class="flex-1 relative">
+          <div *ngIf="ui.currentView() === 'editor'" class="flex-1 relative overflow-hidden">
             <app-note-editor *ngIf="notesService.selectedNote()?.id; else emptyState"></app-note-editor>
             <ng-template #emptyState>
               <app-empty-notes></app-empty-notes>
@@ -51,38 +51,133 @@
           </div>
 
           <!-- >>> ZONA: CONVERSOR PDF <<< -->
-          <!-- Estado dinámico: Se muestra cuando currentView === 'pdf' -->
-          <div *ngIf="ui.currentView() === 'pdf'" class="flex-1 p-8 flex flex-col relative pb-16">
-            <!-- Dato dinámico: El texto que el usuario escribe para convertir a PDF -->
-            <textarea
-              placeholder="Enter or paste your text here"
-              class="w-full flex-1 resize-none border-none outline-none bg-transparent text-[18px] text-gray-800 dark:text-gray-100 placeholder-gray-400 font-sans leading-relaxed"
-            ></textarea>
+          <div *ngIf="ui.currentView() === 'pdf'" class="flex-1 flex flex-col overflow-hidden">
 
-            <!-- Botón para cargar documento de ejemplo -->
-            <button
-              class="absolute top-16 left-8 flex items-center gap-2 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-300 px-3 py-1.5 rounded-full transition-colors text-[13px] font-medium w-fit"
-            >
-              <span class="material-icons text-[18px]">add</span> Sample Document
-            </button>
-
-            <!-- >>> ZONA: BARRA INFERIOR DEL PDF <<< -->
-            <div
-              class="absolute bottom-6 left-8 right-8 flex items-center justify-between text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 pt-2 border-t border-gray-100 dark:border-gray-700"
-            >
-              <!-- Botón para subir documento -->
+            <!-- Botón Sample Document (sobre el textarea) -->
+            <div class="px-8 pt-4 pb-2">
               <button
-                class="flex items-center gap-2 hover:text-gray-800 dark:hover:text-white transition-colors"
+                (click)="loadSampleDocument()"
+                class="flex items-center gap-2 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-300 px-3 py-1.5 rounded-full transition-colors text-[13px] font-medium"
+              >
+                <span class="material-icons text-[18px]">article</span> Sample Document
+              </button>
+            </div>
+
+            <!-- Textarea scrollable -->
+            <div class="flex-1 overflow-y-auto px-8 pb-2">
+              <textarea
+                #pdfTextarea
+                placeholder="Enter or paste your text here to convert it to PDF..."
+                class="w-full h-full min-h-[300px] resize-none border-none outline-none bg-transparent text-[16px] text-gray-800 dark:text-gray-100 placeholder-gray-400 font-sans leading-relaxed"
+              ></textarea>
+            </div>
+
+            <!-- Barra inferior fija -->
+            <div class="flex-shrink-0 border-t border-gray-100 dark:border-gray-700 px-8 py-3 flex items-center justify-between text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800">
+              <button
+                (click)="uploadDocForPdf()"
+                class="flex items-center gap-2 hover:text-gray-800 dark:hover:text-white transition-colors text-[13px] font-medium"
               >
                 <span class="material-icons text-[18px]">upload</span>
-                <span class="text-[13px] font-medium">Upload Doc</span>
+                Upload Doc
               </button>
 
-              <!-- Botón principal de conversión a PDF -->
               <button
-                class="bg-[#18639c] hover:bg-[#145382] text-white px-8 py-2 rounded text-[14px] font-medium transition-colors shadow-sm absolute left-1/2 -translate-x-1/2"
+                (click)="convertToPDF()"
+                [disabled]="isPdfConverting()"
+                class="bg-[#18639c] hover:bg-[#145382] disabled:opacity-60 text-white px-8 py-2 rounded text-[14px] font-medium transition-colors shadow-sm flex items-center gap-2"
               >
-                Convert to PDF
+                <span *ngIf="isPdfConverting()" class="material-icons text-[18px] animate-spin">refresh</span>
+                {{ isPdfConverting() ? 'Converting...' : 'Convert to PDF' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- >>> ZONA: PARAPHRASER <<< -->
+          <div *ngIf="ui.currentView() === 'paraphraser'" class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- Encabezado -->
+            <div class="px-8 pt-5 pb-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
+              <div>
+                <h2 class="text-[16px] font-semibold text-gray-800 dark:text-white">Paraphraser</h2>
+                <p class="text-[12px] text-gray-400 mt-0.5">Paste your text and get a rephrased version</p>
+              </div>
+              <button
+                (click)="clearParaphraser()"
+                class="text-[13px] text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors flex items-center gap-1"
+              >
+                <span class="material-icons text-[16px]">clear_all</span> Clear
+              </button>
+            </div>
+
+            <!-- Dos paneles: input | output -->
+            <div class="flex-1 flex overflow-hidden">
+
+              <!-- Panel izquierdo: Texto original -->
+              <div class="flex-1 flex flex-col border-r border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="px-6 pt-3 pb-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0">
+                  Original text
+                </div>
+                <textarea
+                  #paraphraserInput
+                  placeholder="Paste or type the text you want to paraphrase..."
+                  class="flex-1 px-6 pb-4 resize-none border-none outline-none bg-transparent text-[15px] text-gray-800 dark:text-gray-100 placeholder-gray-400 font-sans leading-relaxed"
+                ></textarea>
+              </div>
+
+              <!-- Panel derecho: Texto parafraseado -->
+              <div class="flex-1 flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-900/30">
+                <div class="px-6 pt-3 pb-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0">
+                  Paraphrased text
+                </div>
+                <div class="flex-1 overflow-y-auto px-6 pb-4">
+                  <div
+                    *ngIf="paraphraserOutput()"
+                    class="text-[15px] text-gray-800 dark:text-gray-100 font-sans leading-relaxed whitespace-pre-wrap"
+                  >{{ paraphraserOutput() }}</div>
+                  <div
+                    *ngIf="!paraphraserOutput() && !isParaphrasing()"
+                    class="text-[15px] text-gray-400 font-sans leading-relaxed"
+                  >The paraphrased result will appear here...</div>
+                  <div
+                    *ngIf="isParaphrasing()"
+                    class="flex items-center gap-2 text-gray-400 text-[14px]"
+                  >
+                    <span class="material-icons text-[18px] animate-spin">refresh</span>
+                    Processing...
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barra de acciones -->
+            <div class="flex-shrink-0 border-t border-gray-100 dark:border-gray-700 px-8 py-3 flex items-center justify-between bg-white dark:bg-gray-800">
+              <div class="flex items-center gap-3">
+                <button
+                  *ngIf="paraphraserOutput()"
+                  (click)="copyParaphraserOutput()"
+                  class="flex items-center gap-1.5 text-[13px] font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors"
+                  [ngClass]="paraphraserCopied() ? 'text-green-500 dark:text-green-400' : ''"
+                >
+                  <span class="material-icons text-[16px]">{{ paraphraserCopied() ? 'check' : 'content_copy' }}</span>
+                  {{ paraphraserCopied() ? 'Copied!' : 'Copy result' }}
+                </button>
+                <button
+                  *ngIf="paraphraserOutput()"
+                  (click)="useInEditor()"
+                  class="flex items-center gap-1.5 text-[13px] font-medium text-[#18639c] hover:text-[#145382] transition-colors"
+                >
+                  <span class="material-icons text-[16px]">open_in_new</span>
+                  Use in Editor
+                </button>
+              </div>
+              <button
+                (click)="paraphrase()"
+                [disabled]="isParaphrasing()"
+                class="bg-[#18639c] hover:bg-[#145382] disabled:opacity-60 text-white px-6 py-2 rounded text-[14px] font-medium transition-colors shadow-sm flex items-center gap-2"
+              >
+                <span *ngIf="isParaphrasing()" class="material-icons text-[16px] animate-spin">refresh</span>
+                {{ isParaphrasing() ? 'Paraphrasing...' : 'Paraphrase' }}
               </button>
             </div>
           </div>
@@ -165,29 +260,25 @@
             Welcome Back
           </h2>
 
-          <!-- Botón login con Google -->
+          <!-- Botón login con Google — conectado a AuthService vía signInWithGoogle() -->
           <button
-            class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-[14px] font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 shadow-sm"
+            (click)="signInWithGoogle()"
+            [disabled]="authService.isSigningIn()"
+            class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-[14px] font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <svg class="w-5 h-5" viewBox="0 0 24 24">
-              <path
-                fill="#EA4335"
-                d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3A11.95 11.95 0 0 0 12 0C7.26 0 3.193 2.573 1.023 6.377l4.243 3.388z"
-              />
-              <path
-                fill="#4285F4"
-                d="M23.755 12.273c0-.818-.068-1.609-.2-2.364H12v4.51h6.605a5.666 5.666 0 0 1-2.455 3.713v3.082h3.96c2.313-2.132 3.64-5.268 3.64-8.94z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.266 14.235A7.09 7.09 0 0 1 4.909 12c0-.79.132-1.55.357-2.265L1.023 6.377A11.954 11.954 0 0 0 0 12c0 2.114.555 4.1 1.527 5.83l3.739-3.595z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 24c3.24 0 5.955-1.077 7.94-2.918l-3.96-3.082c-1.1.736-2.514 1.182-3.98 1.182-3.045 0-5.618-2.055-6.54-4.823L1.217 17.84A11.947 11.947 0 0 0 12 24z"
-              />
-            </svg>
-            Continue with Google
+            <ng-container *ngIf="!authService.isSigningIn(); else signingInSpinner">
+              <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+                <path fill="#EA4335" d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3A11.95 11.95 0 0 0 12 0C7.26 0 3.193 2.573 1.023 6.377l4.243 3.388z"/>
+                <path fill="#4285F4" d="M23.755 12.273c0-.818-.068-1.609-.2-2.364H12v4.51h6.605a5.666 5.666 0 0 1-2.455 3.713v3.082h3.96c2.313-2.132 3.64-5.268 3.64-8.94z"/>
+                <path fill="#FBBC05" d="M5.266 14.235A7.09 7.09 0 0 1 4.909 12c0-.79.132-1.55.357-2.265L1.023 6.377A11.954 11.954 0 0 0 0 12c0 2.114.555 4.1 1.527 5.83l3.739-3.595z"/>
+                <path fill="#34A853" d="M12 24c3.24 0 5.955-1.077 7.94-2.918l-3.96-3.082c-1.1.736-2.514 1.182-3.98 1.182-3.045 0-5.618-2.055-6.54-4.823L1.217 17.84A11.947 11.947 0 0 0 12 24z"/>
+              </svg>
+              Continue with Google
+            </ng-container>
+            <ng-template #signingInSpinner>
+              <span class="material-icons text-[18px] animate-spin">refresh</span>
+              Signing in...
+            </ng-template>
           </button>
 
           <div class="flex items-center my-6">
@@ -289,8 +380,8 @@
         *ngIf="ui.feedbackStep() === 1"
         class="flex justify-between items-center gap-2 mt-2 animate-fade-in"
       >
-        <!-- Cada emoji envía a step 2 con el valor seleccionado -->
-        <button (click)="ui.feedbackStep.set(2)" class="flex flex-col items-center gap-2 group">
+        <!-- Cada emoji registra el rating y avanza al paso 2 -->
+        <button (click)="selectRating('terrible')" class="flex flex-col items-center gap-2 group">
           <div
             class="w-14 h-14 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center group-hover:bg-red-100 transition-colors border border-transparent"
           >
@@ -304,7 +395,7 @@
           >
         </button>
 
-        <button (click)="ui.feedbackStep.set(2)" class="flex flex-col items-center gap-2 group">
+        <button (click)="selectRating('bad')" class="flex flex-col items-center gap-2 group">
           <div
             class="w-14 h-14 rounded-full bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center group-hover:bg-orange-100 transition-colors border border-transparent"
           >
@@ -316,7 +407,7 @@
           <span class="text-[13px] text-gray-500 group-hover:text-gray-700 font-medium">Bad</span>
         </button>
 
-        <button (click)="ui.feedbackStep.set(2)" class="flex flex-col items-center gap-2 group">
+        <button (click)="selectRating('average')" class="flex flex-col items-center gap-2 group">
           <div
             class="w-14 h-14 rounded-full bg-yellow-50 dark:bg-yellow-900/30 flex items-center justify-center group-hover:bg-yellow-100 transition-colors border border-transparent"
           >
@@ -330,7 +421,7 @@
           >
         </button>
 
-        <button (click)="ui.feedbackStep.set(2)" class="flex flex-col items-center gap-2 group">
+        <button (click)="selectRating('good')" class="flex flex-col items-center gap-2 group">
           <div
             class="w-14 h-14 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center group-hover:bg-green-100 transition-colors border border-transparent"
           >
@@ -342,7 +433,7 @@
           <span class="text-[13px] text-gray-500 group-hover:text-gray-700 font-medium">Good</span>
         </button>
 
-        <button (click)="ui.feedbackStep.set(2)" class="flex flex-col items-center gap-2 group">
+        <button (click)="selectRating('amazing')" class="flex flex-col items-center gap-2 group">
           <div
             class="w-14 h-14 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center group-hover:bg-teal-100 transition-colors border border-transparent"
           >
@@ -363,18 +454,22 @@
         *ngIf="ui.feedbackStep() === 2"
         class="relative mt-2 animate-fade-in flex items-center pr-4"
       >
-        <!-- Dato dinámico: mensaje de feedback del usuario -->
+        <!-- Mensaje de feedback — referenciado por ViewChild para leer su valor al enviar -->
         <textarea
+          #feedbackTextarea
           placeholder="Write your message here"
           class="w-full h-[140px] p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none outline-none focus:border-blue-500 text-[14px] text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800"
         ></textarea>
 
-        <!-- Botón enviar feedback -->
+        <!-- Botón enviar feedback — llama a submitFeedback() que persiste en Firebase -->
         <button
-          (click)="ui.closeFeedback()"
-          class="absolute -right-2 bg-black dark:bg-gray-700 text-white w-12 h-12 flex items-center justify-center rounded-full hover:scale-105 hover:bg-gray-800 transition-all shadow-md"
+          (click)="submitFeedback()"
+          [disabled]="isFeedbackSubmitting()"
+          class="absolute -right-2 bg-black dark:bg-gray-700 text-white w-12 h-12 flex items-center justify-center rounded-full hover:scale-105 hover:bg-gray-800 transition-all shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <span class="material-icons text-[20px] ml-1">send</span>
+          <span class="material-icons text-[20px] ml-1" [class.animate-spin]="isFeedbackSubmitting()">
+            {{ isFeedbackSubmitting() ? 'refresh' : 'send' }}
+          </span>
         </button>
       </div>
     </div>

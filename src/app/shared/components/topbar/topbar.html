@@ -18,8 +18,8 @@
           #titleInput
           type="text"
           placeholder="Untitled Document"
-          (mousedown)="keepTitleFocus()"
           (blur)="updateTitle()"
+          (keydown.enter)="updateTitle(); titleInput.blur()"
           class="border-none focus:ring-0 text-gray-700 dark:text-gray-200 text-[15px] p-0 w-full outline-none bg-transparent"
         />
       </div>
@@ -65,88 +65,90 @@
       <!-- ======================================== -->
       <!-- MENÚ DESPLEGABLE DE USUARIO              -->
       <!-- ======================================== -->
-      <!-- Reemplaza al botón simple de login       -->
       <div class="relative">
-        <!-- Botón que abre/cierra el menú -->
+        <!-- Botón: muestra foto de perfil si hay sesión, icono genérico si no -->
         <button
           (click)="toggleUserMenu()"
-          class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center justify-center"
+          class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1.5 rounded-full transition-colors flex items-center justify-center"
         >
-          <span class="material-icons text-[20px]">person_outline</span>
+          <img
+            *ngIf="authService.isAuthenticated() && authService.currentUser()?.photoUrl"
+            [src]="authService.currentUser()!.photoUrl"
+            [alt]="authService.currentUser()!.displayName"
+            class="w-7 h-7 rounded-full object-cover"
+          />
+          <span *ngIf="!authService.isAuthenticated()" class="material-icons text-[20px]">person_outline</span>
         </button>
 
-        <!-- Menú desplegable - se muestra cuando isUserMenuOpen es true -->
+        <!-- Menú desplegable -->
         <div
           *ngIf="isUserMenuOpen()"
-          class="absolute right-0 top-12 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 animate-fade-in"
+          class="absolute right-0 top-12 w-52 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 animate-fade-in"
         >
-          <!-- Opción: Iniciar sesión -->
-          <!-- Al hacer click, abre el modal de login y cierra el menú -->
-          <button
-            (click)="ui.isLoginOpen.set(true); isUserMenuOpen.set(false)"
-            class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
-          >
-            <span class="material-icons text-[18px]">login</span>
-            Sign in
-          </button>
-
-          <!-- ==================================== -->
-          <!-- SUBMENÚ DE IDIOMAS                   -->
-          <!-- ==================================== -->
-          <div class="relative">
-            <!-- Botón que despliega el submenú de idiomas -->
+          <!-- Estado: AUTENTICADO -->
+          <ng-container *ngIf="authService.isAuthenticated()">
+            <!-- Info del usuario -->
+            <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-700 mb-1">
+              <p class="text-[13px] font-semibold text-gray-800 dark:text-gray-100 truncate">
+                {{ authService.currentUser()?.displayName }}
+              </p>
+              <p class="text-[11px] text-gray-400 truncate">
+                {{ authService.currentUser()?.email }}
+              </p>
+            </div>
+            <!-- Cerrar sesión -->
             <button
-              (click)="isLanguageMenuOpen.update((v) => !v)"
-              class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+              (click)="signOut()"
+              class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-red-500 text-[14px] transition-colors"
             >
-              <div class="flex items-center gap-3">
-                <span class="material-icons text-[18px]">translate</span>
-                English
-              </div>
-              <span class="material-icons text-[16px]">chevron_right</span>
+              <span class="material-icons text-[18px]">logout</span>
+              Sign out
+            </button>
+          </ng-container>
+
+          <!-- Estado: NO AUTENTICADO -->
+          <ng-container *ngIf="!authService.isAuthenticated()">
+            <button
+              (click)="openLogin()"
+              class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+            >
+              <span class="material-icons text-[18px]">login</span>
+              Sign in
             </button>
 
-            <!-- Submenú de idiomas - aparece a la izquierda del menú principal -->
-            <div
-              *ngIf="isLanguageMenuOpen()"
-              class="absolute right-[105%] top-0 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 mr-1 animate-fade-in"
-            >
-              <div
-                class="px-4 py-2 text-[12px] text-gray-400 flex items-center justify-between border-b border-gray-100 dark:border-gray-700 mb-1"
-              >
-                Site Language <span class="material-icons text-[16px]">info_outline</span>
-              </div>
-              <!-- Opciones de idioma -->
+            <!-- Submenú de idiomas -->
+            <div class="relative">
               <button
+                (click)="isLanguageMenuOpen.update((v) => !v)"
                 class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
               >
-                English <span class="material-icons text-[16px] text-teal-500">check</span>
+                <div class="flex items-center gap-3">
+                  <span class="material-icons text-[18px]">translate</span>
+                  English
+                </div>
+                <span class="material-icons text-[16px]">chevron_right</span>
               </button>
-              <button
-                class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
+              <div
+                *ngIf="isLanguageMenuOpen()"
+                class="absolute right-[105%] top-0 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 mr-1 animate-fade-in"
               >
-                Spanish
-              </button>
-              <button
-                class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
-              >
-                Français
-              </button>
-              <button
-                class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
-              >
-                Português
-              </button>
+                <div class="px-4 py-2 text-[12px] text-gray-400 flex items-center justify-between border-b border-gray-100 dark:border-gray-700 mb-1">
+                  Site Language <span class="material-icons text-[16px]">info_outline</span>
+                </div>
+                <button class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors">
+                  English <span class="material-icons text-[16px] text-teal-500">check</span>
+                </button>
+                <button class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors">Spanish</button>
+                <button class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors">Français</button>
+                <button class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors">Português</button>
+              </div>
             </div>
-          </div>
 
-          <!-- Opción: Contacto -->
-          <button
-            class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
-          >
-            <span class="material-icons text-[18px]">mail_outline</span>
-            Contact Us
-          </button>
+            <button class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors">
+              <span class="material-icons text-[18px]">mail_outline</span>
+              Contact Us
+            </button>
+          </ng-container>
         </div>
       </div>
     </div>
@@ -187,79 +189,68 @@
         <span class="material-icons text-[20px]">headset_mic</span>
       </button>
 
-      <!-- ======================================== -->
-      <!-- MENÚ DESPLEGABLE DE USUARIO              -->
-      <!-- ======================================== -->
+      <!-- MENÚ USUARIO — Vista PDF -->
       <div class="relative">
-        <button
-          (click)="toggleUserMenu()"
-          class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center justify-center"
-        >
-          <span class="material-icons text-[20px]">person_outline</span>
+        <button (click)="toggleUserMenu()" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1.5 rounded-full transition-colors flex items-center justify-center">
+          <img *ngIf="authService.isAuthenticated() && authService.currentUser()?.photoUrl" [src]="authService.currentUser()!.photoUrl" [alt]="authService.currentUser()!.displayName" class="w-7 h-7 rounded-full object-cover"/>
+          <span *ngIf="!authService.isAuthenticated()" class="material-icons text-[20px]">person_outline</span>
         </button>
-
-        <div
-          *ngIf="isUserMenuOpen()"
-          class="absolute right-0 top-12 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 animate-fade-in"
-        >
-          <button
-            (click)="ui.isLoginOpen.set(true); isUserMenuOpen.set(false)"
-            class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
-          >
-            <span class="material-icons text-[18px]">login</span>
-            Sign in
-          </button>
-
-          <div class="relative">
-            <button
-              (click)="isLanguageMenuOpen.update((v) => !v)"
-              class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
-            >
-              <div class="flex items-center gap-3">
-                <span class="material-icons text-[18px]">translate</span>
-                English
-              </div>
-              <span class="material-icons text-[16px]">chevron_right</span>
-            </button>
-
-            <div
-              *ngIf="isLanguageMenuOpen()"
-              class="absolute right-[105%] top-0 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 mr-1 animate-fade-in"
-            >
-              <div
-                class="px-4 py-2 text-[12px] text-gray-400 flex items-center justify-between border-b border-gray-100 dark:border-gray-700 mb-1"
-              >
-                Site Language <span class="material-icons text-[16px]">info_outline</span>
-              </div>
-              <button
-                class="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
-              >
-                English <span class="material-icons text-[16px] text-teal-500">check</span>
-              </button>
-              <button
-                class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
-              >
-                Spanish
-              </button>
-              <button
-                class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
-              >
-                Français
-              </button>
-              <button
-                class="w-full flex items-center px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
-              >
-                Português
-              </button>
+        <div *ngIf="isUserMenuOpen()" class="absolute right-0 top-12 w-52 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 animate-fade-in">
+          <ng-container *ngIf="authService.isAuthenticated()">
+            <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-700 mb-1">
+              <p class="text-[13px] font-semibold text-gray-800 dark:text-gray-100 truncate">{{ authService.currentUser()?.displayName }}</p>
+              <p class="text-[11px] text-gray-400 truncate">{{ authService.currentUser()?.email }}</p>
             </div>
-          </div>
+            <button (click)="signOut()" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-red-500 text-[14px] transition-colors">
+              <span class="material-icons text-[18px]">logout</span> Sign out
+            </button>
+          </ng-container>
+          <ng-container *ngIf="!authService.isAuthenticated()">
+            <button (click)="openLogin()" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors">
+              <span class="material-icons text-[18px]">login</span> Sign in
+            </button>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </ng-container>
 
-          <button
-            class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors"
-          >
-            <span class="material-icons text-[18px]">mail_outline</span>
-            Contact Us
-          </button>
+  <!-- ========================================== -->
+  <!-- VISTA PARAPHRASER                          -->
+  <!-- ========================================== -->
+  <ng-container *ngIf="ui.currentView() === 'paraphraser'">
+    <div class="absolute left-1/2 -translate-x-1/2 flex items-center justify-center pointer-events-none">
+      <h2 class="text-[16px] font-bold text-gray-800 dark:text-white tracking-wide">Paraphraser</h2>
+    </div>
+    <div class="w-1/3"></div>
+    <div class="flex items-center justify-end gap-3 w-2/3 text-gray-500 dark:text-gray-400">
+      <button (click)="toggleTheme()" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center justify-center">
+        <span class="material-icons text-[20px]">{{ isDarkMode() ? 'light_mode' : 'dark_mode' }}</span>
+      </button>
+      <button class="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded-full transition-colors flex items-center justify-center">
+        <span class="material-icons text-[20px]">headset_mic</span>
+      </button>
+      <!-- MENÚ USUARIO — Vista Paraphraser -->
+      <div class="relative">
+        <button (click)="toggleUserMenu()" class="hover:bg-gray-100 dark:hover:bg-gray-700 p-1.5 rounded-full transition-colors flex items-center justify-center">
+          <img *ngIf="authService.isAuthenticated() && authService.currentUser()?.photoUrl" [src]="authService.currentUser()!.photoUrl" [alt]="authService.currentUser()!.displayName" class="w-7 h-7 rounded-full object-cover"/>
+          <span *ngIf="!authService.isAuthenticated()" class="material-icons text-[20px]">person_outline</span>
+        </button>
+        <div *ngIf="isUserMenuOpen()" class="absolute right-0 top-12 w-52 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50">
+          <ng-container *ngIf="authService.isAuthenticated()">
+            <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-700 mb-1">
+              <p class="text-[13px] font-semibold text-gray-800 dark:text-gray-100 truncate">{{ authService.currentUser()?.displayName }}</p>
+              <p class="text-[11px] text-gray-400 truncate">{{ authService.currentUser()?.email }}</p>
+            </div>
+            <button (click)="signOut()" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-red-500 text-[14px] transition-colors">
+              <span class="material-icons text-[18px]">logout</span> Sign out
+            </button>
+          </ng-container>
+          <ng-container *ngIf="!authService.isAuthenticated()">
+            <button (click)="openLogin()" class="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[14px] transition-colors">
+              <span class="material-icons text-[18px]">login</span> Sign in
+            </button>
+          </ng-container>
         </div>
       </div>
     </div>

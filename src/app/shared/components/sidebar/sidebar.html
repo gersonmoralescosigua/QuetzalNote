@@ -96,6 +96,7 @@
       <!-- Herramienta: Paraphraser -->
       <li>
         <a
+          (click)="ui.currentView.set('paraphraser'); ui.isLoginOpen.set(false)"
           [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer"
         >

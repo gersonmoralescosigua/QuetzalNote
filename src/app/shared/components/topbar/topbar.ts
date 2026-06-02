@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, effect, ViewChild, ElementRef } from
 import { CommonModule } from '@angular/common';
 import { UiService } from '../../services/ui.service';
 import { NotesService } from '../../../core/services/notes.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-topbar',
@@ -10,9 +11,10 @@ import { NotesService } from '../../../core/services/notes.service';
   templateUrl: './topbar.html',
 })
 export class TopbarComponent implements OnInit {
-  ui = inject(UiService);
+  ui          = inject(UiService);
   notesService = inject(NotesService);
-  isDarkMode = signal(false);
+  authService = inject(AuthService);
+  isDarkMode  = signal(false);
 
   // LÓGICA: Control de los menús desplegables del usuario
   isUserMenuOpen = signal(false);
@@ -23,16 +25,30 @@ export class TopbarComponent implements OnInit {
   // reactivo resetee el texto mientras el usuario está escribiendo.
   @ViewChild('titleInput') private titleInput!: ElementRef<HTMLInputElement>;
   private currentNoteId: string | null = null;
+  private lastKnownTitle = '';
 
   constructor() {
-    // Solo actualiza el valor del input cuando se selecciona una NOTA DIFERENTE.
-    // No resetea el texto si la misma nota fue guardada (mismo id).
     effect(() => {
       const note = this.notesService.selectedNote();
-      if (note?.id !== this.currentNoteId) {
+      const newTitle = note?.titulo || '';
+      const differentNote = note?.id !== this.currentNoteId;
+      const titleChanged = newTitle !== this.lastKnownTitle;
+
+      if (differentNote) {
+        // Nota diferente → siempre actualizar
         this.currentNoteId = note?.id || null;
+        this.lastKnownTitle = newTitle;
         if (this.titleInput?.nativeElement) {
-          this.titleInput.nativeElement.value = note?.titulo || '';
+          this.titleInput.nativeElement.value = newTitle;
+        }
+      } else if (titleChanged) {
+        // Misma nota pero el título cambió (auto-título desde el editor)
+        // Solo actualizar si el usuario NO está editando el input en este momento
+        this.lastKnownTitle = newTitle;
+        if (document.activeElement !== this.titleInput?.nativeElement) {
+          if (this.titleInput?.nativeElement) {
+            this.titleInput.nativeElement.value = newTitle;
+          }
         }
       }
     });
@@ -55,13 +71,6 @@ export class TopbarComponent implements OnInit {
     } else {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
-    }
-  }
-
-  keepTitleFocus() {
-    const quill = this.notesService.quillInstance();
-    if (quill) {
-      quill.blur();
     }
   }
 
@@ -98,5 +107,17 @@ export class TopbarComponent implements OnInit {
     if (!this.isUserMenuOpen()) {
       this.isLanguageMenuOpen.set(false);
     }
+  }
+
+  /** Abre la pantalla de login */
+  openLogin(): void {
+    this.ui.isLoginOpen.set(true);
+    this.isUserMenuOpen.set(false);
+  }
+
+  /** Cierra sesión vía AuthService */
+  signOut(): void {
+    this.authService.signOut();
+    this.isUserMenuOpen.set(false);
   }
 }

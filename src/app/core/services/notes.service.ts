@@ -24,6 +24,16 @@ export class NotesService {
 
   selectNote(note: Note | null) {
     this.selectedNote.set(note);
+    // Persiste el ID para restaurarlo en la próxima sesión/recarga
+    if (note?.id) {
+      localStorage.setItem('qn_lastNoteId', note.id);
+    } else {
+      localStorage.removeItem('qn_lastNoteId');
+    }
+  }
+
+  getLastNoteId(): string | null {
+    return localStorage.getItem('qn_lastNoteId');
   }
 
   triggerReload() {
@@ -38,10 +48,13 @@ export class NotesService {
     return this.http.get<{ [key: string]: Note } | null>(`${this.apiUrl}.json`).pipe(
       map((response) => {
         if (!response) return [];
-        return Object.keys(response).map((key) => ({
+        const notes = Object.keys(response).map((key) => ({
           ...response[key],
           id: key,
         }));
+        // Más recientes primero — los IDs de Firebase push() son cronológicos,
+        // el generado más tarde es lexicográficamente mayor.
+        return notes.sort((a, b) => (b.id || '').localeCompare(a.id || ''));
       }),
       catchError(this.handleError('cargar las notas')),
     );
