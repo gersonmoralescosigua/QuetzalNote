@@ -48,16 +48,16 @@
     <main class="flex-1 flex flex-col min-w-0 relative overflow-hidden">
 
       <!-- Contenido principal (oculto cuando se muestra el login) -->
-      <ng-container *ngIf="!ui.isLoginOpen()">
+      <ng-container *ngIf="ui.currentView() !== 'login'">
 
         <!-- Sección central (vista activa) -->
         <section class="flex-1 overflow-auto p-0 md:p-3">
           <div
             class="bg-white dark:bg-gray-800 md:shadow-sm md:border md:border-gray-200 md:dark:border-gray-700 md:rounded-lg h-full flex flex-col w-full relative overflow-hidden"
           >
-            <!-- Toolbar del editor (visible cuando hay nota o PDF) -->
+            <!-- Toolbar del editor (visible cuando hay nota o PDF, no en contact/login) -->
             <div
-              *ngIf="notesService.selectedNote()?.id || ui.currentView() === 'pdf'"
+              *ngIf="(notesService.selectedNote()?.id || ui.currentView() === 'pdf') && ui.currentView() !== 'contact' && ui.currentView() !== 'login'"
               class="flex-shrink-0 flex items-center bg-white dark:bg-[#181818] overflow-x-auto scrollbar-hide w-full"
               style="min-height:48px; padding: 0 8px; border-bottom: 2px solid var(--color-primary);"
             >
@@ -377,14 +377,8 @@
       </ng-container>
 
       <!-- Pantalla de LOGIN -->
-      <ng-container *ngIf="ui.isLoginOpen()">
+      <ng-container *ngIf="ui.currentView() === 'login'">
         <div class="flex-1 bg-white dark:bg-gray-900 overflow-y-auto flex items-center justify-center p-6 relative">
-          <button
-            (click)="ui.isLoginOpen.set(false)"
-            class="absolute top-6 left-6 flex items-center gap-2 text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors text-[14px] font-medium z-10"
-          >
-            <span class="material-icons text-[18px]">arrow_back</span> Back to notes
-          </button>
           <div class="w-full max-w-[440px] flex flex-col bg-white dark:bg-gray-900 p-2">
             <h2 class="text-center text-[32px] font-bold text-gray-800 dark:text-white mb-6">Welcome Back</h2>
             <button

@@ -78,7 +78,7 @@
     <ul class="mb-1 space-y-0.5">
       <li>
         <a
-          (click)="ui.currentView.set('paraphraser'); ui.isLoginOpen.set(false)"
+          (click)="ui.currentView.set('paraphraser')"
           [ngClass]="ui.isSidebarOpen() ? 'px-3 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer rounded-md transition-colors"
         >
@@ -93,7 +93,7 @@
       </li>
       <li>
         <a
-          (click)="ui.currentView.set('pdf'); ui.isLoginOpen.set(false)"
+          (click)="ui.currentView.set('pdf')"
           [ngClass]="ui.isSidebarOpen() ? 'px-3 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer rounded-md transition-colors"
         >
@@ -218,7 +218,7 @@
         </a>
         <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
         <a
-          (click)="ui.isLoginOpen.set(true)"
+          (click)="ui.currentView.set('login')"
           [ngClass]="ui.isSidebarOpen() ? 'px-3 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium flex items-center gap-3 cursor-pointer rounded-md text-[13px] transition-colors"
         >

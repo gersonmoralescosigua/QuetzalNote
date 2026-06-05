@@ -175,7 +175,7 @@ export class TopbarComponent implements OnInit {
 
   /** Abre la pantalla de login y cierra el menú */
   openLogin(): void {
-    this.ui.isLoginOpen.set(true);
+    this.ui.currentView.set('login');
     this.isUserMenuOpen.set(false);
     this.isLanguageMenuOpen.set(false);
   }

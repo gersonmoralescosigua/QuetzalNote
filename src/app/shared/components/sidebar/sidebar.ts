@@ -82,9 +82,8 @@ export class SidebarComponent {
   selectNote(note: Note) {
     this.notesService.getNoteById(note.id!).subscribe({
       next: (freshNote) => {
-        this.notesService.selectNote(freshNote); // Actualiza la nota seleccionada en el servicio
-        this.ui.currentView.set('editor'); // Cambia a la vista del editor
-        this.ui.isLoginOpen.set(false); // Cierra el modal de login si estuviera abierto
+        this.notesService.selectNote(freshNote);
+        this.ui.currentView.set('editor');
       },
     });
   }
@@ -112,7 +111,6 @@ export class SidebarComponent {
     const current = this.notesService.selectedNote();
     if (current && this.isNoteEmpty(current)) {
       this.ui.currentView.set('editor');
-      this.ui.isLoginOpen.set(false);
       return;
     }
 
@@ -132,9 +130,8 @@ export class SidebarComponent {
           this.notesService.getNoteById(newId).subscribe({
             next: (note) => {
               this.loadNotes(); // Recarga la lista de notas
-              this.notesService.selectNote(note); // Selecciona la nueva nota
-              this.ui.currentView.set('editor'); // Cambia al editor
-              this.ui.isLoginOpen.set(false);
+              this.notesService.selectNote(note);
+              this.ui.currentView.set('editor');
             },
             error: () => this.loadNotes(),
           });

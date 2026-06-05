@@ -8,6 +8,8 @@ import {
   HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs';
 import { QuillModule, ContentChange } from 'ngx-quill';
 import { SidebarComponent } from '../../shared/components/sidebar/sidebar';
 import { TopbarComponent } from '../../shared/components/topbar/topbar';
@@ -64,6 +66,7 @@ export class MainLayoutComponent {
   i18n = inject(I18nService);
   private pdfSvc = inject(PdfService);
   private parasSvc = inject(ParaphraserService);
+  private router = inject(Router);
 
   // ── Trash / All Notes ─────────────────────────────────────────────────────
   trashedNotes = signal<Note[]>([]);
@@ -108,12 +111,34 @@ export class MainLayoutComponent {
   paraphraserCopied = signal(false);
 
   constructor() {
+    const validViews = ['editor', 'pdf', 'paraphraser', 'contact', 'login'] as const;
+    type ValidView = typeof validViews[number];
+
+    // ── URL → signal: usa NavigationEnd para leer la URL real (evita snapshot stale) ──
+    this.router.events
+      .pipe(filter((e) => e instanceof NavigationEnd))
+      .subscribe((e) => {
+        const path = ((e as NavigationEnd).urlAfterRedirects || (e as NavigationEnd).url)
+          .split('/')[1] as ValidView;
+        if (validViews.includes(path) && this.ui.currentView() !== path) {
+          this.ui.currentView.set(path);
+        }
+      });
+
+    // ── signal → URL: navega cuando el signal cambia desde cualquier componente ──
     effect(() => {
-      // Cargar papelera cuando se abre el panel de Trash
+      const view = this.ui.currentView();
+      const currentPath = this.router.url.split('/')[1];
+      if (currentPath !== view) {
+        this.router.navigate(['/', view]);
+      }
+    });
+
+    // ── Efectos de UI ─────────────────────────────────────────────────────────
+    effect(() => {
       if (this.ui.isTrashOpen()) {
         this.loadTrashedNotes();
       }
-      // Cargar todas las notas cuando se abre el modal de búsqueda (All Notes)
       if (this.ui.isSearchModalOpen()) {
         this.loadAllModalNotes();
       }
@@ -287,7 +312,7 @@ export class MainLayoutComponent {
     const checkInterval = setInterval(() => {
       if (this.authService.isAuthenticated()) {
         clearInterval(checkInterval);
-        this.ui.isLoginOpen.set(false);
+        this.ui.currentView.set('editor');
       } else if (this.authService.authError()) {
         clearInterval(checkInterval);
         this.showAlert('Error de inicio de sesión', this.authService.authError()!);
@@ -305,7 +330,7 @@ export class MainLayoutComponent {
     const checkInterval = setInterval(() => {
       if (this.authService.isAuthenticated()) {
         clearInterval(checkInterval);
-        this.ui.isLoginOpen.set(false);
+        this.ui.currentView.set('editor');
       }
     }, 300);
 
