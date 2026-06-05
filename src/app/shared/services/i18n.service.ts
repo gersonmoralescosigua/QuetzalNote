@@ -1,3 +1,4 @@
+// i18n.service.ts — internacionalización ligera con Signal. Sin @angular/localize.
 import { Injectable, signal } from '@angular/core';
 
 /**

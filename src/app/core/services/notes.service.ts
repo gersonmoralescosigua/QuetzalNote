@@ -1,3 +1,4 @@
+// notes.service.ts — CRUD de notas contra Firebase Realtime Database REST API. Sin SDK.
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';

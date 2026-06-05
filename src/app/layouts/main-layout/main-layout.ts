@@ -1,3 +1,4 @@
+// main-layout.ts — shell principal. Contiene sidebar, topbar, área central y todos los modales.
 import {
   Component,
   inject,
@@ -28,25 +29,15 @@ import { Note } from '../../core/models/note.model';
 import { FeedbackRating } from '../../core/models/feedback.model';
 import Swal from 'sweetalert2';
 
-/**
- * MainLayoutComponent
- * Esqueleto visual principal de la aplicación QuetzalNote.
- * Responsable: Gerson (layout, UX, distribución).
- *
- * Contiene:
- *  - Sidebar lateral
- *  - Topbar superior
- *  - Área central (editor / PDF / paraphraser)
- *  - Modales: Feedback, Login, Trash, All Notes, Search
- *
- *"UI Components: Solo visualización, diseño, eventos."
- */
+// Shell principal de la app. Orquesta topbar, sidebar y las distintas vistas
+// (editor, pdf, paraphraser, contact, login). También centraliza los modales
+// de feedback, papelera y búsqueda avanzada.
 @Component({
   selector: 'app-main-layout',
   standalone: true,
   imports: [
     CommonModule,
-    QuillModule, // ← Necesario para la vista PDF con editor Quill
+    QuillModule,
     SidebarComponent,
     TopbarComponent,
     EditorToolbar,
@@ -57,7 +48,6 @@ import Swal from 'sweetalert2';
   templateUrl: './main-layout.html',
 })
 export class MainLayoutComponent {
-  // servicios
   ui = inject(UiService);
   notesService = inject(NotesService);
   feedbackService = inject(FeedbackService);
@@ -67,7 +57,6 @@ export class MainLayoutComponent {
   private parasSvc = inject(ParaphraserService);
   private router = inject(Router);
 
-  // trash / all notes
   trashedNotes = signal<Note[]>([]);
   allModalNotes = signal<Note[]>([]);
 
@@ -86,21 +75,15 @@ export class MainLayoutComponent {
   @ViewChild('feedbackTextarea') private feedbackTextareaRef!: ElementRef<HTMLTextAreaElement>;
   isFeedbackSubmitting = signal(false);
 
-  // pdf editor (instancia quill de la vista pdf)
-  /** Instancia del editor Quill de la vista PDF */
+  // vista PDF — instancia Quill independiente de la del editor de notas
   private pdfQuillInstance: any = null;
-  /** ¿Hay texto en el editor PDF? */
   pdfHasText = signal(false);
-  /** Número de palabras del editor PDF */
   pdfWordCount = signal(0);
-  /** Número de caracteres del editor PDF */
   pdfCharCount = signal(0);
-  /** Módulos para el editor Quill de PDF */
   pdfEditorModules = {
     toolbar: false,
     history: { delay: 1000, maxStack: 100, userOnly: true },
   };
-  /** True mientras se genera el PDF */
   isPdfConverting = signal(false);
 
   // paraphraser
@@ -113,7 +96,7 @@ export class MainLayoutComponent {
     const validViews = ['editor', 'pdf', 'paraphraser', 'contact', 'login'] as const;
     type ValidView = typeof validViews[number];
 
-    // ── URL → signal: usa NavigationEnd para leer la URL real (evita snapshot stale) ──
+    // Sincroniza URL → signal usando NavigationEnd (evita el snapshot stale del router)
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe((e) => {
@@ -124,7 +107,7 @@ export class MainLayoutComponent {
         }
       });
 
-    // ── signal → URL: navega cuando el signal cambia desde cualquier componente ──
+    // Sincroniza signal → URL para que cualquier componente pueda navegar con ui.currentView.set()
     effect(() => {
       const view = this.ui.currentView();
       const currentPath = this.router.url.split('/')[1];
@@ -133,18 +116,13 @@ export class MainLayoutComponent {
       }
     });
 
-    // efectos de ui
     effect(() => {
-      if (this.ui.isTrashOpen()) {
-        this.loadTrashedNotes();
-      }
-      if (this.ui.isSearchModalOpen()) {
-        this.loadAllModalNotes();
-      }
+      if (this.ui.isTrashOpen()) this.loadTrashedNotes();
+      if (this.ui.isSearchModalOpen()) this.loadAllModalNotes();
     });
   }
 
-  // BUSCADOR AVANZADO "ALL NOTES" (Ctrl+K)
+  // ── BUSCADOR AVANZADO (Ctrl+K) ───────────────────────────────────────────
 
   private loadAllModalNotes(): void {
     this.notesService.getNotes().subscribe({
@@ -173,14 +151,13 @@ export class MainLayoutComponent {
       );
     }
 
-    // LÓGICA: Ordenar según el modo activo
+    // 'recent' mantiene el orden original de Firebase (push ID lexicográfico descendente)
     const sort = this.currentSort();
     if (sort === 'az') {
       return [...notes].sort((a, b) => (a.titulo || '').localeCompare(b.titulo || ''));
     } else if (sort === 'za') {
       return [...notes].sort((a, b) => (b.titulo || '').localeCompare(a.titulo || ''));
     }
-    // 'recent' — orden cronológico de Firebase (ID lexicográfico descendente)
     return notes;
   }
 
@@ -238,14 +215,12 @@ export class MainLayoutComponent {
       };
       this.notesService.updateNote(note.id!, updatedNote).subscribe({
         next: (updated) => {
-          // Actualizar lista local
           const updatedList = this.allModalNotes().map((n) => (n.id === updated.id ? updated : n));
           this.allModalNotes.set(updatedList);
-          // Si era la nota seleccionada, actualizar en el editor
           if (this.notesService.selectedNote()?.id === note.id) {
             this.notesService.selectNote(updated);
           }
-          this.notesService.triggerReload(); // refrescar sidebar
+          this.notesService.triggerReload();
           Swal.fire({ title: 'Renamed!', icon: 'success', timer: 1500, showConfirmButton: false });
         },
         error: () => Swal.fire({ title: 'Error', text: 'Could not rename note', icon: 'error' }),
@@ -272,9 +247,7 @@ export class MainLayoutComponent {
       };
       this.notesService.updateNote(note.id!, updatedNote).subscribe({
         next: () => {
-          // Remover de la lista local
           this.allModalNotes.set(this.allModalNotes().filter((n) => n.id !== note.id));
-          // Si era la nota seleccionada, limpiar selección
           if (this.notesService.selectedNote()?.id === note.id) {
             this.notesService.selectNote(null);
           }
@@ -668,14 +641,16 @@ export class MainLayoutComponent {
       this.paraphraserInputRef.nativeElement.value = '';
     }
     this.paraphraserOutput.set('');
+    this.paraphraserCopied.set(false);
   }
 
-  // UTILIDADES PRIVADAS
+  // UTILITIES
 
-  private showAlert(title: string, message: string): void {
+  private showAlert(title: string, text: string): void {
     Swal.fire({
-      title: `<span class="text-[16px] font-bold">${title}</span>`,
-      html: `<span class="text-[14px] text-gray-500">${message}</span>`,
+      title,
+      text,
+      icon: 'warning',
       confirmButtonColor: '#18639c',
       confirmButtonText: 'OK',
       width: '360px',
@@ -684,10 +659,5 @@ export class MainLayoutComponent {
         confirmButton: 'px-5 py-2 rounded-md font-medium',
       },
     });
-  }
-
-  @HostListener('document:click')
-  closeNoteMenu() {
-    this.activeNoteMenu.set(null);
   }
 }

@@ -1,3 +1,4 @@
+// pdf.service.ts — conversión HTML→PDF y HTML→Word. También importa .docx via mammoth.
 import { Injectable } from '@angular/core';
 import { jsPDF } from 'jspdf';
 
@@ -303,13 +304,11 @@ export class PdfService {
 
   /** Descarga un Blob como archivo en el navegador */
   private downloadBlob(blob: Blob, fileName: string, mimeType: string): void {
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(new Blob([blob], { type: mimeType }));
     const a = document.createElement('a');
     a.href = url;
     a.download = fileName;
-    document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
 }

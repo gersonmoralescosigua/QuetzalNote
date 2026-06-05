@@ -1,3 +1,4 @@
+// notes-state.service.ts — estado adicional de selección de notas (complementa NotesService).
 import { Injectable, signal, computed } from '@angular/core';
 import { Note } from '../../../core/models/note.model';
 

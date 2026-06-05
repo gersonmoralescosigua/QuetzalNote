@@ -124,7 +124,7 @@
   </div>
 </ng-template>
 
-<!-- contenido del topbar (cambia según la vista activa) -->
+<!-- contenido del topbar (cambia según vista activa) -->
 <div
   class="flex w-full h-full items-center justify-between border-b border-gray-200 dark:border-gray-700"
   style="height:48px; max-height:48px; padding: 0 12px; background: var(--color-white-2);"
@@ -241,4 +241,37 @@
   <ng-container *ngIf="ui.currentView() === 'contact'">
     <div class="flex items-center gap-2 flex-shrink-0">
       <ng-container *ngTemplateOutlet="hamburger"></ng-container>
-      <ng-container *ngTemplateOutlet="logoBlock
+      <ng-container *ngTemplateOutlet="logoBlock"></ng-container>
+    </div>
+    <div class="absolute left-1/2 -translate-x-1/2 pointer-events-none">
+      <h2 class="text-[15px] font-bold text-gray-800 dark:text-white tracking-wide">Contact Us</h2>
+    </div>
+    <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 flex-shrink-0">
+      <button (click)="toggleTheme()" class="min-w-[32px] min-h-[32px] flex items-center justify-center rounded border border-[#eceef0] dark:border-[#424242] hover:bg-[#F0F0F0] dark:hover:bg-[#252525] transition-colors">
+        <img *ngIf="!isDarkMode()" src="assets/icons/mobile_dark_moon_icon.svg" class="w-5 h-5 icon-adaptive">
+        <img *ngIf="isDarkMode()" src="assets/icons/sun_light_mode.svg" class="w-5 h-5" style="filter:var(--filter-inverse)">
+      </button>
+      <ng-container *ngTemplateOutlet="userBtn"></ng-container>
+    </div>
+  </ng-container>
+
+
+  <!-- login -->
+  <ng-container *ngIf="ui.currentView() === 'login'">
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <ng-container *ngTemplateOutlet="hamburger"></ng-container>
+      <ng-container *ngTemplateOutlet="logoBlock"></ng-container>
+    </div>
+    <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 flex-shrink-0">
+      <button (click)="toggleTheme()" class="min-w-[32px] min-h-[32px] flex items-center justify-center rounded border border-[#eceef0] dark:border-[#424242] hover:bg-[#F0F0F0] dark:hover:bg-[#252525] transition-colors">
+        <img *ngIf="!isDarkMode()" src="assets/icons/mobile_dark_moon_icon.svg" class="w-5 h-5 icon-adaptive">
+        <img *ngIf="isDarkMode()" src="assets/icons/sun_light_mode.svg" class="w-5 h-5" style="filter:var(--filter-inverse)">
+      </button>
+      <button (click)="ui.currentView.set('contact')" class="min-w-[32px] min-h-[32px] flex items-center justify-center rounded border border-[#eceef0] dark:border-[#424242] hover:bg-[#F0F0F0] dark:hover:bg-[#252525] transition-colors">
+        <img src="assets/icons/Chat.svg" class="w-5 h-5 icon-adaptive">
+      </button>
+      <ng-container *ngTemplateOutlet="userBtn"></ng-container>
+    </div>
+  </ng-container>
+
+</div>

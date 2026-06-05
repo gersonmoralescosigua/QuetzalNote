@@ -1,1 +1,36 @@
-/** * Modelo de Feedback persistido en Firebase Realtime Database. * Ruta: /feedback/{pushId} */export type FeedbackRating = 'terrible' | 'bad' | 'average' | 'good' | 'amazing';export type FeedbackEstado = 'pendiente' | 'revisado' | 'atendido';export interface Feedback {  /** ID asignado por Firebase (push key). Ausente al crear, presente al leer. */  id?: string;  /** Calificación seleccionada en el paso 1 del modal (emoji). */  rating: FeedbackRating;  /** Texto libre escrito por el usuario en el paso 2. */  mensaje: string;  /** ISO 8601 timestamp del momento exacto del envío. */  fechaCreacion: string;  /**   * Herramienta / agencia activa al momento de enviar el feedback.   * Corresponde a la vista actual: 'editor' | 'pdf' | 'paraphraser'.   */  agencia: string;  /**   * Identificador del usuario que envió el feedback.   * Por ahora es 'anonymous' hasta que se implemente autenticación.   */  usuarioId: string;  /** Estado de gestión del feedback para uso interno / admin.
+// feedback.model.ts — interfaces para el modelo de Feedback.
+/**
+ * Modelo de Feedback persistido en Firebase Realtime Database.
+ * Ruta: /feedback/{pushId}
+ */
+export type FeedbackRating = 'terrible' | 'bad' | 'average' | 'good' | 'amazing';
+export type FeedbackEstado = 'pendiente' | 'revisado' | 'atendido';
+
+export interface Feedback {
+  /** ID asignado por Firebase (push key). Ausente al crear, presente al leer. */
+  id?: string;
+
+  /** Calificación seleccionada en el paso 1 del modal (emoji). */
+  rating: FeedbackRating;
+
+  /** Texto libre escrito por el usuario en el paso 2. */
+  mensaje: string;
+
+  /** ISO 8601 timestamp del momento exacto del envío. */
+  fechaCreacion: string;
+
+  /**
+   * Herramienta / agencia activa al momento de enviar el feedback.
+   * Corresponde a la vista actual: 'editor' | 'pdf' | 'paraphraser'.
+   */
+  agencia: string;
+
+  /**
+   * Identificador del usuario que envió el feedback.
+   * Por ahora es 'anonymous' hasta que se implemente autenticación.
+   */
+  usuarioId: string;
+
+  /** Estado de gestión del feedback para uso interno / admin. */
+  estado: FeedbackEstado;
+}

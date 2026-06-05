@@ -1,6 +1,6 @@
 # QuetzalNote — Online Notepad
 
-Aplicación web de bloc de notas inspirada en [onlinenotepad.io](https://www.onlinenotepad.io/), desarrollada con Angular y Firebase Realtime Database como proyecto final del curso de Programación Web.
+Aplicación web de bloc de notas online inspirada en [onlinenotepad.io](https://www.onlinenotepad.io/), desarrollada con Angular y Firebase Realtime Database como proyecto final del curso de Programación Web.
 
 ---
 
@@ -61,8 +61,8 @@ Curso: Programación Web — Ing. Marvin Quiñones
 ```
 src/
 ├── app/
-│   ├── app.routes.ts            # Configuración de rutas (Single Layout)
-│   ├── app.config.ts            # Bootstrap de la app (HttpClient, Router)
+│   ├── app.routes.ts            # Rutas (Single Layout)
+│   ├── app.config.ts            # Bootstrap (HttpClient, Router)
 │   ├── core/
 │   │   ├── constants/           # Constantes globales
 │   │   ├── interceptors/        # Interceptor de loading HTTP
@@ -77,17 +77,17 @@ src/
 │   │   └── notes/
 │   │       └── components/note-editor/   # Editor Quill + auto-save
 │   ├── layouts/
-│   │   └── main-layout/         # Shell principal: sidebar + topbar + área central
+│   │   └── main-layout/         # Shell principal
 │   └── shared/
 │       ├── components/
-│       │   ├── topbar/          # Barra superior adaptativa por vista
+│       │   ├── topbar/          # Barra superior adaptativa
 │       │   ├── sidebar/         # Panel lateral con lista de notas
-│       │   ├── editor-toolbar/  # Toolbar de formato de Quill
+│       │   ├── editor-toolbar/  # Toolbar de formato Quill
 │       │   ├── loader/          # Spinner global
 │       │   └── empty-notes/     # Estado vacío del editor
 │       └── services/
-│           ├── ui.service.ts    # Estado centralizado de la UI (signals)
-│           └── i18n.service.ts  # Internacionalización ligera
+│           ├── ui.service.ts    # Estado centralizado de la UI
+│           └── i18n.service.ts  # Internacionalización
 ├── environments/
 │   └── environment.ts           # Credenciales Firebase (NO incluido en el repo)
 └── assets/icons/                # SVGs del sistema de íconos
@@ -106,7 +106,7 @@ src/
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/<usuario>/QuetzalNote.git
+git clone https://github.com/gersonmoralescosigua/QuetzalNote.git
 cd QuetzalNote
 
 # 2. Instalar dependencias
@@ -137,4 +137,4 @@ export const environment = {
 
 Puedes obtener estos valores desde la consola de Firebase → Configuración del proyecto.
 
-> **Importante:** El archivo `environment.ts` está en `.gitignore` y nunca debe subirse al repositorio público. Las reglas de seguridad de Firebase deben estar configuradas para permitir lectura/escritura según el flujo de autenticación del proyecto.
+> **Importante:** El archivo `environment.ts` está en `.gitignore` y nunca debe subirse al repositorio público.

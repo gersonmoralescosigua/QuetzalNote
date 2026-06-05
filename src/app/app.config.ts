@@ -1,1 +1,10 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';import { provideRouter } from '@angular/router';import { provideHttpClient } from '@angular/common/http';import { routes } from './app.routes';export const appConfig: ApplicationConfig = {  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes), provideHttpClient()],};
+// app.config.ts — bootstrap de la aplicación: provee Router, HttpClient e interceptores.
+import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes), provideHttpClient()],
+};

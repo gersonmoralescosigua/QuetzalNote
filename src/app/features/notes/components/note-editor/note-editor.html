@@ -45,4 +45,45 @@
       <span *ngIf="!hasText()" class="text-gray-300 dark:text-gray-600">|</span>
       <!-- Separador + contadores de palabras/caracteres -->
       <span
-        *ngIf="h
+        *ngIf="hasText()"
+        class="hidden md:flex items-center gap-3 text-[13px] text-gray-400 ml-2 pl-2 border-l border-gray-200 dark:border-gray-600"
+      >
+        <span>Words: {{ wordCount() }}</span>
+        <span>Characters: {{ charCount() }}</span>
+      </span>
+    </div>
+
+    <!-- Lado derecho: Copy | Download | Clear -->
+    <div class="flex items-center gap-1">
+      <!-- Copy (con feedback visual) -->
+      <button
+        (click)="copyContent()"
+        title="{{ copyDone() ? 'Copied!' : 'Copy content' }}"
+        [ngClass]="copyDone() ? 'text-green-500' : ''"
+        class="flex items-center justify-center w-9 h-9 rounded text-[13px] font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      >
+        <img *ngIf="copyDone()" src="assets/icons/home-copy-check-icon.svg" class="w-5 h-5 icon-adaptive">
+        <img *ngIf="!copyDone()" src="assets/icons/home-copy-btn.svg" class="w-5 h-5 icon-adaptive">
+      </button>
+
+      <!-- Download (abre modal de selección de formato) -->
+      <button
+        (click)="downloadNote()"
+        title="Download note"
+        class="flex items-center justify-center w-9 h-9 rounded text-[13px] font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      >
+        <img src="assets/icons/Download.svg" class="w-5 h-5 icon-adaptive">
+      </button>
+
+      <!-- Clear Editor -->
+      <button
+        *ngIf="hasText()"
+        (click)="promptClearEditor()"
+        title="Clear editor"
+        class="flex items-center justify-center w-9 h-9 rounded text-[13px] font-medium text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+      >
+        <img src="assets/icons/delete.svg" class="w-5 h-5 icon-adaptive">
+      </button>
+    </div>
+  </div>
+</div>

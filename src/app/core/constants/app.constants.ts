@@ -1,3 +1,4 @@
+// app.constants.ts — constantes globales reutilizables (URLs, timeouts, límites).
 /**
  * app.constants.ts
  * Constantes globales de la aplicación QuetzalNote.
@@ -43,5 +44,5 @@ export const PDF_MARGIN_MM = 20;
 /** Altura de línea del documento PDF en milímetros */
 export const PDF_LINE_HEIGHT_MM = 7;
 
-/** Tamaño de fuente por defecto en el PDF exportado */
-export const PDF_FONT_SIZE = 12;
+/** Tamaño de fuente por defecto en el PDF en puntos */
+export const PDF_DEFAULT_FONT_SIZE = 12;

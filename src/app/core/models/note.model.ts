@@ -1,1 +1,12 @@
-export interface Note {  id?: string;  titulo: string;  contenido: string;  categoria?: string;  pinned?: boolean;  archived?: boolean;  deleted?: boolean;  fechaCreacion: string;  fechaActualizacion: string;}
+// note.model.ts — interfaz Note, estructura mínima requerida por Firebase.
+export interface Note {
+  id?: string;
+  titulo: string;
+  contenido: string;
+  categoria?: string;
+  pinned?: boolean;
+  archived?: boolean;
+  deleted?: boolean;
+  fechaCreacion: string;
+  fechaActualizacion: string;
+}

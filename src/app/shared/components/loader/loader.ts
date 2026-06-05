@@ -1,1 +1,10 @@
-// loader.ts// Componente que muestra un spinner de carga (loader) mientras se realizan operaciones asíncronas,// como la carga de notas o la comunicación con Firebase.import { Component
+// loader.ts — spinner global que aparece mientras se cargan notas desde Firebase.
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-loader',
+  imports: [],
+  templateUrl: './loader.html',
+  styleUrl: './loader.scss',
+})
+export class Loader {}

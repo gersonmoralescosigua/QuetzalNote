@@ -1,3 +1,4 @@
+// auth.service.ts — autenticación con Google y email/password via Firebase Identity Toolkit REST. Sin SDK.
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -285,13 +286,10 @@ export class AuthService {
       } else if (firebaseMsg.includes('WRONG_PASSWORD')) {
         mensaje = 'Contraseña incorrecta.';
       } else if (firebaseMsg.includes('TOO_MANY_ATTEMPTS_TRY_LATER') || firebaseMsg.includes('USER_DISABLED')) {
-        mensaje = 'Cuenta bloqueada temporalmente. Intenta más tarde.';
-      } else {
-        mensaje = `Error de autenticación: ${firebaseMsg}`;
+        mensaje = 'Cuenta bloqueada o demasiados intentos. Intenta más tarde.';
       }
     }
 
-    console.error('[AuthService]', error);
     return throwError(() => new Error(mensaje));
   }
 }

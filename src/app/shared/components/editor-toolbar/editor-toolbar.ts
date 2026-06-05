@@ -1,3 +1,4 @@
+// editor-toolbar.ts — toolbar de Quill, reutilizable en el editor de notas y en la vista PDF.
 import { Component, inject, signal, effect, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
@@ -1521,10 +1522,7 @@ export class EditorToolbar {
     }
   }
 
-  /**
-   * CORRECCIÓN: Cierra todos los menús si el clic ocurre fuera del componente host.
-   * Cubre sidebar, topbar, canvas del editor — cualquier área exterior al toolbar.
-   */
+  // Cierra todos los menús si el clic ocurre fuera del componente
   @HostListener('document:click', ['$event'])
   closeMenusOnOutsideClick(event: Event): void {
     const hostEl = this._elementRef.nativeElement as HTMLElement;

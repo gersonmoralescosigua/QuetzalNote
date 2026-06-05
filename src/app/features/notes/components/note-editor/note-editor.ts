@@ -1,22 +1,23 @@
-// importaciones angular y librerías externas
+// note-editor.ts — editor de notas con Quill: auto-guardado, importación de .docx
+// y exportación en TXT/PDF/Word. Registra estilos y blots personalizados en Quill
+// antes de que Angular inicialice el componente.
 import { Component, signal, inject, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { QuillModule, ContentChange } from 'ngx-quill'; // Editor Quill
+import { QuillModule, ContentChange } from 'ngx-quill';
 import Quill from 'quill';
-import { StyleAttributor, Scope } from 'parchment'; // Para registrar estilos personalizados
-import Swal from 'sweetalert2'; // Alertas bonitas
+import { StyleAttributor, Scope } from 'parchment';
+import Swal from 'sweetalert2';
 import { NotesService } from '../../../../core/services/notes.service';
 import { UiService } from '../../../../shared/services/ui.service';
 import { PdfService } from '../../../../core/services/pdf.service';
 
-// REGISTRO DE ESTILOS PERSONALIZADOS EN QUILL
-// Permite aplicar tamaños y fuentes arbitrarias (en px o font-family)
+// Registramos atributos de estilo inline para que Quill soporte tamaños y fuentes arbitrarios
 const SizeStyle = new StyleAttributor('size', 'font-size', { scope: Scope.INLINE });
 const FontStyle = new StyleAttributor('font', 'font-family', { scope: Scope.INLINE });
 Quill.register(SizeStyle, true);
 Quill.register(FontStyle, true);
 
-// BLOQUES PERSONALIZADOS: HR (línea horizontal) y Page Break (salto de página)
+// Blots personalizados: HR y salto de página
 const BlockEmbed = Quill.import('blots/block/embed') as any;
 
 class HorizontalRule extends BlockEmbed {
@@ -31,15 +32,12 @@ class PageBreak extends BlockEmbed {
   static className = 'ql-page-break';
   static create() {
     const node = super.create();
-    node.setAttribute('contenteditable', 'false'); // No editable
+    node.setAttribute('contenteditable', 'false');
     return node;
   }
 }
 Quill.register(PageBreak);
 
-// COMPONENTE: NoteEditorComponent
-// Maneja el editor de notas (Quill), auto-guardado, importación de .docx,
-// copiado con formato HTML, descarga en TXT/PDF/WORD y limpieza del contenido.
 @Component({
   selector: 'app-note-editor',
   standalone: true,
@@ -53,39 +51,32 @@ export class NoteEditorComponent {
   private ui = inject(UiService);
   private pdfService = inject(PdfService);
 
-  // configuración quill
-  /** Toolbar deshabilitada (está en EditorToolbar), historial activado */
-
+  // Toolbar deshabilitada aquí — la maneja EditorToolbar compartiendo la instancia Quill
   editorModules = {
     toolbar: false,
     history: { delay: 1000, maxStack: 100, userOnly: true },
-    list: true, // o 'check' si es necesario
-
-    // Quill necesita esto para que el checklist sea interactivo
+    list: true,
   };
 
-  // signals reactivos para la ui
-  hasText = signal(false); // ¿Hay texto en el editor?
-  wordCount = signal(0); // Número de palabras
-  charCount = signal(0); // Número de caracteres
-  copyDone = signal(false); // Feedback visual de copiado (ícono check)
+  hasText = signal(false);
+  wordCount = signal(0);
+  charCount = signal(0);
+  copyDone = signal(false);
 
-  // variables privadas
-  private quillInstance: any = null; // Instancia del editor Quill
-  private currentNoteId: string | null = null; // ID de la nota actualmente cargada
-  private saveTimeout: any = null; // Timeout para auto-guardado (debounce)
+  private quillInstance: any = null;
+  private currentNoteId: string | null = null;
+  private saveTimeout: any = null; // debounce del auto-guardado
 
   constructor() {
-    // LÓGICA: effect() se ejecuta cuando cambia la nota seleccionada en NotesService.
-    // Solo actualiza el contenido del editor si la nota realmente cambió (por ID).
+    // Cargamos el contenido de la nota en Quill solo cuando cambia por ID,
+    // para no pisar cambios que el usuario esté escribiendo en la misma nota.
     effect(() => {
       const note = this.notesService.selectedNote();
       if (note && this.quillInstance && note.id !== this.currentNoteId) {
         this.currentNoteId = note.id || null;
         this.quillInstance.clipboard.dangerouslyPasteHTML(note.contenido || '');
-        this.quillInstance.blur(); // Quita foco para no interferir con la selección
+        this.quillInstance.blur();
       }
-      // Actualiza contadores sin importar si cambió la nota
       if (this.quillInstance) {
         const text = this.quillInstance.getText().trim();
         this.hasText.set(text.length > 0);
@@ -95,13 +86,10 @@ export class NoteEditorComponent {
     });
   }
 
-  // eventos del editor
-
-  /** Se ejecuta cuando Quill ha sido creado y está listo (evento onEditorCreated) */
   onEditorCreated(quill: any): void {
     this.quillInstance = quill;
-    this.notesService.setQuillInstance(quill); // Comparte instancia con EditorToolbar
-    // Manejo de click en imágenes para mostrar controles de resize:
+    // Compartimos la instancia con EditorToolbar para que el toolbar funcione aquí también
+    this.notesService.setQuillInstance(quill);
     quill.root.addEventListener('click', (e: MouseEvent) => {
       const img = (e.target as HTMLElement).closest('img') as HTMLImageElement;
       if (img) {
@@ -127,14 +115,13 @@ export class NoteEditorComponent {
     }
   }
 
-  /** Se ejecuta en cada cambio de contenido del editor */
   onEditorChanged(event: ContentChange): void {
     const text = event.text.trim();
     this.hasText.set(text.length > 0);
     this.charCount.set(text.length);
     this.wordCount.set(text.length > 0 ? text.split(/\s+/).filter(Boolean).length : 0);
 
-    // LÓGICA: Debounce de auto-guardado — espera 1.5s después del último cambio
+    // Debounce de 1.5s — guardamos solo cuando el usuario deja de escribir
     clearTimeout(this.saveTimeout);
     this.saveTimeout = setTimeout(() => {
       const note = this.notesService.selectedNote();
@@ -142,10 +129,8 @@ export class NoteEditorComponent {
 
       const contenido = this.quillInstance?.root.innerHTML || '';
 
-      // LÓGICA: Auto-título — si la nota aún se llama "Untitled Document"
-      // y hay texto, tomamos la primera línea como título.
-      // isAutoTitle=true indica que el cambio de título fue automático
-      // y NO debe disparar triggerReload() (que causaría el flash del loader).
+      // Auto-título: si la nota es nueva, usamos la primera línea como título.
+      // Con isAutoTitle evitamos disparar triggerReload() y el flash del loader.
       let titulo = note.titulo;
       let isAutoTitle = false;
       if (titulo === 'Untitled Document' && text.length > 0) {
@@ -156,11 +141,9 @@ export class NoteEditorComponent {
         }
       }
 
-      // Activa indicador de guardado en la topbar (solo texto, NO el loader grande)
       this.ui.isSaving.set(true);
       this.ui.lastSaved.set(false);
 
-      // Actualiza la nota en Firebase a través de NotesService
       this.notesService
         .updateNote(note.id, {
           titulo,
@@ -176,9 +159,8 @@ export class NoteEditorComponent {
             this.notesService.selectNote(updated);
             this.ui.isSaving.set(false);
             this.ui.lastSaved.set(true);
-            // CORRECCIÓN: Solo recargar sidebar si el título cambió MANUALMENTE.
-            // Si fue auto-asignado (isAutoTitle=true), no disparamos reload
-            // para evitar el congelamiento / flash del loader al escribir.
+            // Solo recargamos el sidebar cuando el título cambió manualmente;
+            // si fue auto-asignado evitamos el flash del loader al escribir.
             if (titulo !== note.titulo && !isAutoTitle) {
               this.notesService.triggerReload();
             }
@@ -191,9 +173,6 @@ export class NoteEditorComponent {
     }, 1500);
   }
 
-  // importar documento word
-
-  /** Abre un selector de archivo .docx y lo importa al editor */
   uploadDoc(): void {
     const input = document.createElement('input');
     input.type = 'file';
