@@ -1,8 +1,6 @@
-<!-- ============================================================ -->
-<!-- TOPBAR — Barra superior de navegación (ancho completo)       -->
-<!-- ============================================================ -->
+<!-- topbar.html — barra de navegación superior -->
 
-<!-- ── Plantilla: panel de idiomas ─────────────────────────── -->
+<!-- panel de idiomas -->
 <ng-template #langPanel>
   <div class="absolute right-[105%] top-0 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 mr-1 animate-fade-in">
     <div class="px-4 py-2 text-[12px] text-gray-400 flex items-center justify-between border-b border-gray-100 dark:border-gray-700 mb-1">
@@ -23,7 +21,7 @@
   </div>
 </ng-template>
 
-<!-- ── Plantilla: menú desplegable de usuario ───────────────── -->
+<!-- dropdown del usuario -->
 <ng-template #userDropdown>
   <div
     *ngIf="isUserMenuOpen()"
@@ -86,7 +84,7 @@
   </div>
 </ng-template>
 
-<!-- ── Plantilla: botón de usuario (con iniciales o foto) ───── -->
+<!-- botón de usuario: foto, iniciales o ícono genérico -->
 <ng-template #userBtn>
   <div class="relative">
     <button (click)="toggleUserMenu()" class="min-w-[32px] min-h-[32px] flex items-center justify-center rounded border border-[#eceef0] dark:border-[#424242] hover:bg-[#F0F0F0] dark:hover:bg-[#252525] transition-colors">
@@ -109,7 +107,7 @@
   </div>
 </ng-template>
 
-<!-- ── Plantilla: hamburger (icono) ────────────────────────── -->
+<!-- hamburger -->
 <ng-template #hamburger>
   <button (click)="ui.toggleSidebar()" class="text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 p-1.5 rounded transition-colors flex-shrink-0 group">
     <img *ngIf="ui.isSidebarOpen()" src="assets/icons/menu-mid.svg" class="w-6 h-6 icon-adaptive group-hover:hidden">
@@ -118,7 +116,7 @@
   </button>
 </ng-template>
 
-<!-- ── Plantilla: logo ───────────────────────────────────────── -->
+<!-- logo -->
 <ng-template #logoBlock>
   <div class="hidden md:flex items-center gap-2 flex-shrink-0">
     <img src="assets/icons/logo.svg" class="w-[30px] h-[30px] flex-shrink-0">
@@ -126,17 +124,13 @@
   </div>
 </ng-template>
 
-<!-- ══════════════════════════════════════════════════════════ -->
-<!-- CONTENIDO DEL TOPBAR                                       -->
-<!-- ══════════════════════════════════════════════════════════ -->
+<!-- contenido del topbar (cambia según la vista activa) -->
 <div
   class="flex w-full h-full items-center justify-between border-b border-gray-200 dark:border-gray-700"
   style="height:48px; max-height:48px; padding: 0 12px; background: var(--color-white-2);"
 >
 
-  <!-- ════════════════════════════════════════════════════════ -->
-  <!-- VISTA: EDITOR DE NOTAS                                   -->
-  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- editor -->
   <ng-container *ngIf="ui.currentView() === 'editor'">
     <!-- Izquierda: hamburger + logo + título + guardado -->
     <div class="flex items-center gap-2 min-w-0 flex-1 mr-2">
@@ -201,9 +195,7 @@
     </div>
   </ng-container>
 
-  <!-- ════════════════════════════════════════════════════════ -->
-  <!-- VISTA: CONVERSOR PDF                                     -->
-  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- pdf converter -->
   <ng-container *ngIf="ui.currentView() === 'pdf'">
     <div class="flex items-center gap-2 flex-shrink-0">
       <ng-container *ngTemplateOutlet="hamburger"></ng-container>
@@ -224,9 +216,7 @@
     </div>
   </ng-container>
 
-  <!-- ════════════════════════════════════════════════════════ -->
-  <!-- VISTA: PARAPHRASER                                       -->
-  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- paraphraser -->
   <ng-container *ngIf="ui.currentView() === 'paraphraser'">
     <div class="flex items-center gap-2 flex-shrink-0">
       <ng-container *ngTemplateOutlet="hamburger"></ng-container>
@@ -247,24 +237,8 @@
     </div>
   </ng-container>
 
-  <!-- ════════════════════════════════════════════════════════ -->
-  <!-- VISTA: CONTACT US                                         -->
-  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- contact us -->
   <ng-container *ngIf="ui.currentView() === 'contact'">
     <div class="flex items-center gap-2 flex-shrink-0">
       <ng-container *ngTemplateOutlet="hamburger"></ng-container>
-      <ng-container *ngTemplateOutlet="logoBlock"></ng-container>
-    </div>
-    <div class="absolute left-1/2 -translate-x-1/2 pointer-events-none">
-      <h2 class="text-[15px] font-bold text-gray-800 dark:text-white tracking-wide">Contact Us</h2>
-    </div>
-    <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 flex-shrink-0">
-      <button (click)="toggleTheme()" class="min-w-[32px] min-h-[32px] flex items-center justify-center rounded border border-[#eceef0] dark:border-[#424242] hover:bg-[#F0F0F0] dark:hover:bg-[#252525] transition-colors">
-        <img *ngIf="!isDarkMode()" src="assets/icons/mobile_dark_moon_icon.svg" class="w-5 h-5 icon-adaptive">
-        <img *ngIf="isDarkMode()" src="assets/icons/sun_light_mode.svg" class="w-5 h-5" style="filter:var(--filter-inverse)">
-      </button>
-      <ng-container *ngTemplateOutlet="userBtn"></ng-container>
-    </div>
-  </ng-container>
-
-</div>
+      <ng-container *ngTemplateOutlet="logoBlock

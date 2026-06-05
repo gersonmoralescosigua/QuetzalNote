@@ -12,14 +12,14 @@ import { Note } from '../../../core/models/note.model';
  * arquitectura del Blueprint (features/notes/state/) y será el destino
  * de la migración progresiva conforme el proyecto madure.
  *
- * Responsable: Isidro (features/notes/state/) — Blueprint §7
+ * Responsable: Isidro (features/notes/state/)
  */
 @Injectable({
   providedIn: 'root',
 })
 export class NotesStateService {
 
-  // ── Estado selección ──────────────────────────────────────────────────────
+  // estado selección
 
   /** Nota actualmente seleccionada y visible en el editor. */
   readonly selectedNote = signal<Note | null>(null);
@@ -33,7 +33,7 @@ export class NotesStateService {
   /** Indica si hay una operación Firebase en curso. */
   readonly isLoading = signal<boolean>(false);
 
-  // ── Computed ──────────────────────────────────────────────────────────────
+  // computed
 
   /** True si hay una nota seleccionada con ID válido. */
   readonly hasSelectedNote = computed(() => !!this.selectedNote()?.id);
@@ -43,7 +43,7 @@ export class NotesStateService {
     this.searchQuery().toLowerCase().trim()
   );
 
-  // ── Acciones ──────────────────────────────────────────────────────────────
+  // acciones
 
   selectNote(note: Note | null): void {
     this.selectedNote.set(note);

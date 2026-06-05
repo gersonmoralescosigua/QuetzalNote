@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { NotesService } from '../../../core/services/notes.service';
 
-// ── Constantes de valores ────────────────────────────────────────────────────
+// constantes de valores
 const FONT_SIZES = [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72];
 const FONTS = ['Arial', 'Courier New', 'Georgia', 'Times New Roman', 'Trebuchet MS', 'Verdana'];
 
@@ -91,12 +91,10 @@ interface MenuPos {
   left: number;
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
 // COMPONENTE: EditorToolbar
 // Barra de herramientas del editor Quill.
 // Se puede reutilizar en la vista del editor de notas Y en la vista PDF.
 // Comunicación con Quill: a través de NotesService.quillInstance() (signal).
-// ══════════════════════════════════════════════════════════════════════════════
 @Component({
   selector: 'app-editor-toolbar',
   standalone: true,
@@ -109,7 +107,7 @@ export class EditorToolbar {
   private _elementRef = inject(ElementRef);
   private quill: any = null;
 
-  // ── Signals de estado de formato ─────────────────────────────────────────
+  // signals de estado de formato
   isBold = signal(false);
   isItalic = signal(false);
   isUnderline = signal(false);
@@ -122,7 +120,7 @@ export class EditorToolbar {
   currentAlign = signal('left');
   currentColor = signal('#000000');
 
-  // ── Signals de menús desplegables principales ─────────────────────────────
+  // signals de menús desplegables principales
   isFontMenuOpen = signal(false);
   isHeadingMenuOpen = signal(false);
   isAlignMenuOpen = signal(false);
@@ -132,7 +130,7 @@ export class EditorToolbar {
   isLangMenuOpen = signal(false); // Selector de lenguaje (solo en Code Block)
   isLinkPopupOpen = signal(false); // Popup flotante de link
 
-  // ── Posiciones de menús ───────────────────────────────────────────────────
+  // posiciones de menús
   fontMenuPos = signal<MenuPos>({ top: 0, left: 0 });
   headingMenuPos = signal<MenuPos>({ top: 0, left: 0 });
   colorMenuPos = signal<MenuPos>({ top: 0, left: 0 });
@@ -142,23 +140,23 @@ export class EditorToolbar {
   langMenuPos = signal<MenuPos>({ top: 0, left: 0 });
   linkPopupPos = signal<MenuPos>({ top: 0, left: 0 });
 
-  // ── Datos estáticos expuestos al template ─────────────────────────────────
+  // datos estáticos expuestos al template
   fonts = FONTS;
   colors = COLORS;
   quickColors = QUICK_COLORS;
   codeLanguages = CODE_LANGUAGES;
 
-  // ── Color picker avanzado ─────────────────────────────────────────────────
+  // color picker avanzado
   hueValue = signal(0); // Valor del slider de hue (0–360)
   currentHue = signal('hsl(0, 100%, 50%)'); // Color puro de la hue actual
   gradientX = signal(0); // Posición X del selector en el gradiente (%)
   gradientY = signal(100); // Posición Y del selector en el gradiente (%)
   hexInput = signal('#000000'); // Valor del campo HEX
 
-  // ── Code Block ────────────────────────────────────────────────────────────
+  // code block
   currentLanguage = signal('JavaScript'); // Lenguaje seleccionado en code block
 
-  // ── Link popup ────────────────────────────────────────────────────────────
+  // link popup
   linkInputValue = signal('https://');
   private savedLinkRange: any = null; // Rango de Quill guardado al abrir el popup
 
@@ -341,7 +339,7 @@ export class EditorToolbar {
     });
   }
 
-  // ── Actualizar estado de formato ──────────────────────────────────────────
+  // actualizar estado de formato
 
   /** Lee el formato actual de Quill y actualiza todos los signals */
   private updateFormats(): void {
@@ -369,7 +367,7 @@ export class EditorToolbar {
     }
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // helpers
 
   /** Calcula la posición del menú basándose en el botón que lo disparó */
   private getPos(event: MouseEvent): MenuPos {
@@ -425,7 +423,7 @@ export class EditorToolbar {
     return 'Left Align';
   }
 
-  // ── Deshacer / Rehacer ────────────────────────────────────────────────────
+  // deshacer / rehacer
   undo() {
     this.quill?.getModule('history')?.undo();
   }
@@ -433,7 +431,7 @@ export class EditorToolbar {
     this.quill?.getModule('history')?.redo();
   }
 
-  // ── Formato básico ────────────────────────────────────────────────────────
+  // formato básico
   toggleBold() {
     const val = !this.quill?.getFormat()['bold'];
     this.quill?.format('bold', val);
@@ -455,7 +453,7 @@ export class EditorToolbar {
     this.isCode.set(val);
   }
 
-  // ── Tipo de bloque ────────────────────────────────────────────────────────
+  // tipo de bloque
   setHeading(level: number | false) {
     this.quill?.format('header', level || false);
     if (level) {
@@ -516,7 +514,7 @@ export class EditorToolbar {
     this.isHeadingMenuOpen.set(false);
   }
 
-  // ── Tamaño de fuente ──────────────────────────────────────────────────────
+  // tamaño de fuente
   increaseFontSize() {
     const idx = FONT_SIZES.indexOf(this.fontSize());
     const next = idx !== -1 && idx < FONT_SIZES.length - 1 ? FONT_SIZES[idx + 1] : this.fontSize();
@@ -530,14 +528,14 @@ export class EditorToolbar {
     this.quill?.format('size', `${prev}px`);
   }
 
-  // ── Fuente ────────────────────────────────────────────────────────────────
+  // fuente
   setFont(font: string) {
     this.quill?.format('font', font);
     this.currentFont.set(font);
     this.isFontMenuOpen.set(false);
   }
 
-  // ── Alineación ────────────────────────────────────────────────────────────
+  // alineación
   setAlign(align: string) {
     this.quill?.format('align', align === 'left' ? false : align);
     this.currentAlign.set(align);
@@ -556,7 +554,7 @@ export class EditorToolbar {
     this.isAlignMenuOpen.set(false);
   }
 
-  // ── Color ─────────────────────────────────────────────────────────────────
+  // color
   setColor(color: string) {
     this.quill?.format('color', color);
     this.currentColor.set(color);
@@ -615,7 +613,7 @@ export class EditorToolbar {
     return `#${f(5)}${f(3)}${f(1)}`;
   }
 
-  // ── Menú "Aa" — Herramientas de texto ────────────────────────────────────
+  // menú "aa" — herramientas de texto
 
   toUppercase(): void {
     const range = this.quill?.getSelection();
@@ -684,7 +682,7 @@ export class EditorToolbar {
     this.isAaMenuOpen.set(false);
   }
 
-  // ── Code Block — Selector de lenguaje ────────────────────────────────────
+  // code block — selector de lenguaje
 
   setCodeLanguage(lang: string): void {
     this.currentLanguage.set(lang);
@@ -699,7 +697,7 @@ export class EditorToolbar {
     }
   }
 
-  // ── Link Popup Flotante ───────────────────────────────────────────────────
+  // link popup flotante
 
   /** Abre el popup de link solo si hay texto seleccionado */
   openLinkPopup(): void {
@@ -745,7 +743,7 @@ export class EditorToolbar {
     this.savedLinkRange = null;
   }
 
-  // ── Insert: Elementos especiales ──────────────────────────────────────────
+  // insert: elementos especiales
 
   insertHorizontalRule(): void {
     const range = this.quill?.getSelection(true);
@@ -1116,9 +1114,9 @@ export class EditorToolbar {
     this.isInsertMenuOpen.set(false);
   }
 
-  // ── Draw — Lienzo de dibujo ───────────────────────────────────────────────
+  // draw — lienzo de dibujo
 
-  // ── Draw (lienzo de dibujo) ───────────────────────────────────────────────
+  // draw (lienzo de dibujo)
   isDrawOpen = signal(false);
   private drawCanvas: HTMLCanvasElement | null = null;
   private drawCtx: CanvasRenderingContext2D | null = null;
@@ -1401,12 +1399,12 @@ export class EditorToolbar {
     }
   }
 
-  // ── Code Language ─────────────────────────────────────────────────────────
+  // code language
   setLangContextual(lang: string): void {
     this.setCodeLanguage(lang);
   }
 
-  // ── Varios ────────────────────────────────────────────────────────────────
+  // varios
 
   showComingSoon(feature: string): void {
     this.isInsertMenuOpen.set(false);
@@ -1439,7 +1437,7 @@ export class EditorToolbar {
     this.isInsertMenuOpen.set(false);
   }
 
-  // ── Gestión de menús (toggle / close) ────────────────────────────────────
+  // gestión de menús (toggle / close)
 
   /** Cierra absolutamente todos los menús desplegables */
   closeAllMenus(): void {

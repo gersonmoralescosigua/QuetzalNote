@@ -3,20 +3,19 @@ import { FeedbackRating } from '../../core/models/feedback.model';
 
 /**
  * ui.service.ts
- * ─────────────────────────────────────────────────────────────────────────────
  * Servicio central de estado de UI para QuetzalNote.
  * Centraliza todos los signals de visibilidad de paneles, modales y vistas.
  * Ningún componente debe guardar este tipo de estado local — todo pasa por aquí.
  *
  * Pattern: Signal → template reactivo (sin subscriptions manuales)
  *
- * Responsable: Gerson (shared/services/) — Blueprint §6
+ * Responsable: Gerson (shared/services/)
  */
 @Injectable({
   providedIn: 'root',
 })
 export class UiService {
-  // ── Navegación / Layout ───────────────────────────────────────────────────
+  // navegación / layout
 
   /** True = sidebar expandido (260px), False = colapsado (68px) */
   isSidebarOpen = signal(true);
@@ -24,7 +23,7 @@ export class UiService {
   /** Vista activa en el panel central */
   currentView = signal<'editor' | 'pdf' | 'paraphraser' | 'contact' | 'login'>('editor');
 
-  // ── Modales ───────────────────────────────────────────────────────────────
+  // modales
 
   /** Controla la visibilidad del modal de Feedback */
   isFeedbackOpen = signal(false);
@@ -38,7 +37,7 @@ export class UiService {
   /** Controla la visibilidad del modal de búsqueda avanzada (Ctrl+K) */
   isSearchModalOpen = signal(false);
 
-  // ── Guardado ──────────────────────────────────────────────────────────────
+  // guardado
 
   /** True mientras Firebase procesa una escritura (auto-guardado) */
   isSaving = signal(false);
@@ -46,7 +45,7 @@ export class UiService {
   /** True durante ~2s después de que Firebase confirma el guardado */
   lastSaved = signal(false);
 
-  // ── Feedback ──────────────────────────────────────────────────────────────
+  // feedback
 
   /** Paso actual del modal de Feedback: 1 = Caritas, 2 = Mensaje de texto */
   feedbackStep = signal<1 | 2>(1);
@@ -54,7 +53,7 @@ export class UiService {
   /** Rating seleccionado en el paso 1. Se limpia al cerrar el modal. */
   selectedRating = signal<FeedbackRating | null>(null);
 
-  // ── Acciones ──────────────────────────────────────────────────────────────
+  // acciones
 
   /** Alterna el estado abierto/cerrado del sidebar */
   toggleSidebar(): void {

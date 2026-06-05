@@ -1,11 +1,10 @@
+// paraphraser.service.ts
+// Lógica de parafraseo por sustitución léxica.
+// Desacoplada del componente para mantener la responsabilidad del servicio.
+// Responsable: Isidro
 import { Injectable } from '@angular/core';
 
-/**
- * Diccionario de sinónimos para el motor de parafraseo léxico.
- * Cada entrada mapea una palabra común a un arreglo de alternativas.
- * Mantenido aquí (en el servicio) y no en el componente, conforme a la
- * arquitectura del Blueprint §6: "Services: Solo HTTP, CRUD, Firebase, datos."
- */
+// Diccionario de sinónimos — cada entrada mapea una palabra a sus alternativas
 const SYNONYM_MAP: Record<string, string[]> = {
   good:      ['excellent', 'great', 'fine', 'outstanding'],
   bad:       ['poor', 'terrible', 'inadequate', 'inferior'],
@@ -38,36 +37,18 @@ const SYNONYM_MAP: Record<string, string[]> = {
   so:        ['therefore', 'consequently', 'thus', 'as a result'],
 };
 
-/**
- * ParaphraserService
- * Encapsula la lógica de parafraseo por sustitución léxica.
- * Mantiene la lógica desacoplada del componente de layout (Blueprint §6).
- *
- * Responsable: Isidro (core/services/)
- */
 @Injectable({
   providedIn: 'root',
 })
 export class ParaphraserService {
 
-  /**
-   * Aplica parafraseo léxico al texto recibido.
-   * Reemplaza palabras conocidas con sinónimos aleatorios del diccionario,
-   * preservando capitalización original y puntuación.
-   *
-   * @param text Texto original a parafrasear.
-   * @returns Texto con sustituciones léxicas aplicadas.
-   */
   paraphrase(text: string): string {
     if (!text.trim()) return '';
     return this.applyLexicalSubstitution(text);
   }
 
-  /**
-   * Motor interno de sustitución léxica.
-   * Tokeniza el texto por límites de palabras y reemplaza las que
-   * tienen entrada en SYNONYM_MAP.
-   */
+  // Tokeniza por límites de palabra y reemplaza las que están en el diccionario,
+  // preservando la capitalización original
   private applyLexicalSubstitution(text: string): string {
     return text.replace(/\b([a-zA-Z]+)\b/g, (match) => {
       const lower = match.toLowerCase();
@@ -75,8 +56,6 @@ export class ParaphraserService {
       if (!synonyms) return match;
 
       const synonym = synonyms[Math.floor(Math.random() * synonyms.length)];
-
-      // Preservar capitalización original
       const isCapitalized =
         match[0] === match[0].toUpperCase() &&
         match[0].toLowerCase() !== match[0].toUpperCase();

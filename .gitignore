@@ -42,3 +42,9 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+.fuse_hidden*
+
+# Environment files — contienen credenciales de Firebase y no deben subirse al repo
+src/environments/environment.ts
+src/environments/environment.*.ts
+!src/environments/environment.example.ts

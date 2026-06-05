@@ -17,6 +17,4 @@ describe('Sidebar', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+    

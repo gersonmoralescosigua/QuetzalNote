@@ -30,7 +30,6 @@ import Swal from 'sweetalert2';
 
 /**
  * MainLayoutComponent
- * ─────────────────────────────────────────────────────────────────────────────
  * Esqueleto visual principal de la aplicación QuetzalNote.
  * Responsable: Gerson (layout, UX, distribución).
  *
@@ -40,7 +39,7 @@ import Swal from 'sweetalert2';
  *  - Área central (editor / PDF / paraphraser)
  *  - Modales: Feedback, Login, Trash, All Notes, Search
  *
- * Blueprint §6: "UI Components: Solo visualización, diseño, eventos."
+ *"UI Components: Solo visualización, diseño, eventos."
  */
 @Component({
   selector: 'app-main-layout',
@@ -58,7 +57,7 @@ import Swal from 'sweetalert2';
   templateUrl: './main-layout.html',
 })
 export class MainLayoutComponent {
-  // ── Servicios ─────────────────────────────────────────────────────────────
+  // servicios
   ui = inject(UiService);
   notesService = inject(NotesService);
   feedbackService = inject(FeedbackService);
@@ -68,26 +67,26 @@ export class MainLayoutComponent {
   private parasSvc = inject(ParaphraserService);
   private router = inject(Router);
 
-  // ── Trash / All Notes ─────────────────────────────────────────────────────
+  // trash / all notes
   trashedNotes = signal<Note[]>([]);
   allModalNotes = signal<Note[]>([]);
 
-  // ── Sort del modal All Notes ───────────────────────────────────────────────
+  // sort del modal all notes
   /** Modo de ordenación activo: recent | a→z | z→a */
   currentSort = signal<'recent' | 'az' | 'za'>('recent');
-  // ── Estado para el menú de tres puntos (All Notes) ──────────────────────────
+  // estado para el menú de tres puntos (all notes)
   activeNoteMenu = signal<string | null>(null);
 
-  // ── Auth (refs de formulario email/password) ──────────────────────────────
+  // auth (refs de formulario email/password)
   @ViewChild('emailInput') private emailInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('passwordInput') private passwordInputRef!: ElementRef<HTMLInputElement>;
   showPassword = signal(false);
 
-  // ── Feedback ──────────────────────────────────────────────────────────────
+  // feedback
   @ViewChild('feedbackTextarea') private feedbackTextareaRef!: ElementRef<HTMLTextAreaElement>;
   isFeedbackSubmitting = signal(false);
 
-  // ── PDF Editor (instancia Quill de la vista PDF) ──────────────────────────
+  // pdf editor (instancia quill de la vista pdf)
   /** Instancia del editor Quill de la vista PDF */
   private pdfQuillInstance: any = null;
   /** ¿Hay texto en el editor PDF? */
@@ -104,7 +103,7 @@ export class MainLayoutComponent {
   /** True mientras se genera el PDF */
   isPdfConverting = signal(false);
 
-  // ── Paraphraser ───────────────────────────────────────────────────────────
+  // paraphraser
   @ViewChild('paraphraserInput') private paraphraserInputRef!: ElementRef<HTMLTextAreaElement>;
   paraphraserOutput = signal('');
   isParaphrasing = signal(false);
@@ -134,7 +133,7 @@ export class MainLayoutComponent {
       }
     });
 
-    // ── Efectos de UI ─────────────────────────────────────────────────────────
+    // efectos de ui
     effect(() => {
       if (this.ui.isTrashOpen()) {
         this.loadTrashedNotes();
@@ -145,9 +144,7 @@ export class MainLayoutComponent {
     });
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
   // BUSCADOR AVANZADO "ALL NOTES" (Ctrl+K)
-  // ══════════════════════════════════════════════════════════════════════════
 
   private loadAllModalNotes(): void {
     this.notesService.getNotes().subscribe({
@@ -206,7 +203,7 @@ export class MainLayoutComponent {
     this.ui.currentView.set('editor');
   }
 
-  // ── Menú de tres puntos (Rename / Remove) en All Notes ──────────────────────
+  // menú de tres puntos (rename / remove) en all notes
   toggleNoteMenu(noteId?: string): void {
     if (!noteId) return;
     if (this.activeNoteMenu() === noteId) {
@@ -294,9 +291,7 @@ export class MainLayoutComponent {
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
   // AUTH — Google Sign-In + Email/Password
-  // ══════════════════════════════════════════════════════════════════════════
 
   signInWithEmailPassword(): void {
     const email = this.emailInputRef?.nativeElement?.value?.trim() || '';
@@ -341,9 +336,7 @@ export class MainLayoutComponent {
     this.authService.signOut();
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
   // FEEDBACK
-  // ══════════════════════════════════════════════════════════════════════════
 
   selectRating(rating: FeedbackRating): void {
     this.ui.selectedRating.set(rating);
@@ -400,9 +393,7 @@ export class MainLayoutComponent {
       });
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
   // TRASH — Papelera
-  // ══════════════════════════════════════════════════════════════════════════
 
   private loadTrashedNotes(): void {
     this.notesService.getNotes().subscribe({
@@ -456,9 +447,7 @@ export class MainLayoutComponent {
     });
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
   // TEXT TO PDF — Vista PDF con editor Quill completo
-  // ══════════════════════════════════════════════════════════════════════════
 
   /** Callback cuando el editor Quill de PDF está listo */
   onPdfEditorCreated(quill: any): void {
@@ -636,9 +625,7 @@ export class MainLayoutComponent {
     input.click();
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
   // PARAPHRASER
-  // ══════════════════════════════════════════════════════════════════════════
 
   paraphrase(): void {
     const text = this.paraphraserInputRef?.nativeElement?.value?.trim() || '';
@@ -683,9 +670,7 @@ export class MainLayoutComponent {
     this.paraphraserOutput.set('');
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
   // UTILIDADES PRIVADAS
-  // ══════════════════════════════════════════════════════════════════════════
 
   private showAlert(title: string, message: string): void {
     Swal.fire({

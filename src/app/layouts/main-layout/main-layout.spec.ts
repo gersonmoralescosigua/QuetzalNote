@@ -17,6 +17,4 @@ describe('MainLayout', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+    

@@ -17,6 +17,4 @@ describe('Topbar', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+    

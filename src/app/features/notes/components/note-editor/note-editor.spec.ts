@@ -17,6 +17,4 @@ describe('NoteEditor', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+    

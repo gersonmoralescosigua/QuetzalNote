@@ -3,7 +3,6 @@ import { jsPDF } from 'jspdf';
 
 /**
  * pdf.service.ts
- * ─────────────────────────────────────────────────────────────────────────────
  * Responsable de toda la lógica de conversión de contenido a PDF y WORD.
  * Mantiene la lógica desacoplada del componente de layout (arquitectura §6 Blueprint).
  *
@@ -20,7 +19,7 @@ import { jsPDF } from 'jspdf';
   providedIn: 'root',
 })
 export class PdfService {
-  // ── TEXTO PLANO → PDF ──────────────────────────────────────────────────────
+  // texto plano → pdf
 
   /**
    * Convierte texto plano a un documento PDF y lo descarga automáticamente.
@@ -85,7 +84,7 @@ export class PdfService {
     doc.save(`${firstLine}.pdf`);
   }
 
-  // ── HTML (QUILL) → PDF ─────────────────────────────────────────────────────
+  // html (quill) → pdf
 
   /**
    * Convierte el HTML del editor Quill a PDF abriendo una ventana de impresión.
@@ -194,7 +193,7 @@ export class PdfService {
     }, 500);
   }
 
-  // ── HTML → WORD ────────────────────────────────────────────────────────────
+  // html → word
 
   /**
    * Exporta el HTML del editor como documento Word (.doc/.docx).
@@ -247,7 +246,7 @@ export class PdfService {
     }
   }
 
-  // ── DOCX → TEXTO ──────────────────────────────────────────────────────────
+  // docx → texto
 
   /**
    * Extrae texto plano de un archivo .docx usando mammoth.js (cargado globalmente).
@@ -283,7 +282,7 @@ export class PdfService {
     return result.value || '';
   }
 
-  // ── TEXTO DE MUESTRA ───────────────────────────────────────────────────────
+  // texto de muestra
 
   /**
    * Devuelve un texto de muestra para mostrar en el textarea del conversor PDF.
@@ -300,7 +299,7 @@ export class PdfService {
     );
   }
 
-  // ── UTILIDADES PRIVADAS ────────────────────────────────────────────────────
+  // utilidades privadas
 
   /** Descarga un Blob como archivo en el navegador */
   private downloadBlob(blob: Blob, fileName: string, mimeType: string): void {

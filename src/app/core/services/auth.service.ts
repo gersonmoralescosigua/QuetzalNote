@@ -56,9 +56,9 @@ declare const google: {
  * 5. El usuario se persiste en localStorage y en un Signal para reactividad.
  *
  * SIN Firebase SDK. SIN AngularFire. Solo HttpClient + Google Identity Services.
- * Cumple restricciones del Blueprint §4.
+ * Cumple restricciones del
  *
- * Responsable: Isidro (core/services/) — Blueprint §6
+ * Responsable: Isidro (core/services/)
  */
 @Injectable({
   providedIn: 'root',
@@ -80,7 +80,7 @@ export class AuthService {
   /** Flag para evitar inicializar GIS más de una vez */
   private gisInitialized = false;
 
-  // ── Estado reactivo ──────────────────────────────────────────────────────
+  // estado reactivo
 
   /** Usuario actualmente autenticado. Null si no hay sesión. */
   readonly currentUser = signal<User | null>(this.loadUserFromStorage());
@@ -94,7 +94,7 @@ export class AuthService {
   /** Mensaje de error del último intento de login. Null si no hay error. */
   readonly authError = signal<string | null>(null);
 
-  // ── API pública ──────────────────────────────────────────────────────────
+  // api pública
 
   /**
    * Inicializa Google Identity Services con el Client ID del proyecto.
@@ -197,7 +197,7 @@ export class AuthService {
     console.log('[AuthService] Sesión cerrada.');
   }
 
-  // ── Lógica interna ───────────────────────────────────────────────────────
+  // lógica interna
 
   /**
    * Recibe el JWT de Google y lo intercambia con Firebase Identity Toolkit REST API.
@@ -245,7 +245,7 @@ export class AuthService {
     );
   }
 
-  // ── Persistencia de sesión ────────────────────────────────────────────────
+  // persistencia de sesión
 
   private setUser(user: User): void {
     this.currentUser.set(user);
@@ -268,7 +268,7 @@ export class AuthService {
     }
   }
 
-  // ── Manejo de errores ─────────────────────────────────────────────────────
+  // manejo de errores
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     let mensaje = 'No se pudo iniciar sesión.';

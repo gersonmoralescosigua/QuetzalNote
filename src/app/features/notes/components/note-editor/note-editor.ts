@@ -1,4 +1,4 @@
-// ── Importaciones Angular y librerías externas ────────────────────────────────
+// importaciones angular y librerías externas
 import { Component, signal, inject, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QuillModule, ContentChange } from 'ngx-quill'; // Editor Quill
@@ -9,18 +9,14 @@ import { NotesService } from '../../../../core/services/notes.service';
 import { UiService } from '../../../../shared/services/ui.service';
 import { PdfService } from '../../../../core/services/pdf.service';
 
-// ══════════════════════════════════════════════════════════════════════════════
 // REGISTRO DE ESTILOS PERSONALIZADOS EN QUILL
 // Permite aplicar tamaños y fuentes arbitrarias (en px o font-family)
-// ══════════════════════════════════════════════════════════════════════════════
 const SizeStyle = new StyleAttributor('size', 'font-size', { scope: Scope.INLINE });
 const FontStyle = new StyleAttributor('font', 'font-family', { scope: Scope.INLINE });
 Quill.register(SizeStyle, true);
 Quill.register(FontStyle, true);
 
-// ══════════════════════════════════════════════════════════════════════════════
 // BLOQUES PERSONALIZADOS: HR (línea horizontal) y Page Break (salto de página)
-// ══════════════════════════════════════════════════════════════════════════════
 const BlockEmbed = Quill.import('blots/block/embed') as any;
 
 class HorizontalRule extends BlockEmbed {
@@ -41,11 +37,9 @@ class PageBreak extends BlockEmbed {
 }
 Quill.register(PageBreak);
 
-// ══════════════════════════════════════════════════════════════════════════════
 // COMPONENTE: NoteEditorComponent
 // Maneja el editor de notas (Quill), auto-guardado, importación de .docx,
 // copiado con formato HTML, descarga en TXT/PDF/WORD y limpieza del contenido.
-// ══════════════════════════════════════════════════════════════════════════════
 @Component({
   selector: 'app-note-editor',
   standalone: true,
@@ -54,12 +48,12 @@ Quill.register(PageBreak);
   styleUrls: ['./note-editor.scss'],
 })
 export class NoteEditorComponent {
-  // ── Inyección de servicios ────────────────────────────────────────────────
+  // inyección de servicios
   private notesService = inject(NotesService);
   private ui = inject(UiService);
   private pdfService = inject(PdfService);
 
-  // ── Configuración Quill ───────────────────────────────────────────────────
+  // configuración quill
   /** Toolbar deshabilitada (está en EditorToolbar), historial activado */
 
   editorModules = {
@@ -70,13 +64,13 @@ export class NoteEditorComponent {
     // Quill necesita esto para que el checklist sea interactivo
   };
 
-  // ── Signals reactivos para la UI ──────────────────────────────────────────
+  // signals reactivos para la ui
   hasText = signal(false); // ¿Hay texto en el editor?
   wordCount = signal(0); // Número de palabras
   charCount = signal(0); // Número de caracteres
   copyDone = signal(false); // Feedback visual de copiado (ícono check)
 
-  // ── Variables privadas ────────────────────────────────────────────────────
+  // variables privadas
   private quillInstance: any = null; // Instancia del editor Quill
   private currentNoteId: string | null = null; // ID de la nota actualmente cargada
   private saveTimeout: any = null; // Timeout para auto-guardado (debounce)
@@ -101,7 +95,7 @@ export class NoteEditorComponent {
     });
   }
 
-  // ── Eventos del editor ────────────────────────────────────────────────────
+  // eventos del editor
 
   /** Se ejecuta cuando Quill ha sido creado y está listo (evento onEditorCreated) */
   onEditorCreated(quill: any): void {
@@ -197,7 +191,7 @@ export class NoteEditorComponent {
     }, 1500);
   }
 
-  // ── Importar documento Word ───────────────────────────────────────────────
+  // importar documento word
 
   /** Abre un selector de archivo .docx y lo importa al editor */
   uploadDoc(): void {
@@ -269,7 +263,7 @@ export class NoteEditorComponent {
     input.click();
   }
 
-  // ── Copiar contenido ──────────────────────────────────────────────────────
+  // copiar contenido
 
   /**
    * Copia el contenido del editor al portapapeles.
@@ -320,7 +314,7 @@ export class NoteEditorComponent {
     });
   }
 
-  // ── Descargar nota ────────────────────────────────────────────────────────
+  // descargar nota
 
   /** Muestra el modal de selección de formato y descarga la nota */
   downloadNote(): void {
@@ -451,7 +445,7 @@ export class NoteEditorComponent {
     });
   }
 
-  // ── Limpiar editor ────────────────────────────────────────────────────────
+  // limpiar editor
 
   /** Muestra confirmación y limpia el editor completamente */
   promptClearEditor(): void {

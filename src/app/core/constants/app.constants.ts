@@ -5,10 +5,10 @@
  * dispersos en el código.
  *
  * Responsable: Isidro (lógica) / Gerson (constantes visuales)
- * Blueprint §6: core/constants/
+ *
  */
 
-// ── Firebase ──────────────────────────────────────────────────────────────────
+// firebase
 
 /** Nodos raíz de Firebase Realtime Database */
 export const FIREBASE_NODES = {
@@ -16,12 +16,12 @@ export const FIREBASE_NODES = {
   FEEDBACK: 'feedback',
 } as const;
 
-// ── Autosave ──────────────────────────────────────────────────────────────────
+// autosave
 
 /** Tiempo de espera (ms) antes de guardar automáticamente tras el último cambio */
 export const AUTOSAVE_DELAY_MS = 1000;
 
-// ── Editor ────────────────────────────────────────────────────────────────────
+// editor
 
 /** Título por defecto al crear una nota nueva */
 export const DEFAULT_NOTE_TITLE = 'Untitled Document';
@@ -32,7 +32,7 @@ export const LAST_NOTE_ID_KEY = 'qn_lastNoteId';
 /** Clave de localStorage para persistir la preferencia de tema */
 export const THEME_KEY = 'theme';
 
-// ── PDF ───────────────────────────────────────────────────────────────────────
+// pdf
 
 /** Máximo de caracteres del nombre de archivo al exportar PDF */
 export const PDF_FILENAME_MAX_CHARS = 40;

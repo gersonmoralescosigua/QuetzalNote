@@ -16,7 +16,6 @@ import { I18nService, Language } from '../../services/i18n.service';
 
 /**
  * TopbarComponent
- * ─────────────────────────────────────────────────────────────────────────────
  * Barra superior de navegación de QuetzalNote.
  * Cambia su contenido según la vista activa: editor, pdf o paraphraser.
  *
@@ -36,21 +35,21 @@ import { I18nService, Language } from '../../services/i18n.service';
   templateUrl: './topbar.html',
 })
 export class TopbarComponent implements OnInit {
-  // ── Servicios ─────────────────────────────────────────────────────────────
+  // servicios
   ui = inject(UiService);
   notesService = inject(NotesService);
   authService = inject(AuthService);
   i18n = inject(I18nService);
 
-  // ── Signals de UI ─────────────────────────────────────────────────────────
+  // signals de ui
   isDarkMode = signal(false);
   isUserMenuOpen = signal(false);
   isLanguageMenuOpen = signal(false);
 
-  // ── Referencias al DOM ────────────────────────────────────────────────────
+  // referencias al dom
   @ViewChild('titleInput') private titleInput!: ElementRef<HTMLInputElement>;
 
-  // ── Estado interno ────────────────────────────────────────────────────────
+  // estado interno
   private currentNoteId = '';
   private lastKnownTitle = '';
 
@@ -64,7 +63,7 @@ export class TopbarComponent implements OnInit {
     }
   }
 
-  // ── Ciclo de vida ─────────────────────────────────────────────────────────
+  // ciclo de vida
 
   constructor() {
     // LÓGICA: Cuando la nota seleccionada cambia, sincronizar el input del título.
@@ -114,7 +113,7 @@ export class TopbarComponent implements OnInit {
     ); // true = capture phase, antes de que Quill lo vea
   }
 
-  // ── Tema claro / oscuro ───────────────────────────────────────────────────
+  // tema claro / oscuro
 
   toggleTheme(): void {
     this.isDarkMode.update((v) => !v);
@@ -127,7 +126,7 @@ export class TopbarComponent implements OnInit {
     }
   }
 
-  // ── Título de la nota ─────────────────────────────────────────────────────
+  // título de la nota
 
   /** Guarda el título de la nota cuando el input pierde el foco o se presiona Enter */
   updateTitle(): void {
@@ -163,7 +162,7 @@ export class TopbarComponent implements OnInit {
       });
   }
 
-  // ── Menú de usuario ───────────────────────────────────────────────────────
+  // menú de usuario
 
   /** Alterna la visibilidad del menú de usuario. Cierra el submenú de idiomas si aplica. */
   toggleUserMenu(): void {
@@ -186,7 +185,7 @@ export class TopbarComponent implements OnInit {
     this.isUserMenuOpen.set(false);
   }
 
-  // ── Idioma ────────────────────────────────────────────────────────────────
+  // idioma
 
   /**
    * Cambia el idioma activo usando I18nService.
@@ -198,7 +197,7 @@ export class TopbarComponent implements OnInit {
     this.isUserMenuOpen.set(false);
   }
 
-  // ── Búsqueda ──────────────────────────────────────────────────────────────
+  // búsqueda
 
   setSearchQuery(event: Event): void {
     const input = event.target as HTMLInputElement;

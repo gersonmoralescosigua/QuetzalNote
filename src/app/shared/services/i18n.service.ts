@@ -2,7 +2,6 @@ import { Injectable, signal } from '@angular/core';
 
 /**
  * i18n.service.ts
- * ─────────────────────────────────────────────────────────────────────────────
  * Servicio de internacionalización ligero para QuetzalNote.
  * NO usa el módulo @angular/localize (requeriría rebuilds por idioma).
  * En su lugar mantiene un diccionario en memoria y un Signal reactivo.
@@ -17,17 +16,17 @@ import { Injectable, signal } from '@angular/core';
  *   2. Añadir su objeto en TRANSLATIONS
  *   3. Añadir su entrada en LANGUAGES
  *
- * Responsable: Gerson (shared/services/) — Blueprint §6
+ * Responsable: Gerson (shared/services/)
  */
 
-// ── Tipos ─────────────────────────────────────────────────────────────────────
+// tipos
 
 /** Códigos ISO 639-1 de los idiomas soportados */
 export type Language = 'en' | 'es' | 'fr' | 'pt';
 
 /** Diccionario completo de traducciones por idioma */
 const TRANSLATIONS: Record<Language, Record<string, string>> = {
-  // ── INGLÉS ─────────────────────────────────────────────────────────────────
+  // inglés
   en: {
     // Sidebar
     newNote: 'New Note',
@@ -89,7 +88,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     processing: 'Processing...',
   },
 
-  // ── ESPAÑOL ────────────────────────────────────────────────────────────────
+  // español
   es: {
     newNote: 'Nueva Nota',
     notes: 'Notas',
@@ -143,7 +142,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     processing: 'Procesando...',
   },
 
-  // ── FRANCÉS ────────────────────────────────────────────────────────────────
+  // francés
   fr: {
     newNote: 'Nouvelle Note',
     notes: 'Notes',
@@ -197,7 +196,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
     processing: 'Traitement...',
   },
 
-  // ── PORTUGUÉS ──────────────────────────────────────────────────────────────
+  // portugués
   pt: {
     newNote: 'Nova Nota',
     notes: 'Notas',
@@ -252,7 +251,7 @@ const TRANSLATIONS: Record<Language, Record<string, string>> = {
   },
 };
 
-// ── Servicio ──────────────────────────────────────────────────────────────────
+// servicio
 
 @Injectable({
   providedIn: 'root',
