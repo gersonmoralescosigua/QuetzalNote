@@ -1,74 +1,99 @@
-<!-- NOTE EDITOR -->
-<div class="w-full flex flex-col" style="height:100%;min-height:0;">
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- NOTE EDITOR — Editor de notas con Quill                             -->
+<!-- Fiel a onlinenotepad.io: footer con contadores, Copy, Download,     -->
+<!-- Help me write y Upload Doc                                           -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
 
-  <!-- Zona scrollable — min-h-0 es clave en flex para que no crezca sin límite -->
-  <div class="flex-1 overflow-y-auto min-h-0">
-    <div class="max-w-5xl mx-auto pt-6 px-8 pb-6">
-
-      <!-- Help me write — solo cuando el editor está vacío -->
-      <button
-        [class.hidden]="hasText()"
-        class="w-fit mb-4 flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 px-4 py-1.5 rounded-full shadow-sm hover:shadow-md transition-shadow text-[14px] font-medium text-gray-700 dark:text-gray-200"
-      >
-        <span class="material-icons text-teal-500 text-[18px]">auto_awesome</span>
-        Help me write
-      </button>
-
-      <!-- Editor Quill -->
-      <quill-editor
-        (onEditorCreated)="onEditorCreated($event)"
-        (onContentChanged)="onEditorChanged($event)"
-        [modules]="editorModules"
-        placeholder="Start writing, press '/' for commands..."
-        class="w-full text-gray-800 dark:text-gray-100 border-none outline-none"
-      ></quill-editor>
-
+<div class="flex flex-col h-full overflow-hidden">
+  <!-- ── Área del editor Quill ────────────────────────────────────────── -->
+  <div class="flex-1 overflow-y-auto px-8 pt-4 pb-2">
+    <quill-editor
+      (onEditorCreated)="onEditorCreated($event)"
+      (onContentChanged)="onEditorChanged($event)"
+      [modules]="editorModules"
+      placeholder="Start typing your note..."
+      class="w-full text-gray-800 dark:text-gray-100 border-none outline-none min-h-full"
+    >
+    </quill-editor>
+    <!-- Overlay con "Help me write" (solo cuando no hay texto) -->
+    <div
+      *ngIf="!hasText()"
+      class="absolute inset-0 flex flex-col items-start justify-start pt-12 px-8 pointer-events-none"
+    >
+      <div class="pointer-events-auto">
+        <button
+          class="flex items-center gap-2 text-[13px] text-gray-400 hover:text-[#18639c] transition-colors"
+        >
+          <span class="material-icons text-[16px] text-[#18639c]">auto_awesome</span>
+          <span>Help me write</span>
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Barra inferior fija — siempre visible al fondo -->
-  <div class="flex-shrink-0 px-8 py-2 flex items-center justify-between text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700">
-
-    <!-- Izquierda: Upload Doc (sin texto) o contadores (con texto) -->
-    <div class="text-[13px]">
+  <!-- ── Footer del editor ─────────────────────────────────────────────── -->
+  <!-- Fiel al original: Upload Doc | Help me write | [espacio] | Copy | Download | Clear -->
+  <div
+    class="flex-shrink-0 border-t border-gray-100 dark:border-gray-700 px-4 md:px-8 py-2 flex items-center justify-between text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800"
+  >
+    <!-- Lado izquierdo: Upload + Help me write -->
+    <div class="flex items-center gap-3">
+      <!-- Upload Doc -->
       <button
         *ngIf="!hasText()"
         (click)="uploadDoc()"
-        class="flex items-center gap-1.5 hover:text-gray-800 dark:hover:text-white transition-colors font-medium"
+        class="flex items-center gap-1.5 text-[13px] font-medium hover:text-gray-800 dark:hover:text-white transition-colors"
       >
-        <span class="material-icons text-[18px]">upload</span>
+        <span class="material-icons text-[18px]">upload_file</span>
         Upload Doc
       </button>
-      <span *ngIf="hasText()">
-        Words: {{ wordCount() }}&nbsp;&nbsp;Characters: {{ charCount() }}
+
+      <span *ngIf="!hasText()" class="text-gray-300 dark:text-gray-600">|</span>
+      <!-- Separador + contadores de palabras/caracteres -->
+      <span
+        *ngIf="hasText()"
+        class="hidden md:flex items-center gap-3 text-[13px] text-gray-400 ml-2 pl-2 border-l border-gray-200 dark:border-gray-600"
+      >
+        <span>Words: {{ wordCount() }}</span>
+        <span>Characters: {{ charCount() }}</span>
       </span>
     </div>
 
-    <!-- Derecha: Copy, Download, Clear -->
+    <!-- Lado derecho: Copy | Download | Clear -->
     <div class="flex items-center gap-1">
+      <!-- Copy (con feedback visual) -->
       <button
         (click)="copyContent()"
+        title="Copy content"
         [ngClass]="copyDone() ? 'text-green-500' : ''"
-        [title]="copyDone() ? 'Copied!' : 'Copy content'"
-        class="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded text-[13px] font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
       >
-        <span class="material-icons text-[20px]">{{ copyDone() ? 'check' : 'content_copy' }}</span>
+        <span class="material-icons text-[17px]">
+          {{ copyDone() ? 'check' : 'content_copy' }}
+        </span>
+        <span class="hidden md:inline">{{ copyDone() ? 'Copied!' : 'Copy' }}</span>
       </button>
+
+      <!-- Download (abre modal de selección de formato) -->
       <button
         (click)="downloadNote()"
-        title="Download as .txt"
-        class="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        title="Download note"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded text-[13px] font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
       >
-        <span class="material-icons text-[20px]">file_download</span>
+        <span class="material-icons text-[17px]">download</span>
+        <span class="hidden md:inline">Download</span>
       </button>
+
+      <!-- Clear Editor -->
       <button
+        *ngIf="hasText()"
         (click)="promptClearEditor()"
-        title="Clear content"
-        class="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 transition-colors"
+        title="Clear editor"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded text-[13px] font-medium text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
       >
-        <span class="material-icons text-[20px]">delete_outline</span>
+        <span class="material-icons text-[17px]">clear_all</span>
+        <span class="hidden md:inline">Clear</span>
       </button>
     </div>
-
   </div>
 </div>

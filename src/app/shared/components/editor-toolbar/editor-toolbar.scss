@@ -1,0 +1,82 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   editor-toolbar.scss
+   Estilos del componente EditorToolbar.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Barra de herramientas ─────────────────────────────────────────────────── */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+/* Oculta la scrollbar horizontal visualmente pero mantiene el scroll funcional.
+   Esto permite que la toolbar sea deslizable en pantallas pequeñas sin
+   que las herramientas salten a otra línea. */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome / Safari */
+  }
+}
+
+/* ── Slider de Hue (Color Picker) ──────────────────────────────────────────── */
+
+/* Normaliza el aspecto del input[type=range] del slider de hue en todos los navegadores */
+input[type='range'].hue-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px;
+  border-radius: 9999px;
+  cursor: pointer;
+  outline: none;
+  border: none;
+
+  /* El background del gradiente se aplica inline en el HTML */
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #d1d5db;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  &::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #d1d5db;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* ==========================================================================
+   INTERACTIVIDAD DE IMÁGENES Y DIBUJOS (Quill)
+   ========================================================================== */
+::ng-deep .ql-editor {
+  img {
+    cursor: pointer;
+    border-radius: 4px;
+    max-width: 100%;
+    transition: outline 0.1s ease;
+  }
+
+  img.active-img {
+    outline: 3px solid #18639c; /* Borde azul brillante de selección */
+    outline-offset: 2px;
+    cursor: grab; /* Cursor de manita abierta */
+  }
+
+  img.active-img:active {
+    cursor: grabbing; /* Cursor de manita cerrada al arrastrar */
+  }
+}

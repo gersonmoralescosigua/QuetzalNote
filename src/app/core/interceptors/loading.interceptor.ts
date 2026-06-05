@@ -22,16 +22,17 @@ import { NotesService } from '../services/notes.service';
 export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
   const notesService = inject(NotesService);
 
-  // Solo activar loader para requests a Firebase
   const isFirebaseRequest = req.url.includes('firebaseio.com');
+  // LÓGICA: Identificamos si es un autoguardado (PATCH o PUT) para NO congelar la pantalla
+  const isAutoSave = req.method === 'PATCH' || req.method === 'PUT';
 
-  if (isFirebaseRequest) {
+  if (isFirebaseRequest && !isAutoSave) {
     notesService.isLoading.set(true);
   }
 
   return next(req).pipe(
     finalize(() => {
-      if (isFirebaseRequest) {
+      if (isFirebaseRequest && !isAutoSave) {
         notesService.isLoading.set(false);
       }
     }),
