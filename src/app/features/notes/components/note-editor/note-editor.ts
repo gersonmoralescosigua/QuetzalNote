@@ -1,7 +1,7 @@
 // note-editor.ts — editor de notas con Quill: auto-guardado, importación de .docx
 // y exportación en TXT/PDF/Word. Registra estilos y blots personalizados en Quill
 // antes de que Angular inicialice el componente.
-import { Component, signal, inject, effect, ChangeDetectorRef } from '@angular/core';
+import { Component, signal, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QuillModule, ContentChange } from 'ngx-quill';
 import Quill from 'quill';
