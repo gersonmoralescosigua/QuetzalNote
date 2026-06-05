@@ -22,7 +22,7 @@ export class UiService {
   isSidebarOpen = signal(true);
 
   /** Vista activa en el panel central */
-  currentView = signal<'editor' | 'pdf' | 'paraphraser'>('editor');
+  currentView = signal<'editor' | 'pdf' | 'paraphraser' | 'contact'>('editor');
 
   // ── Modales ───────────────────────────────────────────────────────────────
 

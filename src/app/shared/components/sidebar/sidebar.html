@@ -1,149 +1,148 @@
 <!-- =============================================== -->
 <!-- SECCIÓN: SIDEBAR - MENÚ LATERAL DE NAVEGACIÓN   -->
-<!-- Propósito: Navegación principal, lista de notas  -->
-<!-- y acceso a herramientas                          -->
 <!-- =============================================== -->
-<div class="flex flex-col h-full bg-white dark:bg-gray-800 font-sans whitespace-nowrap text-[14px]">
-  <!-- >>> ZONA: HEADER DEL SIDEBAR <<< -->
-  <div class="flex items-center p-4 gap-4">
-    <button
-      (click)="ui.toggleSidebar()"
-      class="text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 p-1.5 rounded transition-colors group"
-    >
-      <span class="material-icons text-[22px] block group-hover:hidden">menu</span>
-      <span class="material-icons text-[22px] hidden group-hover:block text-[#18639c]"
-        >menu_open</span
-      >
-    </button>
-    <div
-      [class.opacity-0]="!ui.isSidebarOpen()"
-      class="flex items-center gap-2 cursor-pointer transition-opacity duration-200"
-    >
-      <div class="w-[22px] h-[22px] bg-teal-400 rotate-45 rounded-sm flex-shrink-0"></div>
-      <span class="font-bold text-[15px] leading-tight text-gray-800 dark:text-white"
-        >Online<br />Notepad</span
-      >
-    </div>
-  </div>
-
+<div class="flex flex-col bg-white dark:bg-gray-800 font-sans whitespace-nowrap h-full">
   <!-- >>> BOTÓN NUEVA NOTA <<< -->
-  <div class="px-4 mt-3 mb-2 flex justify-start">
+  <div class="px-3 mt-3 mb-3 flex justify-start">
     <button
       (click)="createNote()"
       [ngClass]="ui.isSidebarOpen() ? 'w-[130px] px-3' : 'w-[40px] px-0 justify-center'"
       class="flex items-center justify-start gap-2 bg-[#EBF5FE] hover:bg-[#d2e3fc] text-[#18639c] font-medium py-2 rounded-lg transition-all duration-300"
     >
-      <span class="material-icons text-[20px]">add</span>
+      <img src="assets/icons/blue_add_note_plus.svg" class="w-6 h-6" />
       <span [class.hidden]="!ui.isSidebarOpen()" class="text-[14px]">{{ i18n.t('newNote') }}</span>
     </button>
   </div>
 
-  <!-- SECCIÓN 1: LISTA DE NOTAS (máximo 6, sin scroll) -->
-  <div class="flex flex-col overflow-hidden px-4">
-    <div [class.hidden]="!ui.isSidebarOpen()" class="mb-1 flex justify-between items-center">
-      <span class="text-[12px] text-gray-400 uppercase tracking-wide">{{ i18n.t('notes') }}</span>
-      <a
-        (click)="ui.isSearchModalOpen.set(true); $event.preventDefault()"
-        href="#"
-        class="text-blue-500 hover:underline cursor-pointer"
-        >{{ i18n.t('viewAll') }}</a
+  <!-- SECCIÓN 1: LISTA DE NOTAS -->
+  <!-- Header de notas: solo visible cuando sidebar está abierto -->
+  <div [class.hidden]="!ui.isSidebarOpen()" class="px-3 mb-1 flex justify-between items-center">
+    <span
+      class="text-[11px] text-gray-600 dark:text-gray-400 uppercase tracking-wide font-semibold"
+      >{{ i18n.t('notes') }}</span
+    >
+    <a
+      (click)="ui.isSearchModalOpen.set(true); $event.preventDefault()"
+      href="#"
+      class="flex items-center gap-1 text-[#18639c] hover:underline cursor-pointer text-[12px]"
+      >{{ i18n.t('viewAll') }}
+      <img src="assets/icons/view-all-content-arow-down.svg" class="w-3 h-3 icon-adaptive" />
+    </a>
+  </div>
+
+  <!-- Items de notas — misma estructura que Other Tools para alineación uniforme -->
+  <div class="flex flex-col overflow-hidden mb-2">
+    <div
+      *ngFor="let note of notes()"
+      (click)="selectNote(note)"
+      [ngClass]="[
+        ui.isSidebarOpen() ? 'px-3 justify-between w-full' : 'justify-center px-0 w-full',
+        notesService.selectedNote()?.id === note.id
+          ? 'bg-[#EBF5FE] dark:bg-blue-900/30'
+          : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700',
+      ]"
+      class="py-2 text-gray-800 dark:text-white cursor-pointer flex items-center gap-3 group/note transition-all rounded-md"
+    >
+      <img
+        [class.hidden]="ui.isSidebarOpen()"
+        src="assets/icons/single_note_icon.svg"
+        class="w-6 h-6 icon-adaptive flex-shrink-0"
+      />
+      <span
+        [class.hidden]="!ui.isSidebarOpen()"
+        class="text-[14px] text-gray-700 dark:text-gray-200 truncate flex-1"
+        >{{ note.titulo }}</span
       >
-    </div>
-    <div class="mb-4">
-      <div class="flex flex-col w-full">
-        <div
-          *ngFor="let note of notes()"
-          (click)="selectNote(note)"
-          [ngClass]="[
-            ui.isSidebarOpen() ? 'justify-between w-full' : 'justify-center w-[40px] mx-auto',
-            notesService.selectedNote()?.id === note.id
-              ? 'bg-[#EBF5FE] dark:bg-blue-900/30'
-              : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700',
-          ]"
-          class="py-2 text-gray-800 dark:text-white cursor-pointer flex items-center group/note transition-all rounded-md"
-        >
-          <div class="flex items-center gap-3 overflow-hidden">
-            <span
-              [class.hidden]="ui.isSidebarOpen()"
-              class="material-icons text-[18px] text-[#18639c]"
-              >description</span
-            >
-            <span [class.hidden]="!ui.isSidebarOpen()" class="text-[14px] truncate">{{
-              note.titulo
-            }}</span>
-          </div>
-          <button
-            [class.hidden]="!ui.isSidebarOpen()"
-            (click)="deleteNote(note); $event.stopPropagation()"
-            class="opacity-0 group-hover/note:opacity-100 text-gray-400 hover:text-red-500 transition-opacity"
-          >
-            <span class="material-icons text-[16px]">delete_outline</span>
-          </button>
-        </div>
-      </div>
+      <button
+        [class.hidden]="!ui.isSidebarOpen()"
+        (click)="deleteNote(note); $event.stopPropagation()"
+        class="opacity-0 group-hover/note:opacity-100 text-gray-400 hover:text-red-500 transition-opacity flex-shrink-0"
+      >
+        <img src="assets/icons/delete.svg" class="w-4 h-4 icon-adaptive" />
+      </button>
     </div>
   </div>
 
-  <!-- Separador entre NOTAS y OTHER TOOLS -->
-  <hr class="my-2 mx-4 border-t border-gray-200 dark:border-gray-700" />
+  <!-- Separador -->
+  <hr class="my-1 mx-3 border-t border-gray-200 dark:border-gray-700" />
 
   <!-- SECCIÓN 2: OTRAS HERRAMIENTAS (scrollable) -->
-  <div class="flex-1 overflow-y-auto custom-scrollbar">
-    <!-- OTHER TOOLS -->
-    <div [class.hidden]="!ui.isSidebarOpen()" class="px-4 mb-1 mt-2">
-      <span class="text-[12px] text-gray-400 uppercase tracking-wide">{{
-        i18n.t('otherTools')
-      }}</span>
+  <div class="flex-1 overflow-y-auto scrollbar-hide">
+    <!-- OTHER TOOLS label -->
+    <div [class.hidden]="!ui.isSidebarOpen()" class="px-3 mb-1 mt-2">
+      <span
+        class="text-[11px] text-gray-600 dark:text-gray-400 uppercase tracking-wide font-semibold"
+        >{{ i18n.t('otherTools') }}</span
+      >
     </div>
-    <ul class="mb-2 space-y-0.5">
+    <ul class="mb-1 space-y-0.5">
       <li>
         <a
           (click)="ui.currentView.set('paraphraser'); ui.isLoginOpen.set(false)"
-          [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
+          [ngClass]="ui.isSidebarOpen() ? 'px-3 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer rounded-md transition-colors"
         >
-          <span class="material-icons text-[18px]">autorenew</span>
-          <span [class.hidden]="!ui.isSidebarOpen()">{{ i18n.t('paraphraser') }}</span>
+          <img
+            src="assets/icons/paraphrase_tool_icon.svg"
+            class="w-6 h-6 icon-adaptive flex-shrink-0"
+          />
+          <span [class.hidden]="!ui.isSidebarOpen()" class="text-[14px]">{{
+            i18n.t('paraphraser')
+          }}</span>
         </a>
       </li>
       <li>
         <a
           (click)="ui.currentView.set('pdf'); ui.isLoginOpen.set(false)"
-          [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
+          [ngClass]="ui.isSidebarOpen() ? 'px-3 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer rounded-md transition-colors"
         >
-          <span class="material-icons text-[18px]">picture_as_pdf</span>
-          <span [class.hidden]="!ui.isSidebarOpen()">{{ i18n.t('textToPdf') }}</span>
+          <img
+            src="assets/icons/text_to_pdf_icon.svg"
+            class="w-6 h-6 icon-adaptive flex-shrink-0"
+          />
+          <span [class.hidden]="!ui.isSidebarOpen()" class="text-[14px]">{{
+            i18n.t('textToPdf')
+          }}</span>
         </a>
       </li>
     </ul>
 
-    <!-- Separador después de Text to PDF -->
-    <hr class="my-2 mx-4 border-t border-gray-200 dark:border-gray-700" />
+    <hr class="my-1 mx-3 border-t border-gray-200 dark:border-gray-700" />
 
-    <!-- OTHER (Configuración y extras) -->
-    <div [class.hidden]="!ui.isSidebarOpen()" class="px-4 mb-1 mt-2">
-      <span class="text-[12px] text-gray-400 uppercase tracking-wide">{{ i18n.t('other') }}</span>
+    <!-- OTHER label -->
+    <div [class.hidden]="!ui.isSidebarOpen()" class="px-3 mb-1 mt-2">
+      <span
+        class="text-[11px] text-gray-600 dark:text-gray-400 uppercase tracking-wide font-semibold"
+        >{{ i18n.t('other') }}</span
+      >
     </div>
     <ul class="space-y-0.5 pb-4">
       <li>
         <a
           (click)="ui.isFeedbackOpen.set(true)"
-          [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
+          [ngClass]="ui.isSidebarOpen() ? 'px-3 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer rounded-md transition-colors"
         >
-          <span class="material-icons text-[18px]">chat</span>
-          <span [class.hidden]="!ui.isSidebarOpen()">{{ i18n.t('feedback') }}</span>
+          <img src="assets/icons/Feedback.svg" class="w-6 h-6 icon-adaptive flex-shrink-0" />
+          <span [class.hidden]="!ui.isSidebarOpen()" class="text-[14px]">{{
+            i18n.t('feedback')
+          }}</span>
         </a>
       </li>
       <li>
         <a
           (click)="ui.isTrashOpen.set(!ui.isTrashOpen())"
-          [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
+          [ngClass]="ui.isSidebarOpen() ? 'px-3 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer rounded-md transition-colors"
         >
-          <span class="material-icons text-[18px]">delete_outline</span>
-          <span [class.hidden]="!ui.isSidebarOpen()">{{ i18n.t('trash') }}</span>
+          <img
+            src="assets/icons/trash-sidebar-icon.svg"
+            class="w-6 h-6 icon-adaptive flex-shrink-0"
+          />
+          <span [class.hidden]="!ui.isSidebarOpen()" class="text-[14px]">{{
+            i18n.t('trash')
+          }}</span>
         </a>
       </li>
 
@@ -152,24 +151,29 @@
         <button
           (click)="toggleMoreMenu()"
           [ngClass]="
-            ui.isSidebarOpen() ? 'px-4 justify-between w-full' : 'justify-center px-0 w-full'
+            ui.isSidebarOpen() ? 'px-3 justify-between w-full' : 'justify-center px-0 w-full'
           "
-          class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center cursor-pointer transition-colors group rounded-md"
+          class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center cursor-pointer transition-colors rounded-md"
         >
           <div class="flex items-center gap-3">
-            <span class="material-icons text-[18px]">expand_circle_down</span>
-            <span [class.hidden]="!ui.isSidebarOpen()">{{ i18n.t('more') }}</span>
+            <img
+              src="assets/icons/more_menu_icon.svg"
+              class="w-6 h-6 icon-adaptive flex-shrink-0"
+            />
+            <span [class.hidden]="!ui.isSidebarOpen()" class="text-[14px]">{{
+              i18n.t('more')
+            }}</span>
           </div>
-          <span
+          <img
             *ngIf="ui.isSidebarOpen()"
-            class="material-icons text-[16px] text-gray-400 transition-transform duration-300"
+            src="assets/icons/subMenuArrow.svg"
+            class="w-3 h-3 icon-adaptive transition-transform duration-300"
             [class.rotate-180]="isMoreMenuOpen()"
-            >expand_more</span
-          >
+          />
         </button>
       </li>
 
-      <!-- SUBMENÚ DESPLEGABLE "MORE" (sin sangría, mismo estilo) -->
+      <!-- SUBMENÚ MORE -->
       <div
         [ngClass]="
           isMoreMenuOpen() && ui.isSidebarOpen()
@@ -178,9 +182,8 @@
         "
         class="transition-all duration-300 ease-in-out flex flex-col space-y-0.5"
       >
-        <!-- Apple Store (icono monocromático) -->
         <a
-          [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
+          [ngClass]="ui.isSidebarOpen() ? 'px-3 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer rounded-md text-[13px] transition-colors"
         >
           <span class="material-icons text-[18px]">storefront</span>
@@ -189,9 +192,8 @@
             >open_in_new</span
           >
         </a>
-        <!-- Play Store (icono monocromático) -->
         <a
-          [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
+          [ngClass]="ui.isSidebarOpen() ? 'px-3 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer rounded-md text-[13px] transition-colors"
         >
           <span class="material-icons text-[18px]">play_arrow</span>
@@ -200,44 +202,24 @@
             >open_in_new</span
           >
         </a>
-        <!-- Change Log -->
         <a
-          [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
+          [ngClass]="ui.isSidebarOpen() ? 'px-3 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer rounded-md text-[13px] transition-colors"
         >
           <span class="material-icons text-[18px]">history</span>
           <span [class.hidden]="!ui.isSidebarOpen()">Change Log</span>
         </a>
-        <!-- Privacy Policy -->
         <a
-          [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
+          [ngClass]="ui.isSidebarOpen() ? 'px-3 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer rounded-md text-[13px] transition-colors"
         >
-          <span class="material-icons text-[18px]">policy</span>
-          <span [class.hidden]="!ui.isSidebarOpen()">Privacy Policy</span>
-        </a>
-        <!-- Terms of Use -->
-        <a
-          [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
-          class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer rounded-md text-[13px] transition-colors"
-        >
-          <span class="material-icons text-[18px]">gavel</span>
-          <span [class.hidden]="!ui.isSidebarOpen()">Terms of Use</span>
-        </a>
-        <!-- About this tool -->
-        <a
-          [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
-          class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 flex items-center gap-3 cursor-pointer rounded-md text-[13px] transition-colors"
-        >
-          <span class="material-icons text-[18px]">info</span>
+          <img src="assets/icons/Info.svg" class="w-6 h-6 icon-adaptive flex-shrink-0" />
           <span [class.hidden]="!ui.isSidebarOpen()">About this tool</span>
         </a>
-        <!-- Separador antes de Settings -->
         <div class="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-        <!-- Settings -->
         <a
           (click)="ui.isLoginOpen.set(true)"
-          [ngClass]="ui.isSidebarOpen() ? 'px-4 justify-start' : 'justify-center px-0'"
+          [ngClass]="ui.isSidebarOpen() ? 'px-3 justify-start' : 'justify-center px-0'"
           class="py-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium flex items-center gap-3 cursor-pointer rounded-md text-[13px] transition-colors"
         >
           <span class="material-icons text-[18px]">settings</span>

@@ -96,6 +96,16 @@ export class SidebarComponent {
     return raw === '';
   }
 
+  /** Devuelve un título único para la nueva nota, evitando duplicados. */
+  private uniqueTitle(): string {
+    const existing = new Set(this.allNotes().map((n) => n.titulo));
+    const base = 'Untitled Document';
+    if (!existing.has(base)) return base;
+    let i = 2;
+    while (existing.has(`${base} (${i})`)) i++;
+    return `${base} (${i})`;
+  }
+
   // Crea una nueva nota. Si la nota actual está vacía, no crea otra, solo la enfoca.
   createNote() {
     // Si la nota actual ya está abierta y vacía, no crear otra --- solo enfocarla
@@ -106,10 +116,10 @@ export class SidebarComponent {
       return;
     }
 
-    // Llama al servicio para crear una nota con título por defecto y contenido vacío
+    // Llama al servicio para crear una nota con título único y contenido vacío
     this.notesService
       .createNote({
-        titulo: 'Untitled Document',
+        titulo: this.uniqueTitle(),
         contenido: '',
         pinned: false,
         archived: false,

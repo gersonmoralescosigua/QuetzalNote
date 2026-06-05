@@ -260,12 +260,82 @@ export class EditorToolbar {
         });
 
         // --- LÓGICA DE DRAG & DROP: MOVER LA IMAGEN ---
+        let dragImg: HTMLImageElement | null = null;
+        let dragGhost: HTMLElement | null = null;
+        let dragOriginalIndex: number | null = null;
+        let dragStartX = 0;
+        let dragStartY = 0;
+
         editorRoot.addEventListener('mousedown', (e: MouseEvent) => {
           const target = e.target as HTMLElement;
-          // Si tocamos la imagen (pero no el tirador de tamaño), la hacemos arrastrable
-          if (target.tagName === 'IMG' && target.id !== 'img-resize-handle') {
-            target.setAttribute('draggable', 'true');
+          if (target.tagName === 'IMG' && target.classList.contains('active-img')) {
+            dragImg = target as HTMLImageElement;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            e.preventDefault();
           }
+        });
+
+        document.addEventListener('mousemove', (ev: MouseEvent) => {
+          if (!dragImg) return;
+          const dx = Math.abs(ev.clientX - dragStartX);
+          const dy = Math.abs(ev.clientY - dragStartY);
+          if ((dx > 5 || dy > 5) && !dragGhost) {
+            // Encontrar el índice original de la imagen en el delta de Quill
+            dragOriginalIndex = null;
+            const contents = this.quill.getContents();
+            let idx = 0;
+            for (const op of contents.ops) {
+              if (op.insert && typeof op.insert === 'object' && (op.insert as any).image === dragImg!.src) {
+                dragOriginalIndex = idx;
+                break;
+              }
+              if (typeof op.insert === 'string') idx += (op.insert as string).length;
+              else idx += 1;
+            }
+            // Crear imagen fantasma que sigue el cursor
+            dragGhost = document.createElement('div');
+            const ghostImg = document.createElement('img');
+            ghostImg.src = dragImg!.src;
+            ghostImg.style.cssText = `width:${dragImg!.offsetWidth}px;height:${dragImg!.offsetHeight}px;opacity:0.7;display:block;`;
+            dragGhost.style.cssText = `position:fixed;z-index:9998;pointer-events:none;border:2px dashed #18639c;border-radius:4px;background:rgba(255,255,255,0.5);`;
+            dragGhost.appendChild(ghostImg);
+            document.body.appendChild(dragGhost);
+            dragImg!.style.opacity = '0.3';
+          }
+          if (dragGhost && dragImg) {
+            dragGhost.style.left = `${ev.clientX - dragImg.offsetWidth / 2}px`;
+            dragGhost.style.top = `${ev.clientY - dragImg.offsetHeight / 2}px`;
+          }
+        });
+
+        document.addEventListener('mouseup', (ev: MouseEvent) => {
+          if (!dragImg) return;
+          const movedEnough = Math.abs(ev.clientX - dragStartX) > 5 || Math.abs(ev.clientY - dragStartY) > 5;
+          if (dragGhost) { dragGhost.remove(); dragGhost = null; }
+          dragImg.style.opacity = '1';
+
+          if (movedEnough && dragOriginalIndex !== null) {
+            const imgSrc = dragImg.src;
+            let dropIndex = this.quill.getLength() - 1;
+            if (document.caretRangeFromPoint) {
+              try {
+                const range = document.caretRangeFromPoint(ev.clientX, ev.clientY);
+                if (range) {
+                  const blot = (this.quill.scroll as any).find(range.startContainer, true);
+                  if (blot) dropIndex = Math.min(this.quill.getIndex(blot) + range.startOffset, this.quill.getLength() - 1);
+                }
+              } catch (_) { /* ignorar */ }
+            }
+            if (Math.abs(dropIndex - dragOriginalIndex) > 0) {
+              this.quill.deleteText(dragOriginalIndex, 1);
+              const newIdx = dropIndex > dragOriginalIndex ? dropIndex - 1 : dropIndex;
+              this.quill.insertEmbed(Math.max(0, newIdx), 'image', imgSrc);
+              this.quill.update();
+            }
+          }
+          dragImg = null;
+          dragOriginalIndex = null;
         });
       }
     });
@@ -959,8 +1029,24 @@ export class EditorToolbar {
     textArea.addEventListener('blur', () => {
       if (textArea.innerText.trim() === '') {
         textArea.innerText = 'Escribe aquí...';
-        textArea.style.color = 'rgba(0,0,0,0.5)'; // Regresa al color gris clarito
+        textArea.style.color = 'rgba(0,0,0,0.5)';
       }
+    });
+
+    // Impedir que Quill intercepte eventos del sticky note
+    stickyEl.addEventListener('mousedown', (e: MouseEvent) => {
+      e.stopPropagation();
+    });
+    textArea.addEventListener('mousedown', (e: MouseEvent) => {
+      e.stopPropagation();
+      // Forzar foco manual para que el contenteditable lo reciba siempre
+      setTimeout(() => textArea.focus(), 0);
+    });
+    textArea.addEventListener('keydown', (e: KeyboardEvent) => {
+      e.stopPropagation();
+    });
+    textArea.addEventListener('keyup', (e: KeyboardEvent) => {
+      e.stopPropagation();
     });
 
     // D. Arrastrar la nota
@@ -1111,16 +1197,25 @@ export class EditorToolbar {
   }
 
   private startDraw(e: MouseEvent): void {
-    this.isDrawing = true;
     const tool = this.drawTool();
+
+    if (tool === 'text') {
+      this.placeTextOnCanvas(e);
+      return;
+    }
+
+    if (tool === 'image') {
+      this.pickImageForCanvas(e.offsetX, e.offsetY);
+      return;
+    }
+
+    this.isDrawing = true;
 
     if (tool === 'pen' || tool === 'eraser') {
       this.drawCtx!.beginPath();
       this.drawCtx!.moveTo(e.offsetX, e.offsetY);
     } else {
-      // Para las formas, guardamos las coordenadas de inicio
       (this as any)._shapeStart = { x: e.offsetX, y: e.offsetY };
-      // Y tomamos una "foto" del canvas para no dejar una estela al arrastrar
       (this as any)._snapshot = this.drawCtx!.getImageData(
         0,
         0,
@@ -1174,8 +1269,20 @@ export class EditorToolbar {
       } else if (tool === 'line' || tool === 'arrow') {
         this.drawCtx.moveTo(start.x, start.y);
         this.drawCtx.lineTo(e.offsetX, e.offsetY);
-        // Nota: dibujar la punta de la flecha requiere trigonometría avanzada,
-        // por ahora funcionará como línea recta para mantener el código ligero.
+        if (tool === 'arrow') {
+          const angle = Math.atan2(e.offsetY - start.y, e.offsetX - start.x);
+          const headLen = Math.max(10, this.drawLineWidth() * 4);
+          this.drawCtx.moveTo(e.offsetX, e.offsetY);
+          this.drawCtx.lineTo(
+            e.offsetX - headLen * Math.cos(angle - Math.PI / 6),
+            e.offsetY - headLen * Math.sin(angle - Math.PI / 6),
+          );
+          this.drawCtx.moveTo(e.offsetX, e.offsetY);
+          this.drawCtx.lineTo(
+            e.offsetX - headLen * Math.cos(angle + Math.PI / 6),
+            e.offsetY - headLen * Math.sin(angle + Math.PI / 6),
+          );
+        }
       }
 
       this.drawCtx.stroke();
@@ -1184,6 +1291,84 @@ export class EditorToolbar {
 
   private stopDraw(): void {
     this.isDrawing = false;
+  }
+
+  private placeTextOnCanvas(e: MouseEvent): void {
+    if (!this.drawCanvas) return;
+    const fontSize = Math.max(16, this.drawLineWidth() * 6);
+    const rect = this.drawCanvas.getBoundingClientRect();
+    const clickX = e.offsetX;
+    const clickY = e.offsetY;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Type here...';
+    input.style.cssText = `
+      position:fixed;
+      left:${rect.left + clickX}px;
+      top:${rect.top + clickY - fontSize / 2}px;
+      border:1.5px solid ${this.drawColor()};
+      border-radius:3px;
+      outline:none;
+      background:rgba(255,255,255,0.92);
+      font-size:${fontSize}px;
+      font-family:Arial,sans-serif;
+      color:${this.drawColor()};
+      padding:2px 8px;
+      min-width:120px;
+      z-index:999;
+      box-shadow:0 2px 8px rgba(0,0,0,0.15);
+    `;
+    document.body.appendChild(input);
+    setTimeout(() => input.focus(), 10);
+
+    const commit = () => {
+      const text = input.value.trim();
+      if (text && this.drawCtx) {
+        this.drawCtx.font = `${fontSize}px Arial, sans-serif`;
+        this.drawCtx.fillStyle = this.drawColor();
+        this.drawCtx.fillText(text, clickX, clickY + fontSize / 3);
+      }
+      input.remove();
+    };
+
+    input.addEventListener('keydown', (ev: KeyboardEvent) => {
+      ev.stopPropagation();
+      if (ev.key === 'Enter') { ev.preventDefault(); commit(); }
+      if (ev.key === 'Escape') { input.remove(); }
+    });
+    input.addEventListener('blur', commit);
+  }
+
+  private pickImageForCanvas(x: number, y: number): void {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+    document.body.appendChild(fileInput);
+
+    fileInput.onchange = () => {
+      const file = fileInput.files?.[0];
+      fileInput.remove();
+      if (!file || !this.drawCtx || !this.drawCanvas) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxW = Math.min(300, this.drawCanvas!.width * 0.4);
+          const maxH = Math.min(250, this.drawCanvas!.height * 0.4);
+          const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+          const w = img.width * scale;
+          const h = img.height * scale;
+          this.drawCtx!.drawImage(img, x - w / 2, y - h / 2, w, h);
+        };
+        img.src = ev.target!.result as string;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    fileInput.click();
+    setTimeout(() => { if (document.body.contains(fileInput)) fileInput.remove(); }, 60000);
   }
 
   /** Exporta el dibujo como imagen y lo inserta en el editor */

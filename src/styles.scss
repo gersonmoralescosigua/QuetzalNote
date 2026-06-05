@@ -1,3 +1,68 @@
+/* ── Variables exactas de onlinenotepad.io ── */
+:root {
+  --color-primary:       #18639c;
+  --color-primary-hover: #044F88;
+  --color-secondary:     #02dac5;
+  --color-gray-light:    #eceef0;
+  --color-white:         #fff;
+  --color-white-2:       #fff;
+  --color-black:         #000000;
+  --color-blue-light:    #EBF5FE;
+  --color-light-blue:    #CAEBFF;
+  --bg-gray:             #F0F0F0;
+  --gray-gradient:       #F4F6F7;
+  --hover-doc:           #F4F6F7;
+  --color-paragraph:     #374151;
+  --text-light:          #374151;
+  --placeholder-text:    #9CA3AF;
+  --font-family:         "Open Sans", sans-serif;
+  --border-radius-default: 5px;
+  --topbar-color:        #374151;
+  --filter-inverse:      invert(0);
+  --black-icon:          brightness(0) saturate(100%) invert(5%);
+  --doc-icon:            brightness(0) saturate(100%) invert(0%) sepia(100%) saturate(11%) hue-rotate(250deg) brightness(99%) contrast(99%);
+  --filter-pragraph:     brightness(0) saturate(100%) invert(39%) sepia(15%) saturate(0%) hue-rotate(283deg) brightness(87%) contrast(88%);
+}
+
+:root.dark {
+  --color-primary:    #248DDD;
+  --color-white:      #181818;
+  --color-white-2:    #181818;
+  --color-black:      #e0e0e0;
+  --bg-gray:          #252525;
+  --gray-gradient:    #000000;
+  --hover-doc:        #252525;
+  --color-gray-light: #424242;
+  --color-paragraph:  #fff;
+  --text-light:       #ACACAC;
+  --topbar-color:     #fff;
+  --filter-inverse:   invert(1);
+  --black-icon:       brightness(0) saturate(100%) invert(97%) sepia(99%) saturate(1%) hue-rotate(89deg) brightness(105%) contrast(100%);
+  --doc-icon:         brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(331deg) brightness(102%) contrast(101%);
+  --filter-pragraph:  brightness(0) saturate(100%) invert(100%) sepia(92%) saturate(185%) hue-rotate(327deg) brightness(122%) contrast(99%);
+}
+
+/* ── Fuente global ── */
+* {
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px;
+}
+
+/* ── Fuente especial para sticky notes ── */
+.sticky-note-font {
+  font-family: 'Reenie Beanie', cursive !important;
+  font-size: 18px !important;
+}
+
+/* ── Fuente para el logo ── */
+.logo-font {
+  font-family: 'Reenie Beanie', cursive;
+}
+
+/* ── Filter para iconos en dark mode ── */
+.dark img.icon-adaptive { filter: var(--black-icon); }
+img.icon-adaptive        { filter: var(--black-icon); }
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,9 +79,9 @@
 
 /* ===== BODY ===== */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow: hidden;
-  background-color: #f5f7fb;
+  background-color: var(--gray-gradient);
   color: #1f2937;
 }
 
@@ -27,19 +92,8 @@ body {
 }
 
 /* ===== SCROLLBAR ===== */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 999px;
-}
-.dark ::-webkit-scrollbar-thumb {
-  background: #374151;
-}
+::-webkit-scrollbar        { width: 6px; height: 4px; background: var(--bg-gray); }
+::-webkit-scrollbar-thumb  { background: var(--color-primary); border-radius: 2rem; }
 
 /* -- ESTILOS PARA SWEETALERT (BOTONES) -- */
 .swal2-confirm {
@@ -73,6 +127,11 @@ html.dark .swal2-cancel {
 }
 html.dark .swal2-cancel:hover {
   background-color: #6b7280 !important;
+}
+
+/* ── Sticky notes: confinadas dentro del editor (no se superponen a modales) ── */
+.ql-container {
+  isolation: isolate;
 }
 
 /* ── Utilidad: ocultar scrollbar pero mantener scroll funcional ──────── */
@@ -129,10 +188,21 @@ html.dark .swal2-cancel:hover {
   left: 0;
 }
 
+/* ── QUILL: Open Sans ── */
+.ql-container,
+.ql-editor {
+  font-family: 'Open Sans', sans-serif !important;
+}
+.ql-editor.ql-blank::before {
+  font-style: normal !important;
+  color: var(--placeholder-text) !important;
+  font-family: 'Open Sans', sans-serif !important;
+}
+
 /* ── QUILL: Estilos del editor principal ─────────────────────────────── */
 .ql-container {
   font-size: 15px;
-  font-family: inherit;
+  font-family: 'Open Sans', sans-serif;
   border: none !important;
   height: 100%;
 }
@@ -235,6 +305,16 @@ html.dark .swal2-cancel:hover {
 .swal2-title {
   font-size: 18px !important;
   font-weight: 700 !important;
+}
+
+/* ── Contact Us: deshabilitar submit cuando el formulario es inválido ── */
+#contact-form-el:invalid ~ .contact-submit-wrap {
+  pointer-events: none;
+  opacity: 0.4;
+}
+#contact-form-el:valid ~ .contact-submit-wrap {
+  pointer-events: auto;
+  opacity: 1;
 }
 
 /* Resize de imágenes en Quill */

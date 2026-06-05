@@ -24,7 +24,7 @@
         <button
           class="flex items-center gap-2 text-[13px] text-gray-400 hover:text-[#18639c] transition-colors"
         >
-          <span class="material-icons text-[16px] text-[#18639c]">auto_awesome</span>
+          <img src="assets/icons/Sparkle.svg" class="w-4 h-4" style="filter:none;">
           <span>Help me write</span>
         </button>
       </div>
@@ -44,7 +44,7 @@
         (click)="uploadDoc()"
         class="flex items-center gap-1.5 text-[13px] font-medium hover:text-gray-800 dark:hover:text-white transition-colors"
       >
-        <span class="material-icons text-[18px]">upload_file</span>
+        <img src="assets/icons/upload-svg.svg" class="w-4 h-4 icon-adaptive">
         Upload Doc
       </button>
 
@@ -64,24 +64,21 @@
       <!-- Copy (con feedback visual) -->
       <button
         (click)="copyContent()"
-        title="Copy content"
+        title="{{ copyDone() ? 'Copied!' : 'Copy content' }}"
         [ngClass]="copyDone() ? 'text-green-500' : ''"
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded text-[13px] font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        class="flex items-center justify-center w-9 h-9 rounded text-[13px] font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
       >
-        <span class="material-icons text-[17px]">
-          {{ copyDone() ? 'check' : 'content_copy' }}
-        </span>
-        <span class="hidden md:inline">{{ copyDone() ? 'Copied!' : 'Copy' }}</span>
+        <img *ngIf="copyDone()" src="assets/icons/home-copy-check-icon.svg" class="w-5 h-5 icon-adaptive">
+        <img *ngIf="!copyDone()" src="assets/icons/home-copy-btn.svg" class="w-5 h-5 icon-adaptive">
       </button>
 
       <!-- Download (abre modal de selección de formato) -->
       <button
         (click)="downloadNote()"
         title="Download note"
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded text-[13px] font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        class="flex items-center justify-center w-9 h-9 rounded text-[13px] font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
       >
-        <span class="material-icons text-[17px]">download</span>
-        <span class="hidden md:inline">Download</span>
+        <img src="assets/icons/Download.svg" class="w-5 h-5 icon-adaptive">
       </button>
 
       <!-- Clear Editor -->
@@ -89,10 +86,9 @@
         *ngIf="hasText()"
         (click)="promptClearEditor()"
         title="Clear editor"
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded text-[13px] font-medium text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+        class="flex items-center justify-center w-9 h-9 rounded text-[13px] font-medium text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
       >
-        <span class="material-icons text-[17px]">clear_all</span>
-        <span class="hidden md:inline">Clear</span>
+        <img src="assets/icons/delete.svg" class="w-5 h-5 icon-adaptive">
       </button>
     </div>
   </div>

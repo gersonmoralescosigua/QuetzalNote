@@ -280,6 +280,18 @@ export class NoteEditorComponent {
     const html = this.quillInstance?.root.innerHTML || '';
     const text = this.quillInstance?.getText() || '';
 
+    if (!text.trim()) {
+      Swal.fire({
+        icon: 'info',
+        title: 'No content to copy',
+        text: 'Please enter some text in the editor first.',
+        confirmButtonColor: '#18639c',
+        width: '360px',
+        customClass: { popup: 'rounded-xl shadow-lg' },
+      });
+      return;
+    }
+
     if (navigator.clipboard && (window as any).ClipboardItem) {
       // LÓGICA: ClipboardItem permite copiar tanto HTML como texto plano.
       // Al pegar en Word o Google Docs, se usa el HTML (con formato completo).
@@ -315,6 +327,18 @@ export class NoteEditorComponent {
     const note = this.notesService.selectedNote();
     const text = this.quillInstance?.getText() || '';
     const html = this.quillInstance?.root.innerHTML || '';
+
+    if (!text.trim()) {
+      Swal.fire({
+        icon: 'info',
+        title: 'No content to download',
+        text: 'Please enter some text in the editor first.',
+        confirmButtonColor: '#18639c',
+        width: '360px',
+        customClass: { popup: 'rounded-xl shadow-lg' },
+      });
+      return;
+    }
     const fileName = note?.titulo?.replace(/[^\w\s-]/g, '').trim() || 'nota';
     let selectedFormat = 'txt';
 

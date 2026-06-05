@@ -9,45 +9,45 @@
 <!-- ══════════════════════════════════════════════════════════════════ -->
 <ng-container *ngIf="isCode()">
   <div
-    class="flex w-full items-center gap-1 text-gray-600 dark:text-gray-300 overflow-x-auto flex-nowrap scrollbar-hide"
+    class="flex w-full items-center gap-1.5 text-gray-600 dark:text-gray-300 overflow-x-auto flex-nowrap scrollbar-hide"
   >
     <!-- Undo / Redo siempre presentes -->
     <button
       (click)="undo()"
       title="Undo (Ctrl+Z)"
-      class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="material-icons text-[18px]">undo</span>
+      <img src="assets/icons/arrow-counterclockwise-DvV_j1ZL.svg" class="w-5 h-5 icon-adaptive">
     </button>
     <button
       (click)="redo()"
       title="Redo (Ctrl+Y)"
       class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors mr-2 flex-shrink-0"
     >
-      <span class="material-icons text-[18px]">redo</span>
+      <img src="assets/icons/arrow-clockwise-BEx5aIxD.svg" class="w-5 h-5 icon-adaptive">
     </button>
 
-    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1 flex-shrink-0"></div>
+    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1.5 flex-shrink-0"></div>
 
     <!-- Selector de lenguaje del código -->
     <button
       (click)="toggleLangMenu($event)"
-      class="flex items-center gap-1 px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="flex items-center gap-1 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="material-icons text-[16px] text-gray-400">code</span>
+      <img src="assets/icons/code-Bz7YqPM6.svg" class="w-5 h-5 icon-adaptive">
       <span class="text-[13px] font-mono">{{ currentLanguage() }}</span>
-      <span class="material-icons text-[15px]">expand_more</span>
+      <img src="assets/icons/chevron-down-q-2SJR92.svg" class="w-3 h-3 icon-adaptive">
     </button>
 
-    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1 flex-shrink-0"></div>
+    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1.5 flex-shrink-0"></div>
 
     <!-- Alineación (aplica también en code blocks) -->
     <button
       (click)="toggleAlignMenu($event)"
-      class="flex items-center gap-1 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="flex items-center gap-1 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="material-icons text-[18px]">{{ alignIcon() }}</span>
-      <span class="text-[13px]">{{ alignLabel() }}</span>
+      <img src="assets/icons/text-left-BqhjlE8f.svg" class="w-5 h-5 icon-adaptive">
+      <span class="text-[14px] font-medium">{{ alignLabel() }}</span>
     </button>
 
     <!-- Salir del code block -->
@@ -56,7 +56,7 @@
       title="Exit Code Block"
       class="ml-auto flex items-center gap-1 px-3 py-1.5 text-[12px] text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="material-icons text-[15px]">close</span> Exit code
+      <img src="assets/icons/mobile_close_icon.svg" class="w-5 h-5 icon-adaptive"> Exit code
     </button>
   </div>
 </ng-container>
@@ -66,49 +66,49 @@
 <!-- ══════════════════════════════════════════════════════════════════ -->
 <ng-container *ngIf="!isCode()">
   <div
-    class="flex w-full items-center gap-0.5 text-gray-600 dark:text-gray-300 overflow-x-auto flex-nowrap scrollbar-hide"
+    class="flex w-full items-center gap-1.5 text-gray-700 dark:text-gray-200 overflow-x-auto flex-nowrap scrollbar-hide"
   >
     <!-- ── Undo / Redo ──────────────────────────────────────────── -->
     <button
       (click)="undo()"
       title="Undo (Ctrl+Z)"
-      class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="material-icons text-[18px]">undo</span>
+      <img src="assets/icons/arrow-counterclockwise-DvV_j1ZL.svg" class="w-5 h-5 icon-adaptive">
     </button>
     <button
       (click)="redo()"
       title="Redo (Ctrl+Y)"
-      class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="material-icons text-[18px]">redo</span>
+      <img src="assets/icons/arrow-clockwise-BEx5aIxD.svg" class="w-5 h-5 icon-adaptive">
     </button>
 
-    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1 flex-shrink-0"></div>
+    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1.5 flex-shrink-0"></div>
 
     <!-- ── Selector de fuente ──────────────────────────────────── -->
     <button
       (click)="toggleFontMenu($event)"
-      class="flex items-center gap-1 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="flex items-center gap-1 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="text-[14px] font-serif">T</span>
+      <img src="assets/icons/font-family-C3MgrJAJ.svg" class="w-5 h-5 icon-adaptive">
       <span class="text-[12px]">{{ currentFont() }}</span>
-      <span class="material-icons text-[15px]">expand_more</span>
+      <img src="assets/icons/chevron-down-q-2SJR92.svg" class="w-3 h-3 icon-adaptive">
     </button>
 
-    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1 flex-shrink-0"></div>
+    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1.5 flex-shrink-0"></div>
 
     <!-- ── Selector de tipo de bloque (Normal / H1 / H2…) ─────── -->
     <button
       (click)="toggleHeadingMenu($event)"
-      class="flex items-center gap-1 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="flex items-center gap-1 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="material-icons text-[17px]">{{ headingMenuIcon() }}</span>
+      <img src="assets/icons/text-paragraph-Udk-IEvz.svg" class="w-5 h-5 icon-adaptive">
       <span class="text-[12px]">{{ headingLabel() }}</span>
-      <span class="material-icons text-[15px]">expand_more</span>
+      <img src="assets/icons/chevron-down-q-2SJR92.svg" class="w-3 h-3 icon-adaptive">
     </button>
 
-    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1 flex-shrink-0"></div>
+    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1.5 flex-shrink-0"></div>
 
     <!-- ── Tamaño de fuente ────────────────────────────────────── -->
     <div class="flex items-center gap-0.5 flex-shrink-0">
@@ -116,27 +116,27 @@
         (click)="decreaseFontSize()"
         class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
       >
-        <span class="material-icons text-[16px]">remove</span>
+        <img src="assets/icons/minus-sign-C-NZTNRl.svg" class="w-3 h-3 icon-adaptive">
       </button>
       <span class="text-[13px] w-7 text-center select-none">{{ fontSize() }}</span>
       <button
         (click)="increaseFontSize()"
         class="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
       >
-        <span class="material-icons text-[16px]">add</span>
+        <img src="assets/icons/add-sign-DnNptbsR.svg" class="w-3 h-3 icon-adaptive">
       </button>
     </div>
 
-    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1 flex-shrink-0"></div>
+    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1.5 flex-shrink-0"></div>
 
     <!-- ── Negrita ─────────────────────────────────────────────── -->
     <button
       (click)="toggleBold()"
       title="Bold (Ctrl+B)"
       [ngClass]="{ 'bg-gray-200 dark:bg-gray-600': isBold() }"
-      class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors font-bold text-[14px] flex-shrink-0"
+      class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      B
+      <img src="assets/icons/type-bold-nHyCpQJD.svg" class="w-5 h-5 icon-adaptive">
     </button>
 
     <!-- ── Cursiva ─────────────────────────────────────────────── -->
@@ -144,9 +144,9 @@
       (click)="toggleItalic()"
       title="Italic (Ctrl+I)"
       [ngClass]="{ 'bg-gray-200 dark:bg-gray-600': isItalic() }"
-      class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors italic text-[14px] font-serif flex-shrink-0"
+      class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      I
+      <img src="assets/icons/type-italic-Y1uCGU3g.svg" class="w-5 h-5 icon-adaptive">
     </button>
 
     <!-- ── Subrayado ───────────────────────────────────────────── -->
@@ -154,9 +154,9 @@
       (click)="toggleUnderline()"
       title="Underline (Ctrl+U)"
       [ngClass]="{ 'bg-gray-200 dark:bg-gray-600': isUnderline() }"
-      class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors underline text-[14px] flex-shrink-0"
+      class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      U
+      <img src="assets/icons/type-underline-DWBZW6fe.svg" class="w-5 h-5 icon-adaptive">
     </button>
 
     <!-- ── Código ──────────────────────────────────────────────── -->
@@ -164,64 +164,67 @@
       (click)="toggleCode()"
       title="Code Block"
       [ngClass]="{ 'bg-gray-200 dark:bg-gray-600': isCode() }"
-      class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="material-icons text-[18px]">code</span>
+      <img src="assets/icons/code-Bz7YqPM6.svg" class="w-5 h-5 icon-adaptive">
     </button>
 
     <!-- ── Link (popup flotante) ───────────────────────────────── -->
     <button
       (click)="openLinkPopup()"
       title="Insert Link"
-      class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="material-icons text-[18px]">link</span>
+      <img src="assets/icons/link-BGGrnw_x.svg" class="w-5 h-5 icon-adaptive">
     </button>
 
-    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1 flex-shrink-0"></div>
+    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1.5 flex-shrink-0"></div>
 
     <!-- ── Color de texto ─────────────────────────────────────── -->
     <button
       (click)="toggleColorMenu($event)"
       title="Text Color"
-      class="flex items-center gap-1 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="flex items-center gap-1 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="material-icons text-[18px]" [style.border-bottom]="'3px solid ' + currentColor()"
-        >format_color_text</span
-      >
-      <span class="material-icons text-[15px]">expand_more</span>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
+        <img src="assets/icons/font-color-BytEaRp9.svg" class="w-5 h-5 icon-adaptive">
+        <div style="width:16px;height:2px;border-radius:1px;"
+             [style.background-color]="currentColor()">
+        </div>
+      </div>
+      <img src="assets/icons/chevron-down-q-2SJR92.svg" class="w-3 h-3 icon-adaptive">
     </button>
 
     <!-- ── Herramientas de texto "Aa" ─────────────────────────── -->
     <button
       (click)="toggleAaMenu($event)"
       title="Text tools"
-      class="flex items-center gap-0.5 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="flex items-center gap-0.5 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
       <span class="text-[13px] font-semibold">Aa</span>
-      <span class="material-icons text-[15px]">expand_more</span>
+      <img src="assets/icons/chevron-down-q-2SJR92.svg" class="w-3 h-3 icon-adaptive">
     </button>
 
-    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1 flex-shrink-0"></div>
+    <div class="h-5 w-px bg-gray-300 dark:bg-gray-600 mx-1.5 flex-shrink-0"></div>
 
     <!-- ── Insertar ────────────────────────────────────────────── -->
     <button
       (click)="toggleInsertMenu($event)"
-      class="flex items-center gap-1 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="flex items-center gap-1 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="material-icons text-[18px]">add</span>
+      <img src="assets/icons/plus-DanGKpCK.svg" class="w-5 h-5 icon-adaptive">
       <span class="text-[12px]">Insert</span>
-      <span class="material-icons text-[15px]">expand_more</span>
+      <img src="assets/icons/chevron-down-q-2SJR92.svg" class="w-3 h-3 icon-adaptive">
     </button>
 
     <!-- ── Alineación ──────────────────────────────────────────── -->
     <button
       (click)="toggleAlignMenu($event)"
-      class="flex items-center gap-1 px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
+      class="flex items-center gap-1 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
     >
-      <span class="material-icons text-[18px]">{{ alignIcon() }}</span>
+      <img src="assets/icons/text-left-BqhjlE8f.svg" class="w-5 h-5 icon-adaptive">
       <span class="text-[12px]">{{ alignLabel() }}</span>
-      <span class="material-icons text-[15px]">expand_more</span>
+      <img src="assets/icons/chevron-down-q-2SJR92.svg" class="w-3 h-3 icon-adaptive">
     </button>
   </div>
 </ng-container>
@@ -263,7 +266,7 @@
   >
     <span class="flex items-center gap-2">
       <span class="material-icons text-[16px] text-gray-400">format_align_left</span>
-      <span class="text-[13px]">Normal</span>
+      <span class="text-[14px] font-medium">Normal</span>
     </span>
     <span class="text-[11px] text-gray-400">Ctrl+Alt+0</span>
   </button>
@@ -312,7 +315,7 @@
   >
     <span class="flex items-center gap-2">
       <span class="material-icons text-[16px] text-gray-400">format_list_numbered</span>
-      <span class="text-[13px]">Numbered List</span>
+      <span class="text-[14px] font-medium">Numbered List</span>
     </span>
     <span class="text-[11px] text-gray-400">Ctrl+Shift+7</span>
   </button>
@@ -324,7 +327,7 @@
   >
     <span class="flex items-center gap-2">
       <span class="material-icons text-[16px] text-gray-400">format_list_bulleted</span>
-      <span class="text-[13px]">Bullet List</span>
+      <span class="text-[14px] font-medium">Bullet List</span>
     </span>
     <span class="text-[11px] text-gray-400">Ctrl+Shift+8</span>
   </button>
@@ -336,7 +339,7 @@
   >
     <span class="flex items-center gap-2">
       <span class="material-icons text-[16px] text-gray-400">checklist</span>
-      <span class="text-[13px]">Check List</span>
+      <span class="text-[14px] font-medium">Check List</span>
     </span>
     <span class="text-[11px] text-gray-400">Ctrl+Shift+9</span>
   </button>
@@ -349,7 +352,7 @@
   >
     <span class="flex items-center gap-2">
       <span class="material-icons text-[16px] text-gray-400">format_quote</span>
-      <span class="text-[13px]">Quote</span>
+      <span class="text-[14px] font-medium">Quote</span>
     </span>
     <span class="text-[11px] text-gray-400">Ctrl+Shift+Q</span>
   </button>
@@ -361,7 +364,7 @@
   >
     <span class="flex items-center gap-2">
       <span class="material-icons text-[16px] text-gray-400">code</span>
-      <span class="text-[13px]">Code Block</span>
+      <span class="text-[14px] font-medium">Code Block</span>
     </span>
     <span class="text-[11px] text-gray-400">Ctrl+Alt+C</span>
   </button>
@@ -655,7 +658,7 @@
   [style.left.px]="linkPopupPos().left"
   class="fixed z-[9999] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-2 flex items-center gap-1 min-w-[280px]"
 >
-  <span class="material-icons text-[16px] text-gray-400 ml-1">link</span>
+  <img src="assets/icons/link-BGGrnw_x.svg" class="w-5 h-5 icon-adaptive ml-1">
   <input
     type="url"
     [value]="linkInputValue()"
@@ -669,13 +672,13 @@
     (click)="confirmLink()"
     class="p-1.5 rounded hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 transition-colors"
   >
-    <span class="material-icons text-[17px]">check</span>
+    <img src="assets/icons/done.svg" class="w-5 h-5 icon-adaptive">
   </button>
   <button
     (click)="cancelLink()"
     class="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors"
   >
-    <span class="material-icons text-[17px]">close</span>
+    <img src="assets/icons/mobile_close_icon.svg" class="w-5 h-5 icon-adaptive">
   </button>
 </div>
 
@@ -739,6 +742,13 @@
     </div>
 
     <!-- ── Canvas Area ── -->
-    <canvas id="draw-canvas" class="w-full h-full cursor-crosshair block"></canvas>
+    <canvas
+      id="draw-canvas"
+      class="w-full h-full block"
+      [class.cursor-text]="drawTool() === 'text'"
+      [class.cursor-pointer]="drawTool() === 'image'"
+      [class.cursor-default]="drawTool() === 'select'"
+      [class.cursor-crosshair]="drawTool() !== 'text' && drawTool() !== 'image' && drawTool() !== 'select'"
+    ></canvas>
   </div>
 </div>

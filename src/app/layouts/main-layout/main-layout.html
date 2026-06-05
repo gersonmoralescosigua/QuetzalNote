@@ -2,516 +2,505 @@
 <!-- MAIN LAYOUT — Esqueleto visual principal de QuetzalNote             -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 
-<div
-  class="flex h-screen w-full bg-[#F4F6F7] dark:bg-gray-900 overflow-hidden font-sans text-gray-800 dark:text-gray-100 relative"
->
+<div class="flex flex-col h-screen w-full bg-[#F4F6F7] dark:bg-gray-900 overflow-hidden font-sans text-gray-800 dark:text-gray-100">
+
   <!-- ══════════════════════════════════════════════════════════════════ -->
-  <!-- SIDEBAR LATERAL                                                    -->
+  <!-- TOPBAR — Barra superior de ancho completo, siempre visible        -->
   <!-- ══════════════════════════════════════════════════════════════════ -->
-  <aside
-    [ngClass]="ui.isSidebarOpen() ? 'w-[260px]' : 'w-[68px]'"
-    class="flex-shrink-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 transition-all duration-300 z-20"
+  <header
+    class="flex-shrink-0 bg-white dark:bg-[#181818] flex items-center z-30 relative"
+    style="height:48px; min-height:48px; border-bottom: 1px solid var(--color-gray-light);"
   >
-    <app-sidebar></app-sidebar>
-  </aside>
+    <app-topbar class="block w-full"></app-topbar>
+  </header>
 
   <!-- ══════════════════════════════════════════════════════════════════ -->
-  <!-- ÁREA PRINCIPAL                                                     -->
+  <!-- FILA: Sidebar + Área principal (debajo del topbar)                -->
   <!-- ══════════════════════════════════════════════════════════════════ -->
-  <main class="flex-1 flex flex-col min-w-0 relative overflow-hidden">
-    <!-- ── Contenido principal (oculto cuando se muestra el login) ──── -->
-    <ng-container *ngIf="!ui.isLoginOpen()">
-      <!-- Header / Topbar -->
-      <header
-        class="h-[60px] flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 flex items-center"
-      >
-        <app-topbar class="block w-full"></app-topbar>
-      </header>
+  <div class="flex flex-1 overflow-hidden relative">
 
-      <!-- Sección central (vista activa) -->
-      <section class="flex-1 overflow-auto p-4 md:p-6 lg:p-8">
-        <div
-          class="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 rounded-lg h-full flex flex-col max-w-5xl mx-auto relative overflow-hidden"
-        >
-          <!-- ── Toolbar del editor (visible cuando hay nota seleccionada) ── -->
+    <!-- Overlay móvil (debajo del topbar) -->
+    <div
+      *ngIf="ui.isSidebarOpen()"
+      class="fixed top-[48px] inset-x-0 bottom-0 bg-black/20 z-10 md:hidden"
+      (click)="ui.toggleSidebar()"
+    ></div>
+
+    <!-- ── SIDEBAR ──────────────────────────────────────────────────── -->
+    <aside
+      [ngClass]="{
+        'w-[200px]': ui.isSidebarOpen(),
+        'w-[48px]': !ui.isSidebarOpen()
+      }"
+      [class.-translate-x-full]="!ui.isSidebarOpen()"
+      [class.translate-x-0]="ui.isSidebarOpen()"
+      class="flex-shrink-0 transition-all duration-300 z-20
+             fixed top-[48px] bottom-0 left-0
+             md:relative md:top-auto md:bottom-auto md:translate-x-0"
+      style="border-right: 1px solid var(--color-gray-light);
+             background: var(--color-white-2);"
+      (mouseenter)="!ui.isSidebarOpen() && ui.toggleSidebar()"
+    >
+      <app-sidebar></app-sidebar>
+    </aside>
+
+    <!-- ── ÁREA PRINCIPAL ───────────────────────────────────────────── -->
+    <main class="flex-1 flex flex-col min-w-0 relative overflow-hidden">
+
+      <!-- Contenido principal (oculto cuando se muestra el login) -->
+      <ng-container *ngIf="!ui.isLoginOpen()">
+
+        <!-- Sección central (vista activa) -->
+        <section class="flex-1 overflow-auto p-0 md:p-3">
           <div
-            *ngIf="notesService.selectedNote()?.id || ui.currentView() === 'pdf'"
-            class="min-h-[50px] flex-shrink-0 px-4 flex items-center border-b-[3px] border-[#18639c] dark:border-blue-500 w-full bg-white dark:bg-gray-800"
+            class="bg-white dark:bg-gray-800 md:shadow-sm md:border md:border-gray-200 md:dark:border-gray-700 md:rounded-lg h-full flex flex-col w-full relative overflow-hidden"
           >
-            <app-editor-toolbar class="block w-full"></app-editor-toolbar>
-          </div>
+            <!-- Toolbar del editor (visible cuando hay nota o PDF) -->
+            <div
+              *ngIf="notesService.selectedNote()?.id || ui.currentView() === 'pdf'"
+              class="flex-shrink-0 flex items-center bg-white dark:bg-[#181818] overflow-x-auto scrollbar-hide w-full"
+              style="min-height:48px; padding: 0 8px; border-bottom: 2px solid var(--color-primary);"
+            >
+              <app-editor-toolbar class="block w-full"></app-editor-toolbar>
+            </div>
 
-          <!-- ════════════════════════════════════════════════════════════ -->
-          <!-- VISTA: EDITOR DE NOTAS                                       -->
-          <!-- ════════════════════════════════════════════════════════════ -->
-          <div *ngIf="ui.currentView() === 'editor'" class="flex-1 relative overflow-hidden">
-            <app-note-editor *ngIf="notesService.selectedNote()?.id; else emptyState">
-            </app-note-editor>
-            <ng-template #emptyState>
-              <app-empty-notes></app-empty-notes>
-            </ng-template>
-          </div>
+            <!-- ════════════════════════════════════════════════════════ -->
+            <!-- VISTA: EDITOR DE NOTAS                                   -->
+            <!-- ════════════════════════════════════════════════════════ -->
+            <div *ngIf="ui.currentView() === 'editor'" class="flex-1 relative overflow-hidden">
+              <app-note-editor *ngIf="notesService.selectedNote()?.id; else emptyState">
+              </app-note-editor>
+              <ng-template #emptyState>
+                <app-empty-notes></app-empty-notes>
+              </ng-template>
+            </div>
 
-          <!-- ════════════════════════════════════════════════════════════ -->
-          <!-- VISTA: TEXTO A PDF — Editor Quill completo                   -->
-          <!-- ════════════════════════════════════════════════════════════ -->
-          <div *ngIf="ui.currentView() === 'pdf'" class="flex-1 flex flex-col overflow-hidden">
-            <!-- Editor Quill para PDF (mismas capacidades que el editor de notas) -->
-            <div class="flex-1 overflow-y-auto px-8 pt-4 pb-2">
-              <quill-editor
-                (onEditorCreated)="onPdfEditorCreated($event)"
-                (onContentChanged)="onPdfContentChanged($event)"
-                [modules]="pdfEditorModules"
-                [placeholder]="i18n.t('enterTextPdf')"
-                class="w-full text-gray-800 dark:text-gray-100 border-none outline-none"
-              >
-              </quill-editor>
-
-              <!-- Overlay con botones (solo visible cuando NO hay texto) -->
+            <!-- ════════════════════════════════════════════════════════ -->
+            <!-- VISTA: TEXTO A PDF — Editor Quill completo               -->
+            <!-- ════════════════════════════════════════════════════════ -->
+            <div *ngIf="ui.currentView() === 'pdf'" class="flex-1 flex flex-col overflow-hidden">
+              <div class="flex-1 overflow-y-auto px-8 pt-4 pb-2">
+                <quill-editor
+                  (onEditorCreated)="onPdfEditorCreated($event)"
+                  (onContentChanged)="onPdfContentChanged($event)"
+                  [modules]="pdfEditorModules"
+                  [placeholder]="i18n.t('enterTextPdf')"
+                  class="w-full text-gray-800 dark:text-gray-100 border-none outline-none"
+                >
+                </quill-editor>
+                <div
+                  *ngIf="!pdfHasText()"
+                  class="absolute inset-0 flex flex-col items-start justify-start pt-24 px-8 pointer-events-none"
+                >
+                  <div class="pointer-events-auto">
+                    <button
+                      (click)="loadRichSampleDocument()"
+                      class="flex items-center gap-2 text-[13px] font-medium text-gray-400 hover:text-[#18639c] transition-colors"
+                    >
+                      <span class="material-icons text-[18px]">description</span>
+                      {{ i18n.t('sampleDocument') }}
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div
-                *ngIf="!pdfHasText()"
-                class="absolute inset-0 flex flex-col items-start justify-start pt-24 px-8 pointer-events-none"
+                class="flex-shrink-0 border-t border-gray-100 dark:border-gray-700 px-8 py-3 flex items-center justify-between text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800"
               >
-                <div class="pointer-events-auto">
+                <div class="flex items-center gap-4">
                   <button
-                    (click)="loadRichSampleDocument()"
-                    class="flex items-center gap-2 text-[13px] font-medium text-gray-400 hover:text-[#18639c] transition-colors"
+                    *ngIf="!pdfHasText()"
+                    (click)="uploadDocForPdf()"
+                    class="flex items-center gap-1.5 text-[13px] font-medium hover:text-gray-800 dark:hover:text-white transition-colors"
                   >
-                    <span class="material-icons text-[18px]">description</span>
-                    {{ i18n.t('sampleDocument') }}
+                    <span class="material-icons text-[18px]">upload</span>
+                    {{ i18n.t('uploadDoc') }}
+                  </button>
+                  <span *ngIf="pdfHasText()" class="text-[13px]">
+                    {{ i18n.t('words') }}: {{ pdfWordCount() }}&nbsp;&nbsp;
+                    {{ i18n.t('characters') }}: {{ pdfCharCount() }}
+                  </span>
+                </div>
+                <button
+                  (click)="convertToPDF()"
+                  [disabled]="isPdfConverting()"
+                  class="bg-[#18639c] hover:bg-[#145382] disabled:opacity-60 text-white px-8 py-2 rounded text-[14px] font-medium transition-colors shadow-sm flex items-center gap-2"
+                >
+                  <span *ngIf="isPdfConverting()" class="material-icons text-[18px] animate-spin">refresh</span>
+                  {{ isPdfConverting() ? i18n.t('converting') : i18n.t('convertToPdf') }}
+                </button>
+              </div>
+            </div>
+
+            <!-- ════════════════════════════════════════════════════════ -->
+            <!-- VISTA: PARAFRASEADOR                                     -->
+            <!-- ════════════════════════════════════════════════════════ -->
+            <div *ngIf="ui.currentView() === 'paraphraser'" class="flex-1 flex flex-col overflow-hidden">
+              <div class="px-8 pt-5 pb-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700 flex-shrink-0">
+                <div>
+                  <h2 class="text-[16px] font-semibold text-gray-800 dark:text-white">
+                    {{ i18n.t('paraphraserTitle') }}
+                  </h2>
+                  <p class="text-[12px] text-gray-400 mt-0.5">Paste your text and get a rephrased version</p>
+                </div>
+                <button
+                  (click)="clearParaphraser()"
+                  class="text-[13px] text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors flex items-center gap-1"
+                >
+                  <span class="material-icons text-[16px]">clear_all</span>
+                  {{ i18n.t('clear') }}
+                </button>
+              </div>
+              <div class="flex-1 flex overflow-hidden">
+                <div class="flex-1 flex flex-col border-r border-gray-100 dark:border-gray-700 overflow-hidden">
+                  <div class="px-6 pt-3 pb-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0">
+                    {{ i18n.t('originalText') }}
+                  </div>
+                  <textarea
+                    #paraphraserInput
+                    [placeholder]="i18n.t('pasteToParaphrase')"
+                    class="flex-1 px-6 pb-4 resize-none border-none outline-none bg-transparent text-[15px] text-gray-800 dark:text-gray-100 placeholder-gray-400 font-sans leading-relaxed"
+                  ></textarea>
+                </div>
+                <div class="flex-1 flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-900/30">
+                  <div class="px-6 pt-3 pb-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0">
+                    {{ i18n.t('paraphrasedText') }}
+                  </div>
+                  <div class="flex-1 overflow-y-auto px-6 pb-4">
+                    <div *ngIf="paraphraserOutput()" class="text-[15px] text-gray-800 dark:text-gray-100 font-sans leading-relaxed whitespace-pre-wrap">
+                      {{ paraphraserOutput() }}
+                    </div>
+                    <div *ngIf="!paraphraserOutput() && !isParaphrasing()" class="text-[15px] text-gray-400 font-sans leading-relaxed">
+                      {{ i18n.t('resultHere') }}
+                    </div>
+                    <div *ngIf="isParaphrasing()" class="flex items-center gap-2 text-gray-400 text-[14px]">
+                      <span class="material-icons text-[18px] animate-spin">refresh</span>
+                      {{ i18n.t('processing') }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex-shrink-0 border-t border-gray-100 dark:border-gray-700 px-8 py-3 flex items-center justify-between bg-white dark:bg-gray-800">
+                <div class="flex items-center gap-3">
+                  <button
+                    *ngIf="paraphraserOutput()"
+                    (click)="copyParaphraserOutput()"
+                    [ngClass]="paraphraserCopied() ? 'text-green-500 dark:text-green-400' : ''"
+                    class="flex items-center gap-1.5 text-[13px] font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors"
+                  >
+                    <span class="material-icons text-[16px]">{{ paraphraserCopied() ? 'check' : 'content_copy' }}</span>
+                    {{ paraphraserCopied() ? i18n.t('copied') : i18n.t('copyResult') }}
+                  </button>
+                  <button
+                    *ngIf="paraphraserOutput()"
+                    (click)="useInEditor()"
+                    class="flex items-center gap-1.5 text-[13px] font-medium text-[#18639c] hover:text-[#145382] transition-colors"
+                  >
+                    <span class="material-icons text-[16px]">open_in_new</span>
+                    {{ i18n.t('useInEditor') }}
                   </button>
                 </div>
-              </div>
-            </div>
-
-            <!-- Footer del conversor PDF -->
-            <div
-              class="flex-shrink-0 border-t border-gray-100 dark:border-gray-700 px-8 py-3 flex items-center justify-between text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800"
-            >
-              <div class="flex items-center gap-4">
-                <!-- Botón Upload Doc -->
-                <!-- Botón Upload Doc — solo visible cuando NO hay texto -->
                 <button
-                  *ngIf="!pdfHasText()"
-                  (click)="uploadDocForPdf()"
-                  class="flex items-center gap-1.5 text-[13px] font-medium hover:text-gray-800 dark:hover:text-white transition-colors"
+                  (click)="paraphrase()"
+                  [disabled]="isParaphrasing()"
+                  class="bg-[#18639c] hover:bg-[#145382] disabled:opacity-60 text-white px-6 py-2 rounded text-[14px] font-medium transition-colors shadow-sm flex items-center gap-2"
                 >
-                  <span class="material-icons text-[18px]">upload</span>
-                  {{ i18n.t('uploadDoc') }}
+                  <span *ngIf="isParaphrasing()" class="material-icons text-[16px] animate-spin">refresh</span>
+                  {{ isParaphrasing() ? i18n.t('paraphrasing') : i18n.t('paraphraseBtn') }}
                 </button>
+              </div>
+            </div>
 
-                <!-- Contadores — solo visibles cuando HAY texto -->
-                <span *ngIf="pdfHasText()" class="text-[13px]">
-                  {{ i18n.t('words') }}: {{ pdfWordCount() }}&nbsp;&nbsp;
-                  {{ i18n.t('characters') }}: {{ pdfCharCount() }}
-                </span>
+            <!-- ════════════════════════════════════════════════════════ -->
+            <!-- VISTA: CONTACT US                                         -->
+            <!-- ════════════════════════════════════════════════════════ -->
+            <div *ngIf="ui.currentView() === 'contact'" class="flex-1 overflow-hidden relative">
+
+              <!-- Checkbox para estado de éxito (CSS peer trick) -->
+              <input type="checkbox" id="contact-sent-cb" class="sr-only peer">
+
+              <!-- Overlay de confirmación -->
+              <div class="hidden peer-checked:flex absolute inset-0 z-20 items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-fade-in">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-10 flex flex-col items-center text-center mx-4" style="max-width:360px; gap:1rem;">
+                  <div class="relative mb-2">
+                    <span class="absolute select-none text-green-400 text-lg font-black" style="top:-28px;left:2px;transform:rotate(15deg)">|</span>
+                    <span class="absolute select-none text-blue-400 text-base font-black" style="top:-22px;left:30px;transform:rotate(45deg)">—</span>
+                    <span class="absolute select-none text-yellow-400 text-xl font-black" style="top:-30px;right:14px;transform:rotate(-15deg)">~</span>
+                    <span class="absolute select-none text-pink-400 font-black" style="top:-18px;right:-20px;transform:rotate(45deg)">|</span>
+                    <span class="absolute select-none text-purple-400 text-lg font-black" style="top:20px;right:-28px">~</span>
+                    <span class="absolute select-none text-orange-400 font-black" style="top:20px;left:-28px;transform:rotate(-30deg)">—</span>
+                    <img src="assets/icons/logo.svg" class="w-24 h-24">
+                  </div>
+                  <h3 class="text-[20px] font-bold text-gray-800 dark:text-white mt-2">Message Sent!</h3>
+                  <p class="text-[14px] text-[#18639c] leading-relaxed">Your message has been sent. Someone from our support team will reply to your message within 24 hours</p>
+                  <label for="contact-sent-cb" class="bg-[#00C9B1] hover:bg-[#00b09a] text-white px-10 py-2.5 rounded-full text-[14px] font-medium transition-colors cursor-pointer mt-2 inline-block">Close</label>
+                </div>
               </div>
 
-              <!-- Botón Convert to PDF -->
-              <button
-                (click)="convertToPDF()"
-                [disabled]="isPdfConverting()"
-                class="bg-[#18639c] hover:bg-[#145382] disabled:opacity-60 text-white px-8 py-2 rounded text-[14px] font-medium transition-colors shadow-sm flex items-center gap-2"
-              >
-                <span *ngIf="isPdfConverting()" class="material-icons text-[18px] animate-spin"
-                  >refresh</span
-                >
-                {{ isPdfConverting() ? i18n.t('converting') : i18n.t('convertToPdf') }}
-              </button>
+              <!-- Contenido principal del formulario -->
+              <div class="absolute inset-0 overflow-y-auto flex flex-col lg:flex-row">
+
+                <!-- Columna izquierda: formulario -->
+                <div class="flex-1 p-8 lg:p-12">
+                  <h1 class="text-[26px] font-bold text-gray-800 dark:text-white mb-3">Let's talk!</h1>
+                  <p class="text-[13px] text-gray-500 dark:text-gray-400 mb-7 leading-relaxed">
+                    We would love to hear from you! Please use the contact form below to get in touch with us. Whether you have a question, feedback, or just want to say hello, we are here to help. Our team will get back to you as soon as possible. Thank you for using onlinenotepad.io!
+                  </p>
+
+                  <form id="contact-form-el" class="flex flex-col gap-5" onsubmit="return false">
+                    <input
+                      type="text"
+                      name="contact-name"
+                      placeholder="Your Name"
+                      required
+                      class="w-full border-0 border-b border-gray-300 dark:border-gray-600 pb-2 pt-1 bg-transparent text-[14px] text-gray-700 dark:text-gray-200 outline-none focus:border-[#18639c] transition-colors placeholder-gray-400"
+                    >
+                    <input
+                      type="email"
+                      name="contact-email"
+                      placeholder="Your Email"
+                      required
+                      class="w-full border-0 border-b border-gray-300 dark:border-gray-600 pb-2 pt-1 bg-transparent text-[14px] text-gray-700 dark:text-gray-200 outline-none focus:border-[#18639c] transition-colors placeholder-gray-400"
+                    >
+                    <div>
+                      <p class="text-[13px] text-gray-500 dark:text-gray-400 mb-2">Your Message</p>
+                      <textarea
+                        name="contact-message"
+                        placeholder="Enter text here..."
+                        required
+                        rows="5"
+                        class="w-full border border-gray-200 dark:border-gray-600 rounded-lg p-3 bg-gray-50 dark:bg-gray-700/50 text-[14px] text-gray-700 dark:text-gray-200 outline-none focus:border-[#18639c] transition-colors placeholder-gray-400 resize-none"
+                      ></textarea>
+                    </div>
+                  </form>
+
+                  <!-- Submit — deshabilitado vía CSS cuando el formulario es inválido -->
+                  <div class="contact-submit-wrap flex justify-end mt-5">
+                    <label for="contact-sent-cb" class="bg-[#00C9B1] hover:bg-[#00b09a] text-white px-8 py-2.5 rounded-full text-[14px] font-medium transition-colors cursor-pointer select-none inline-block">
+                      Send Message
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Columna derecha: información de contacto -->
+                <div class="lg:w-80 p-8 lg:p-12 border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex flex-col">
+                  <h2 class="text-[20px] font-bold text-gray-800 dark:text-white mb-3">Contact us</h2>
+                  <p class="text-[13px] text-[#18639c] mb-6 leading-relaxed">If you prefer to reach us by email or mail, please use the following contact information. We look forward to hearing from you!</p>
+
+                  <div class="flex justify-center items-center flex-1 my-6">
+                    <img src="assets/icons/logo.svg" class="w-32 h-32" style="opacity:0.25;">
+                  </div>
+
+                  <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-[#00C9B1] flex items-center justify-center flex-shrink-0">
+                      <span class="material-icons text-white text-[18px]">email</span>
+                    </div>
+                    <span class="text-[13px] text-gray-700 dark:text-gray-200">reachout@onlinenotepad.io</span>
+                  </div>
+
+                  <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#00C9B1] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span class="material-icons text-white text-[18px]">location_on</span>
+                    </div>
+                    <span class="text-[13px] text-gray-700 dark:text-gray-200 leading-relaxed">1-0157 Al-Karama TV R/A BLDG, Al Karama, Dubai</span>
+                  </div>
+                </div>
+              </div>
             </div>
+
           </div>
+        </section>
 
-          <!-- ════════════════════════════════════════════════════════════ -->
-          <!-- VISTA: PARAFRASEADOR                                         -->
-          <!-- ════════════════════════════════════════════════════════════ -->
-          <div
-            *ngIf="ui.currentView() === 'paraphraser'"
-            class="flex-1 flex flex-col overflow-hidden"
-          >
-            <!-- Encabezado del paraphraser -->
-            <div
-              class="px-8 pt-5 pb-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700 flex-shrink-0"
-            >
-              <div>
-                <h2 class="text-[16px] font-semibold text-gray-800 dark:text-white">
-                  {{ i18n.t('paraphraserTitle') }}
-                </h2>
-                <p class="text-[12px] text-gray-400 mt-0.5">
-                  Paste your text and get a rephrased version
-                </p>
-              </div>
-              <button
-                (click)="clearParaphraser()"
-                class="text-[13px] text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors flex items-center gap-1"
-              >
-                <span class="material-icons text-[16px]">clear_all</span>
-                {{ i18n.t('clear') }}
-              </button>
-            </div>
-
-            <!-- Paneles de texto -->
-            <div class="flex-1 flex overflow-hidden">
-              <!-- Panel izquierdo: Texto original -->
-              <div
-                class="flex-1 flex flex-col border-r border-gray-100 dark:border-gray-700 overflow-hidden"
-              >
-                <div
-                  class="px-6 pt-3 pb-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0"
-                >
-                  {{ i18n.t('originalText') }}
-                </div>
-                <textarea
-                  #paraphraserInput
-                  [placeholder]="i18n.t('pasteToParaphrase')"
-                  class="flex-1 px-6 pb-4 resize-none border-none outline-none bg-transparent text-[15px] text-gray-800 dark:text-gray-100 placeholder-gray-400 font-sans leading-relaxed"
-                >
-                </textarea>
-              </div>
-
-              <!-- Panel derecho: Resultado parafraseado -->
-              <div class="flex-1 flex flex-col overflow-hidden bg-gray-50 dark:bg-gray-900/30">
-                <div
-                  class="px-6 pt-3 pb-1 text-[11px] font-semibold text-gray-400 uppercase tracking-wide flex-shrink-0"
-                >
-                  {{ i18n.t('paraphrasedText') }}
-                </div>
-                <div class="flex-1 overflow-y-auto px-6 pb-4">
-                  <div
-                    *ngIf="paraphraserOutput()"
-                    class="text-[15px] text-gray-800 dark:text-gray-100 font-sans leading-relaxed whitespace-pre-wrap"
-                  >
-                    {{ paraphraserOutput() }}
-                  </div>
-                  <div
-                    *ngIf="!paraphraserOutput() && !isParaphrasing()"
-                    class="text-[15px] text-gray-400 font-sans leading-relaxed"
-                  >
-                    {{ i18n.t('resultHere') }}
-                  </div>
-                  <div
-                    *ngIf="isParaphrasing()"
-                    class="flex items-center gap-2 text-gray-400 text-[14px]"
-                  >
-                    <span class="material-icons text-[18px] animate-spin">refresh</span>
-                    {{ i18n.t('processing') }}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Footer del paraphraser -->
-            <div
-              class="flex-shrink-0 border-t border-gray-100 dark:border-gray-700 px-8 py-3 flex items-center justify-between bg-white dark:bg-gray-800"
-            >
-              <div class="flex items-center gap-3">
-                <button
-                  *ngIf="paraphraserOutput()"
-                  (click)="copyParaphraserOutput()"
-                  [ngClass]="paraphraserCopied() ? 'text-green-500 dark:text-green-400' : ''"
-                  class="flex items-center gap-1.5 text-[13px] font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors"
-                >
-                  <span class="material-icons text-[16px]">{{
-                    paraphraserCopied() ? 'check' : 'content_copy'
-                  }}</span>
-                  {{ paraphraserCopied() ? i18n.t('copied') : i18n.t('copyResult') }}
-                </button>
-                <button
-                  *ngIf="paraphraserOutput()"
-                  (click)="useInEditor()"
-                  class="flex items-center gap-1.5 text-[13px] font-medium text-[#18639c] hover:text-[#145382] transition-colors"
-                >
-                  <span class="material-icons text-[16px]">open_in_new</span>
-                  {{ i18n.t('useInEditor') }}
-                </button>
-              </div>
-              <button
-                (click)="paraphrase()"
-                [disabled]="isParaphrasing()"
-                class="bg-[#18639c] hover:bg-[#145382] disabled:opacity-60 text-white px-6 py-2 rounded text-[14px] font-medium transition-colors shadow-sm flex items-center gap-2"
-              >
-                <span *ngIf="isParaphrasing()" class="material-icons text-[16px] animate-spin"
-                  >refresh</span
-                >
-                {{ isParaphrasing() ? i18n.t('paraphrasing') : i18n.t('paraphraseBtn') }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ─────────────────────────────────────────────────────────── -->
-      <!-- PANEL DE PAPELERA (flotante sobre el layout)                -->
-      <!-- ─────────────────────────────────────────────────────────── -->
-      <div
-        [ngClass]="
-          ui.isTrashOpen()
-            ? 'opacity-100 translate-y-0 visible'
-            : 'opacity-0 translate-y-2 invisible pointer-events-none'
-        "
-        [style.left]="ui.isSidebarOpen() ? '275px' : '83px'"
-        class="absolute bottom-20 w-[360px] bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 rounded-xl p-5 z-30 transition-all duration-200 ease-in-out"
-      >
+        <!-- Backdrop transparente: cierra el panel al hacer clic fuera -->
         <div
-          class="flex items-center gap-2 text-gray-400 mb-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-3 py-2 border border-gray-100 dark:border-gray-600"
+          *ngIf="ui.isTrashOpen()"
+          class="fixed inset-0 z-[34]"
+          (click)="ui.isTrashOpen.set(false)"
+        ></div>
+
+        <!-- Panel de papelera flotante (esquina inferior izquierda) -->
+        <div
+          [ngClass]="ui.isTrashOpen()
+            ? 'opacity-100 translate-y-0 visible'
+            : 'opacity-0 translate-y-2 invisible pointer-events-none'"
+          [style.left]="ui.isSidebarOpen() ? '212px' : '60px'"
+          class="fixed bottom-5 z-[35] w-[320px] bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 rounded-xl flex flex-col transition-all duration-200 ease-out overflow-hidden"
         >
-          <span class="material-icons text-[18px]">search</span>
-          <input
-            type="text"
-            placeholder="Search trash notes..."
-            class="bg-transparent border-none outline-none text-[13px] w-full text-gray-700 dark:text-gray-200 focus:ring-0"
-          />
-        </div>
-
-        <div class="max-h-[300px] overflow-y-auto pr-1">
-          <div
-            *ngFor="let note of trashedNotes()"
-            class="flex justify-between items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 p-2 rounded transition-colors"
-          >
-            <div>
-              <h4 class="text-[13px] font-medium text-gray-800 dark:text-gray-200">
-                {{ note.titulo }}
-              </h4>
-              <p class="text-[11px] text-gray-500 mt-0.5">
-                {{ note.fechaActualizacion | date: 'mediumDate' }}
-              </p>
+          <!-- Encabezado -->
+          <div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+            <div class="flex items-center gap-2">
+              <span class="material-icons text-[17px] text-gray-500 dark:text-gray-400">delete_outline</span>
+              <h3 class="text-[13px] font-semibold text-gray-800 dark:text-white">Trash</h3>
             </div>
-            <div class="flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span
-                (click)="restoreNote(note)"
-                class="material-icons text-[16px] text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer"
-                >undo</span
-              >
-              <span
-                (click)="permanentDeleteNote(note)"
-                class="material-icons text-[16px] text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
-                >delete_outline</span
-              >
-            </div>
-          </div>
-        </div>
-      </div>
-    </ng-container>
-
-    <!-- ── Pantalla de LOGIN ─────────────────────────────────────────── -->
-    <ng-container *ngIf="ui.isLoginOpen()">
-      <div
-        class="flex-1 bg-white dark:bg-gray-900 overflow-y-auto flex items-center justify-center p-6 relative"
-      >
-        <button
-          (click)="ui.isLoginOpen.set(false)"
-          class="absolute top-6 left-6 flex items-center gap-2 text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors text-[14px] font-medium z-10"
-        >
-          <span class="material-icons text-[18px]">arrow_back</span> Back to notes
-        </button>
-
-        <div class="w-full max-w-[440px] flex flex-col bg-white dark:bg-gray-900 p-2">
-          <h2 class="text-center text-[32px] font-bold text-gray-800 dark:text-white mb-6">
-            Welcome Back
-          </h2>
-
-          <!-- Botón Google -->
-          <button
-            (click)="signInWithGoogle()"
-            [disabled]="authService.isSigningIn()"
-            class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-[14px] font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            <ng-container *ngIf="!authService.isSigningIn(); else signingInSpinner">
-              <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
-                <path
-                  fill="#EA4335"
-                  d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3A11.95 11.95 0 0 0 12 0C7.26 0 3.193 2.573 1.023 6.377l4.243 3.388z"
-                />
-                <path
-                  fill="#4285F4"
-                  d="M23.755 12.273c0-.818-.068-1.609-.2-2.364H12v4.51h6.605a5.666 5.666 0 0 1-2.455 3.713v3.082h3.96c2.313-2.132 3.64-5.268 3.64-8.94z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.266 14.235A7.09 7.09 0 0 1 4.909 12c0-.79.132-1.55.357-2.265L1.023 6.377A11.954 11.954 0 0 0 0 12c0 2.114.555 4.1 1.527 5.83l3.739-3.595z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 24c3.24 0 5.955-1.077 7.94-2.918l-3.96-3.082c-1.1.736-2.514 1.182-3.98 1.182-3.045 0-5.618-2.055-6.54-4.823L1.217 17.84A11.947 11.947 0 0 0 12 24z"
-                />
-              </svg>
-              Continue with Google
-            </ng-container>
-            <ng-template #signingInSpinner>
-              <span class="material-icons text-[18px] animate-spin">refresh</span> Signing in...
-            </ng-template>
-          </button>
-
-          <div class="flex items-center my-6">
-            <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
-            <span
-              class="px-4 text-gray-400 text-[13px] uppercase tracking-wider bg-white dark:bg-gray-900"
-              >or</span
+            <button
+              (click)="ui.isTrashOpen.set(false)"
+              class="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
-            <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+              <img src="assets/icons/mobile_close_icon.svg" class="w-3.5 h-3.5 icon-adaptive">
+            </button>
           </div>
 
-          <div class="space-y-4">
-            <!-- Email -->
-            <div>
-              <label class="block text-[14px] font-medium text-gray-700 dark:text-gray-300 mb-1.5"
-                >Email</label
-              >
+          <!-- Buscador -->
+          <div class="px-3 pt-2.5 pb-2 flex-shrink-0">
+            <div class="flex items-center gap-2 text-gray-400 bg-gray-50 dark:bg-gray-700/50 rounded-lg px-3 py-1.5 border border-gray-100 dark:border-gray-600">
+              <span class="material-icons text-[16px]">search</span>
               <input
-                #emailInput
-                type="email"
-                placeholder="Enter email"
-                (keyup.enter)="signInWithEmailPassword()"
-                class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-xl px-4 bg-gray-50/50 dark:bg-gray-800/50 text-[14px] outline-none focus:border-blue-500 text-gray-800 dark:text-gray-100"
+                type="text"
+                placeholder="Search trash notes..."
+                class="bg-transparent border-none outline-none text-[13px] w-full text-gray-700 dark:text-gray-200 focus:ring-0"
               />
             </div>
-            <!-- Password -->
-            <div>
-              <label class="block text-[14px] font-medium text-gray-700 dark:text-gray-300 mb-1.5"
-                >Password</label
-              >
-              <div class="relative flex items-center">
-                <input
-                  #passwordInput
-                  [type]="showPassword() ? 'text' : 'password'"
-                  placeholder="Enter password"
-                  (keyup.enter)="signInWithEmailPassword()"
-                  class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-xl px-4 pr-12 bg-gray-50/50 dark:bg-gray-800/50 text-[14px] outline-none focus:border-blue-500 text-gray-800 dark:text-gray-100"
-                />
-                <span
-                  (click)="showPassword.set(!showPassword())"
-                  class="material-icons absolute right-4 text-gray-400 cursor-pointer text-[20px] select-none"
-                >
-                  {{ showPassword() ? 'visibility' : 'visibility_off' }}
-                </span>
+          </div>
+
+          <!-- Lista de notas -->
+          <div class="overflow-y-auto px-2 py-1" style="max-height: 260px;">
+            <div
+              *ngFor="let note of trashedNotes()"
+              class="flex justify-between items-center group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 px-3 py-2 rounded-lg transition-colors"
+            >
+              <div class="min-w-0 flex-1">
+                <h4 class="text-[13px] font-medium text-gray-800 dark:text-gray-200 truncate">{{ note.titulo }}</h4>
+                <p class="text-[11px] text-gray-500 mt-0.5">{{ note.fechaActualizacion | date: 'mediumDate' }}</p>
+              </div>
+              <div class="flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity ml-2 flex-shrink-0">
+                <span (click)="restoreNote(note)" title="Restore" class="material-icons text-[16px] text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer">undo</span>
+                <span (click)="permanentDeleteNote(note)" title="Delete permanently" class="material-icons text-[16px] text-gray-400 hover:text-red-500 transition-colors cursor-pointer">delete_outline</span>
               </div>
             </div>
+
+            <!-- Estado vacío -->
+            <div *ngIf="trashedNotes().length === 0" class="flex flex-col items-center justify-center py-8 text-gray-400">
+              <span class="material-icons text-[36px] mb-1">delete_outline</span>
+              <p class="text-[12px]">Trash is empty</p>
+            </div>
           </div>
-
-          <div class="flex justify-end mt-2.5">
-            <a
-              class="text-[13px] text-gray-500 hover:text-[#18639c] hover:underline cursor-pointer"
-            >
-              Forget Password?
-            </a>
-          </div>
-
-          <button
-            (click)="signInWithEmailPassword()"
-            [disabled]="authService.isSigningIn()"
-            class="w-full h-11 bg-[#18639c] hover:bg-[#145382] disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium rounded-xl text-[15px] mt-6 transition-colors shadow-sm flex items-center justify-center gap-2"
-          >
-            <span *ngIf="authService.isSigningIn()" class="material-icons text-[18px] animate-spin"
-              >refresh</span
-            >
-            {{ authService.isSigningIn() ? 'Signing in...' : 'Sign in' }}
-          </button>
-
-          <p class="text-center text-[14px] text-gray-600 dark:text-gray-400 mt-6">
-            Don't have an account?
-            <a class="text-[#18639c] font-bold hover:underline cursor-pointer ml-1">Register</a>
-          </p>
         </div>
-      </div>
-    </ng-container>
-  </main>
+      </ng-container>
+
+      <!-- Pantalla de LOGIN -->
+      <ng-container *ngIf="ui.isLoginOpen()">
+        <div class="flex-1 bg-white dark:bg-gray-900 overflow-y-auto flex items-center justify-center p-6 relative">
+          <button
+            (click)="ui.isLoginOpen.set(false)"
+            class="absolute top-6 left-6 flex items-center gap-2 text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors text-[14px] font-medium z-10"
+          >
+            <span class="material-icons text-[18px]">arrow_back</span> Back to notes
+          </button>
+          <div class="w-full max-w-[440px] flex flex-col bg-white dark:bg-gray-900 p-2">
+            <h2 class="text-center text-[32px] font-bold text-gray-800 dark:text-white mb-6">Welcome Back</h2>
+            <button
+              (click)="signInWithGoogle()"
+              [disabled]="authService.isSigningIn()"
+              class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-[14px] font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <ng-container *ngIf="!authService.isSigningIn(); else signingInSpinner">
+                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+                  <path fill="#EA4335" d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3A11.95 11.95 0 0 0 12 0C7.26 0 3.193 2.573 1.023 6.377l4.243 3.388z"/>
+                  <path fill="#4285F4" d="M23.755 12.273c0-.818-.068-1.609-.2-2.364H12v4.51h6.605a5.666 5.666 0 0 1-2.455 3.713v3.082h3.96c2.313-2.132 3.64-5.268 3.64-8.94z"/>
+                  <path fill="#FBBC05" d="M5.266 14.235A7.09 7.09 0 0 1 4.909 12c0-.79.132-1.55.357-2.265L1.023 6.377A11.954 11.954 0 0 0 0 12c0 2.114.555 4.1 1.527 5.83l3.739-3.595z"/>
+                  <path fill="#34A853" d="M12 24c3.24 0 5.955-1.077 7.94-2.918l-3.96-3.082c-1.1.736-2.514 1.182-3.98 1.182-3.045 0-5.618-2.055-6.54-4.823L1.217 17.84A11.947 11.947 0 0 0 12 24z"/>
+                </svg>
+                Continue with Google
+              </ng-container>
+              <ng-template #signingInSpinner>
+                <span class="material-icons text-[18px] animate-spin">refresh</span> Signing in...
+              </ng-template>
+            </button>
+            <div class="flex items-center my-6">
+              <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+              <span class="px-4 text-gray-400 text-[13px] uppercase tracking-wider bg-white dark:bg-gray-900">or</span>
+              <div class="flex-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-[14px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email</label>
+                <input #emailInput type="email" placeholder="Enter email" (keyup.enter)="signInWithEmailPassword()"
+                  class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-xl px-4 bg-gray-50/50 dark:bg-gray-800/50 text-[14px] outline-none focus:border-blue-500 text-gray-800 dark:text-gray-100"/>
+              </div>
+              <div>
+                <label class="block text-[14px] font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password</label>
+                <div class="relative flex items-center">
+                  <input #passwordInput [type]="showPassword() ? 'text' : 'password'" placeholder="Enter password" (keyup.enter)="signInWithEmailPassword()"
+                    class="w-full h-11 border border-gray-200 dark:border-gray-700 rounded-xl px-4 pr-12 bg-gray-50/50 dark:bg-gray-800/50 text-[14px] outline-none focus:border-blue-500 text-gray-800 dark:text-gray-100"/>
+                  <span (click)="showPassword.set(!showPassword())" class="material-icons absolute right-4 text-gray-400 cursor-pointer text-[20px] select-none">
+                    {{ showPassword() ? 'visibility' : 'visibility_off' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-end mt-2.5">
+              <a class="text-[13px] text-gray-500 hover:text-[#18639c] hover:underline cursor-pointer">Forget Password?</a>
+            </div>
+            <button
+              (click)="signInWithEmailPassword()"
+              [disabled]="authService.isSigningIn()"
+              class="w-full h-11 bg-[#18639c] hover:bg-[#145382] disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium rounded-xl text-[15px] mt-6 transition-colors shadow-sm flex items-center justify-center gap-2"
+            >
+              <span *ngIf="authService.isSigningIn()" class="material-icons text-[18px] animate-spin">refresh</span>
+              {{ authService.isSigningIn() ? 'Signing in...' : 'Sign in' }}
+            </button>
+            <p class="text-center text-[14px] text-gray-600 dark:text-gray-400 mt-6">
+              Don't have an account?
+              <a class="text-[#18639c] font-bold hover:underline cursor-pointer ml-1">Register</a>
+            </p>
+          </div>
+        </div>
+      </ng-container>
+
+    </main>
+  </div>
 </div>
 
-<!-- Loader global (solo para carga inicial de notas) -->
+<!-- Loader global -->
 <app-loader *ngIf="notesService.isLoading()"></app-loader>
 
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <!-- MODAL DE FEEDBACK                                                   -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
-<div
-  *ngIf="ui.isFeedbackOpen()"
-  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm transition-opacity"
->
+<div *ngIf="ui.isFeedbackOpen()" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm transition-opacity">
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-[540px] p-6 relative">
     <button
       (click)="ui.closeFeedback()"
       class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
     >
-      <span class="material-icons text-[18px]">close</span>
+      <img src="assets/icons/mobile_close_icon.svg" class="w-5 h-5 icon-adaptive">
     </button>
-
     <h3 class="text-[18px] font-bold text-gray-800 dark:text-white">Give Feedback</h3>
-    <p class="text-gray-600 dark:text-gray-300 text-[15px] mt-1 mb-6">
-      What do you feel about onlinenotepad.io?
-    </p>
-
-    <!-- Paso 1: Selección de caritas -->
+    <p class="text-gray-600 dark:text-gray-300 text-[15px] mt-1 mb-6">What do you feel about onlinenotepad.io?</p>
     <div *ngIf="ui.feedbackStep() === 1" class="flex justify-between items-center gap-2 mt-2">
       <button (click)="selectRating('terrible')" class="flex flex-col items-center gap-2 group">
-        <div
-          class="w-14 h-14 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center group-hover:bg-red-100 transition-colors"
-        >
-          <span
-            class="material-icons text-red-500 text-[32px] group-hover:scale-110 transition-transform"
-          >
-            sentiment_very_dissatisfied
-          </span>
+        <div class="w-14 h-14 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center group-hover:bg-red-100 transition-colors">
+          <span class="material-icons text-red-500 text-[32px] group-hover:scale-110 transition-transform">sentiment_very_dissatisfied</span>
         </div>
-        <span class="text-[13px] text-gray-500 group-hover:text-gray-700 font-medium"
-          >Terrible</span
-        >
+        <span class="text-[13px] text-gray-500 group-hover:text-gray-700 font-medium">Terrible</span>
       </button>
       <button (click)="selectRating('bad')" class="flex flex-col items-center gap-2 group">
-        <div
-          class="w-14 h-14 rounded-full bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center group-hover:bg-orange-100 transition-colors"
-        >
-          <span
-            class="material-icons text-orange-500 text-[32px] group-hover:scale-110 transition-transform"
-          >
-            sentiment_dissatisfied
-          </span>
+        <div class="w-14 h-14 rounded-full bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center group-hover:bg-orange-100 transition-colors">
+          <span class="material-icons text-orange-500 text-[32px] group-hover:scale-110 transition-transform">sentiment_dissatisfied</span>
         </div>
         <span class="text-[13px] text-gray-500 group-hover:text-gray-700 font-medium">Bad</span>
       </button>
       <button (click)="selectRating('average')" class="flex flex-col items-center gap-2 group">
-        <div
-          class="w-14 h-14 rounded-full bg-yellow-50 dark:bg-yellow-900/30 flex items-center justify-center group-hover:bg-yellow-100 transition-colors"
-        >
-          <span
-            class="material-icons text-yellow-500 text-[32px] group-hover:scale-110 transition-transform"
-          >
-            sentiment_neutral
-          </span>
+        <div class="w-14 h-14 rounded-full bg-yellow-50 dark:bg-yellow-900/30 flex items-center justify-center group-hover:bg-yellow-100 transition-colors">
+          <span class="material-icons text-yellow-500 text-[32px] group-hover:scale-110 transition-transform">sentiment_neutral</span>
         </div>
         <span class="text-[13px] text-gray-500 group-hover:text-gray-700 font-medium">Average</span>
       </button>
       <button (click)="selectRating('good')" class="flex flex-col items-center gap-2 group">
-        <div
-          class="w-14 h-14 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center group-hover:bg-green-100 transition-colors"
-        >
-          <span
-            class="material-icons text-green-500 text-[32px] group-hover:scale-110 transition-transform"
-          >
-            sentiment_satisfied
-          </span>
+        <div class="w-14 h-14 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center group-hover:bg-green-100 transition-colors">
+          <span class="material-icons text-green-500 text-[32px] group-hover:scale-110 transition-transform">sentiment_satisfied</span>
         </div>
         <span class="text-[13px] text-gray-500 group-hover:text-gray-700 font-medium">Good</span>
       </button>
       <button (click)="selectRating('amazing')" class="flex flex-col items-center gap-2 group">
-        <div
-          class="w-14 h-14 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center group-hover:bg-teal-100 transition-colors"
-        >
-          <span
-            class="material-icons text-teal-500 text-[32px] group-hover:scale-110 transition-transform"
-          >
-            sentiment_very_satisfied
-          </span>
+        <div class="w-14 h-14 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center group-hover:bg-teal-100 transition-colors">
+          <span class="material-icons text-teal-500 text-[32px] group-hover:scale-110 transition-transform">sentiment_very_satisfied</span>
         </div>
         <span class="text-[13px] text-gray-500 group-hover:text-gray-700 font-medium">Amazing</span>
       </button>
     </div>
-
-    <!-- Paso 2: Mensaje de texto -->
     <div *ngIf="ui.feedbackStep() === 2" class="relative mt-2 flex items-center pr-4">
-      <textarea
-        #feedbackTextarea
-        placeholder="Write your message here"
-        class="w-full h-[140px] p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none outline-none focus:border-blue-500 text-[14px] text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800"
-      >
+      <textarea #feedbackTextarea placeholder="Write your message here"
+        class="w-full h-[140px] p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none outline-none focus:border-blue-500 text-[14px] text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800">
       </textarea>
       <button
         (click)="submitFeedback()"
@@ -529,61 +518,30 @@
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <!-- MODAL BUSCADOR "ALL NOTES" (Ctrl+K)                                -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
-<div
-  *ngIf="ui.isSearchModalOpen()"
-  class="fixed inset-0 z-[60] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-fade-in"
->
-  <div
-    class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-[800px] max-h-[85vh] flex flex-col relative overflow-hidden border border-gray-200 dark:border-gray-700"
-  >
-    <!-- Encabezado del buscador -->
+<div *ngIf="ui.isSearchModalOpen()" class="fixed inset-0 z-[60] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-fade-in">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-[800px] max-h-[85vh] flex flex-col relative overflow-hidden border border-gray-200 dark:border-gray-700">
     <div class="flex items-center px-6 py-4 border-b border-gray-100 dark:border-gray-700 gap-6">
-      <h3 class="text-[18px] font-bold text-gray-800 dark:text-white whitespace-nowrap">
-        All Notes
-      </h3>
-      <div
-        class="flex-1 flex items-center bg-gray-50 dark:bg-gray-900 rounded-lg px-3 py-2 border border-gray-200 dark:border-gray-700"
-      >
-        <span class="material-icons text-[20px] text-gray-400">search</span>
-        <input
-          type="text"
-          placeholder="Search Notes..."
-          [value]="notesService.searchQuery()"
-          (input)="onSearchInput($event)"
-          class="bg-transparent border-none outline-none w-full text-[14px] ml-2 text-gray-700 dark:text-gray-200 focus:ring-0"
-        />
+      <h3 class="text-[18px] font-bold text-gray-800 dark:text-white whitespace-nowrap">All Notes</h3>
+      <div class="flex-1 flex items-center bg-gray-50 dark:bg-gray-900 rounded-lg px-3 py-2 border border-gray-200 dark:border-gray-700">
+        <img src="assets/icons/view-all-icon-search.svg" class="w-4 h-4 icon-adaptive">
+        <input type="text" placeholder="Search Notes..." [value]="notesService.searchQuery()" (input)="onSearchInput($event)"
+          class="bg-transparent border-none outline-none w-full text-[14px] ml-2 text-gray-700 dark:text-gray-200 focus:ring-0"/>
       </div>
-      <button
-        (click)="ui.isSearchModalOpen.set(false)"
-        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-      >
-        <span class="material-icons">close</span>
+      <button (click)="ui.isSearchModalOpen.set(false)" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+        <img src="assets/icons/mobile_close_icon.svg" class="w-5 h-5 icon-adaptive">
       </button>
     </div>
-
-    <!-- Cabecera de columnas + Sort -->
-    <div
-      class="grid grid-cols-12 gap-4 px-6 py-3 border-b border-gray-100 dark:border-gray-700 text-[13px] font-semibold text-gray-500 bg-white dark:bg-gray-800"
-    >
+    <div class="grid grid-cols-12 gap-4 px-6 py-3 border-b border-gray-100 dark:border-gray-700 text-[13px] font-semibold text-gray-500 bg-white dark:bg-gray-800">
       <div class="col-span-6">All notes</div>
       <div class="col-span-2">Created at</div>
       <div class="col-span-2">Last Updated</div>
-      <!-- Botón de sort — cicla entre: Recent, A→Z, Z→A -->
-      <div
-        (click)="cycleSort()"
-        class="col-span-2 text-right flex items-center justify-end gap-1 cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 transition-colors select-none"
-      >
+      <div (click)="cycleSort()" class="col-span-2 text-right flex items-center justify-end gap-1 cursor-pointer hover:text-gray-800 dark:hover:text-gray-200 transition-colors select-none">
         Sort: {{ sortLabel() }}
-        <span class="material-icons text-[16px]">expand_more</span>
+        <img src="assets/icons/dropdown-icon.svg" class="w-3 h-3 icon-adaptive">
       </div>
     </div>
-
-    <!-- Lista de notas filtradas y ordenadas -->
     <div class="flex-1 overflow-y-auto p-2">
-      <div
-        *ngIf="modalFilteredNotes().length === 0"
-        class="text-center text-gray-500 py-8 text-[14px]"
-      >
+      <div *ngIf="modalFilteredNotes().length === 0" class="text-center text-gray-500 py-8 text-[14px]">
         No notes found matching your search.
       </div>
       <div
@@ -591,59 +549,28 @@
         (click)="selectNoteFromModal(note)"
         class="grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg cursor-pointer transition-colors group"
       >
-        <div class="col-span-6 text-[14px] text-gray-800 dark:text-gray-200 font-medium truncate">
-          {{ note.titulo || 'Untitled Document' }}
-        </div>
-        <div class="col-span-2 text-[13px] text-gray-500">
-          {{ note.fechaCreacion | date: 'MMM d, yyyy' }}
-        </div>
-        <div class="col-span-2 text-[13px] text-gray-500">
-          {{ note.fechaActualizacion || note.fechaCreacion | date: 'MMM d, yyyy' }}
-        </div>
+        <div class="col-span-6 text-[14px] text-gray-800 dark:text-gray-200 font-medium truncate">{{ note.titulo || 'Untitled Document' }}</div>
+        <div class="col-span-2 text-[13px] text-gray-500">{{ note.fechaCreacion | date: 'MMM d, yyyy' }}</div>
+        <div class="col-span-2 text-[13px] text-gray-500">{{ note.fechaActualizacion || note.fechaCreacion | date: 'MMM d, yyyy' }}</div>
         <div class="col-span-2 text-right relative">
-          <button
-            (click)="$event.stopPropagation(); toggleNoteMenu(note.id!)"
-            class="hover:bg-gray-200 dark:hover:bg-gray-600 p-1 rounded transition-colors"
-          >
-            <span class="material-icons text-[18px]">more_vert</span>
+          <button (click)="$event.stopPropagation(); toggleNoteMenu(note.id!)" class="hover:bg-gray-200 dark:hover:bg-gray-600 p-1 rounded transition-colors">
+            <img src="assets/icons/view_all_notes_menu_dots.svg" class="w-4 h-4 icon-adaptive">
           </button>
-          <!-- Menú flotante -->
-          <div
-            *ngIf="activeNoteMenu() === note.id"
-            (click)="$event.stopPropagation()"
-            class="absolute right-0 top-8 z-50 w-36 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
-          >
-            <button
-              (click)="renameNoteFromModal(note)"
-              class="w-full text-left px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
-            >
-              ✏️ Rename
+          <div *ngIf="activeNoteMenu() === note.id" (click)="$event.stopPropagation()" class="absolute right-0 top-8 z-50 w-36 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+            <button (click)="renameNoteFromModal(note)" class="w-full flex items-center gap-2 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+              <img src="assets/icons/view-all-notes-rename-icon.svg" class="w-4 h-4 icon-adaptive flex-shrink-0"> Rename
             </button>
-            <button
-              (click)="removeNoteFromModal(note)"
-              class="w-full text-left px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500"
-            >
-              🗑️ Remove
+            <button (click)="removeNoteFromModal(note)" class="w-full flex items-center gap-2 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500">
+              <img src="assets/icons/view-all-notes-remove-icon.svg" class="w-4 h-4 icon-adaptive flex-shrink-0"> Remove
             </button>
           </div>
         </div>
       </div>
-
-      <!-- Footer del modal de búsqueda -->
-      <div
-        class="px-6 py-3 border-t border-gray-100 dark:border-gray-700 text-[12px] text-gray-400 flex items-center gap-6 bg-gray-50/50 dark:bg-gray-800/50"
-      >
+      <div class="px-6 py-3 border-t border-gray-100 dark:border-gray-700 text-[12px] text-gray-400 flex items-center gap-6 bg-gray-50/50 dark:bg-gray-800/50">
+        <span class="flex items-center gap-1"><span class="material-icons text-[16px]">swap_vert</span> Select</span>
+        <span class="flex items-center gap-1"><span class="material-icons text-[16px]">keyboard_return</span> Open</span>
         <span class="flex items-center gap-1">
-          <span class="material-icons text-[16px]">swap_vert</span> Select
-        </span>
-        <span class="flex items-center gap-1">
-          <span class="material-icons text-[16px]">keyboard_return</span> Open
-        </span>
-        <span class="flex items-center gap-1">
-          <span
-            class="font-bold border border-gray-300 dark:border-gray-600 rounded px-1.5 py-0.5 bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-300"
-            >Ctrl</span
-          >
+          <span class="font-bold border border-gray-300 dark:border-gray-600 rounded px-1.5 py-0.5 bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-300">Ctrl</span>
           + <span class="material-icons text-[16px]">keyboard_return</span> Open in new tab
         </span>
       </div>
