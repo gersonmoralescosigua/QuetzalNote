@@ -1,3 +1,4 @@
+// topbar.ts — barra superior adaptativa según la vista activa (editor, pdf, paraphraser, login).
 import {
   Component,
   inject,
@@ -14,21 +15,6 @@ import { NotesService } from '../../../core/services/notes.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { I18nService, Language } from '../../services/i18n.service';
 
-/**
- * TopbarComponent
- * ─────────────────────────────────────────────────────────────────────────────
- * Barra superior de navegación de QuetzalNote.
- * Cambia su contenido según la vista activa: editor, pdf o paraphraser.
- *
- * Responsabilidades:
- *  - Editar el título de la nota activa
- *  - Mostrar el indicador de guardado (Saving / Saved)
- *  - Abrir el modal de búsqueda (Ctrl+K)
- *  - Toggle del modo oscuro
- *  - Menú de usuario (login / logout / idioma)
- *
- * Responsable: Gerson (shared/components/topbar/)
- */
 @Component({
   selector: 'app-topbar',
   standalone: true,
@@ -36,40 +22,32 @@ import { I18nService, Language } from '../../services/i18n.service';
   templateUrl: './topbar.html',
 })
 export class TopbarComponent implements OnInit {
-  // ── Servicios ─────────────────────────────────────────────────────────────
   ui = inject(UiService);
   notesService = inject(NotesService);
   authService = inject(AuthService);
   i18n = inject(I18nService);
 
-  // ── Signals de UI ─────────────────────────────────────────────────────────
   isDarkMode = signal(false);
   isUserMenuOpen = signal(false);
   isLanguageMenuOpen = signal(false);
 
-  // ── Referencias al DOM ────────────────────────────────────────────────────
   @ViewChild('titleInput') private titleInput!: ElementRef<HTMLInputElement>;
 
-  // ── Estado interno ────────────────────────────────────────────────────────
   private currentNoteId = '';
   private lastKnownTitle = '';
 
-  // ==================== ATAJO DE TECLADO Ctrl+K ====================
   @HostListener('window:keydown', ['$event'])
   openSearch(event: KeyboardEvent): void {
-    // Ctrl+K (Windows/Linux) o Cmd+K (Mac)
     if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
       event.preventDefault();
       this.ui.isSearchModalOpen.set(true);
     }
   }
 
-  // ── Ciclo de vida ─────────────────────────────────────────────────────────
-
   constructor() {
-    // LÓGICA: Cuando la nota seleccionada cambia, sincronizar el input del título.
-    // Solo actualizamos si la nota es diferente (por ID) o si el título cambió
-    // mientras el input no tiene el foco (para no interrumpir la edición manual).
+    // Sincroniza el input del título con la nota seleccionada.
+    // Si cambia la nota, actualiza siempre. Si es la misma nota pero cambió el título
+    // (ej: auto-título), solo actualiza cuando el input no tiene el foco.
     effect(() => {
       const note = this.notesService.selectedNote();
       const newTitle = note?.titulo || '';
@@ -84,7 +62,6 @@ export class TopbarComponent implements OnInit {
         }
       } else if (diffTitle) {
         this.lastKnownTitle = newTitle;
-        // Solo actualizar si el input NO está siendo editado por el usuario
         if (document.activeElement !== this.titleInput?.nativeElement) {
           if (this.titleInput?.nativeElement) {
             this.titleInput.nativeElement.value = newTitle;
@@ -95,14 +72,13 @@ export class TopbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Restaurar preferencia de tema guardada en localStorage
     const theme = localStorage.getItem('theme');
     if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       this.isDarkMode.set(true);
       document.documentElement.classList.add('dark');
     }
 
-    // Evitar que Quill capture el foco del input de título
+    // Captura en fase capture para que Quill no intercepte los keydown del input de título
     document.addEventListener(
       'keydown',
       (e) => {
@@ -111,10 +87,8 @@ export class TopbarComponent implements OnInit {
         }
       },
       true,
-    ); // true = capture phase, antes de que Quill lo vea
+    );
   }
-
-  // ── Tema claro / oscuro ───────────────────────────────────────────────────
 
   toggleTheme(): void {
     this.isDarkMode.update((v) => !v);
@@ -127,16 +101,13 @@ export class TopbarComponent implements OnInit {
     }
   }
 
-  // ── Título de la nota ─────────────────────────────────────────────────────
-
-  /** Guarda el título de la nota cuando el input pierde el foco o se presiona Enter */
   updateTitle(): void {
     const note = this.notesService.selectedNote();
     if (!note?.id) return;
 
     const newTitle = (this.titleInput.nativeElement.value || '').trim() || 'New Note';
     this.titleInput.nativeElement.value = newTitle;
-    if (newTitle === note.titulo) return; // Sin cambios → no guardar
+    if (newTitle === note.titulo) return;
 
     this.ui.isSaving.set(true);
     this.ui.lastSaved.set(false);
@@ -153,7 +124,7 @@ export class TopbarComponent implements OnInit {
       .subscribe({
         next: (updated) => {
           this.notesService.selectNote(updated);
-          this.notesService.triggerReload(); // Actualiza el sidebar con el nuevo título
+          this.notesService.triggerReload();
           this.ui.isSaving.set(false);
           this.ui.lastSaved.set(true);
         },
@@ -163,9 +134,6 @@ export class TopbarComponent implements OnInit {
       });
   }
 
-  // ── Menú de usuario ───────────────────────────────────────────────────────
-
-  /** Alterna la visibilidad del menú de usuario. Cierra el submenú de idiomas si aplica. */
   toggleUserMenu(): void {
     this.isUserMenuOpen.update((v) => !v);
     if (!this.isUserMenuOpen()) {
@@ -173,35 +141,20 @@ export class TopbarComponent implements OnInit {
     }
   }
 
-  /** Abre la pantalla de login y cierra el menú */
   openLogin(): void {
     this.ui.currentView.set('login');
     this.isUserMenuOpen.set(false);
     this.isLanguageMenuOpen.set(false);
   }
 
-  /** Cierra la sesión del usuario y cierra el menú */
   signOut(): void {
     this.authService.signOut();
     this.isUserMenuOpen.set(false);
   }
 
-  // ── Idioma ────────────────────────────────────────────────────────────────
-
-  /**
-   * Cambia el idioma activo usando I18nService.
-   * El cambio es reactivo: todos los componentes que usan i18n.t() se actualizan.
-   */
   setLanguage(lang: Language): void {
     this.i18n.setLanguage(lang);
     this.isLanguageMenuOpen.set(false);
     this.isUserMenuOpen.set(false);
-  }
-
-  // ── Búsqueda ──────────────────────────────────────────────────────────────
-
-  setSearchQuery(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.notesService.setSearchQuery(input.value);
   }
 }

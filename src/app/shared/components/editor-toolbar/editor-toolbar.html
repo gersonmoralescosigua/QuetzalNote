@@ -344,4 +344,193 @@
       <span class="material-icons text-[16px] text-gray-400">format_quote</span>
       <span class="text-[14px] font-medium">Quote</span>
     </span>
-    <span class="text-[11px] text-gray-400">Ctrl+S                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+    <span class="text-[11px] text-gray-400">Ctrl+Shift+B</span>
+  </button>
+</div>
+
+<!-- Dropdown: Color de texto -->
+<div
+  *ngIf="isColorMenuOpen()"
+  [style.top.px]="colorMenuPos().top"
+  [style.left.px]="colorMenuPos().left"
+  class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-[9999] p-3 w-[220px]"
+>
+  <!-- Colores rápidos -->
+  <div class="flex flex-wrap gap-1.5 mb-3">
+    <button
+      *ngFor="let c of quickColors"
+      (click)="setColor(c)"
+      [style.background]="c"
+      [title]="c"
+      class="w-5 h-5 rounded-full border border-white/30 hover:scale-110 transition-transform cursor-pointer"
+    ></button>
+  </div>
+  <div class="h-px bg-gray-100 dark:bg-gray-700 mb-3"></div>
+  <!-- Input HEX -->
+  <div class="flex items-center gap-2">
+    <div class="w-6 h-6 rounded border border-gray-300 flex-shrink-0" [style.background]="currentColor()"></div>
+    <input
+      type="text"
+      [value]="hexInput()"
+      (change)="applyHexColor($event)"
+      placeholder="#000000"
+      class="flex-1 border border-gray-200 dark:border-gray-600 rounded px-2 py-1 text-[12px] bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 outline-none focus:border-blue-400"
+    >
+  </div>
+  <!-- Reset color -->
+  <button
+    (click)="setColor('#000000')"
+    class="mt-2 w-full text-left text-[12px] text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 px-1 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+  >
+    Reset to default
+  </button>
+</div>
+
+<!-- Dropdown: Aa — herramientas de texto -->
+<div
+  *ngIf="isAaMenuOpen()"
+  [style.top.px]="aaMenuPos().top"
+  [style.left.px]="aaMenuPos().left"
+  class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-[9999] py-1 min-w-[180px]"
+>
+  <button (click)="toUppercase()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="font-semibold text-[11px] text-gray-400 w-4">AA</span> Uppercase
+  </button>
+  <button (click)="toLowercase()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="font-semibold text-[11px] text-gray-400 w-4">aa</span> Lowercase
+  </button>
+  <button (click)="toCapitalize()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="font-semibold text-[11px] text-gray-400 w-4">Aa</span> Capitalize
+  </button>
+  <div class="h-px bg-gray-100 dark:bg-gray-700 my-1 mx-3"></div>
+  <button (click)="toggleStrikethrough()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-gray-400">strikethrough_s</span> Strikethrough
+  </button>
+  <button (click)="toggleSubscript()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-gray-400">subscript</span> Subscript
+  </button>
+  <button (click)="toggleHighlight()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-yellow-400">highlight</span> Highlight
+  </button>
+  <div class="h-px bg-gray-100 dark:bg-gray-700 my-1 mx-3"></div>
+  <button (click)="clearFormatting()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500">
+    <span class="material-icons text-[16px]">format_clear</span> Clear Formatting
+  </button>
+</div>
+
+<!-- Dropdown: Insert -->
+<div
+  *ngIf="isInsertMenuOpen()"
+  [style.top.px]="insertMenuPos().top"
+  [style.left.px]="insertMenuPos().left"
+  class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-[9999] py-1 min-w-[200px]"
+>
+  <button (click)="insertImage()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-gray-400">image</span> Image
+  </button>
+  <button (click)="insertTable()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-gray-400">table_chart</span> Table
+  </button>
+  <button (click)="insertHorizontalRule()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-gray-400">horizontal_rule</span> Horizontal Line
+  </button>
+  <button (click)="insertPageBreak()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-gray-400">insert_page_break</span> Page Break
+  </button>
+  <div class="h-px bg-gray-100 dark:bg-gray-700 my-1 mx-3"></div>
+  <button (click)="insertDate()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-gray-400">today</span> Date
+  </button>
+  <button (click)="insertTime()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-gray-400">schedule</span> Time
+  </button>
+  <div class="h-px bg-gray-100 dark:bg-gray-700 my-1 mx-3"></div>
+  <button (click)="insertStickyNote()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-gray-400">sticky_note_2</span> Sticky Note
+  </button>
+  <button (click)="insertCollapsible()" class="w-full flex items-center gap-3 px-4 py-2 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-gray-400">expand_more</span> Collapsible
+  </button>
+</div>
+
+<!-- Dropdown: Alineación -->
+<div
+  *ngIf="isAlignMenuOpen()"
+  [style.top.px]="alignMenuPos().top"
+  [style.left.px]="alignMenuPos().left"
+  class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-[9999] py-1 min-w-[190px]"
+>
+  <button (click)="setAlign('left')" [ngClass]="{'bg-gray-100 dark:bg-gray-700': currentAlign() === 'left'}" class="w-full flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="flex items-center gap-2">
+      <span class="material-icons text-[16px] text-gray-400">format_align_left</span>
+      <span class="text-[13px]">Left Align</span>
+    </span>
+    <span class="text-[11px] text-gray-400">Ctrl+L</span>
+  </button>
+  <button (click)="setAlign('center')" [ngClass]="{'bg-gray-100 dark:bg-gray-700': currentAlign() === 'center'}" class="w-full flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="flex items-center gap-2">
+      <span class="material-icons text-[16px] text-gray-400">format_align_center</span>
+      <span class="text-[13px]">Center Align</span>
+    </span>
+    <span class="text-[11px] text-gray-400">Ctrl+E</span>
+  </button>
+  <button (click)="setAlign('right')" [ngClass]="{'bg-gray-100 dark:bg-gray-700': currentAlign() === 'right'}" class="w-full flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="flex items-center gap-2">
+      <span class="material-icons text-[16px] text-gray-400">format_align_right</span>
+      <span class="text-[13px]">Right Align</span>
+    </span>
+    <span class="text-[11px] text-gray-400">Ctrl+R</span>
+  </button>
+  <button (click)="setAlign('justify')" [ngClass]="{'bg-gray-100 dark:bg-gray-700': currentAlign() === 'justify'}" class="w-full flex items-center justify-between px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="flex items-center gap-2">
+      <span class="material-icons text-[16px] text-gray-400">format_align_justify</span>
+      <span class="text-[13px]">Justify Align</span>
+    </span>
+    <span class="text-[11px] text-gray-400">Ctrl+J</span>
+  </button>
+  <div class="h-px bg-gray-100 dark:bg-gray-700 my-1 mx-3"></div>
+  <button (click)="indent()" class="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-gray-400">format_indent_increase</span>
+    <span class="text-[13px]">Indent</span>
+  </button>
+  <button (click)="outdent()" class="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+    <span class="material-icons text-[16px] text-gray-400">format_indent_decrease</span>
+    <span class="text-[13px]">Outdent</span>
+  </button>
+</div>
+
+<!-- Dropdown: Selector de lenguaje (solo en Code Block) -->
+<div
+  *ngIf="isLangMenuOpen()"
+  [style.top.px]="langMenuPos().top"
+  [style.left.px]="langMenuPos().left"
+  class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-[9999] py-1 min-w-[150px] max-h-[260px] overflow-y-auto"
+>
+  <button
+    *ngFor="let lang of codeLanguages"
+    (click)="setCodeLanguage(lang)"
+    [ngClass]="{'bg-gray-100 dark:bg-gray-700': currentLanguage() === lang}"
+    class="w-full text-left px-4 py-1.5 text-[13px] hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-mono"
+  >{{ lang }}</button>
+</div>
+
+<!-- Popup flotante: Link -->
+<div
+  *ngIf="isLinkPopupOpen()"
+  [style.top.px]="linkPopupPos().top"
+  [style.left.px]="linkPopupPos().left"
+  class="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl z-[9999] p-3 w-[320px]"
+>
+  <p class="text-[12px] text-gray-500 mb-2 font-medium">Insert Link</p>
+  <input
+    type="url"
+    [value]="linkInputValue()"
+    (input)="linkInputValue.set($any($event.target).value)"
+    placeholder="https://example.com"
+    class="w-full border border-gray-200 dark:border-gray-600 rounded px-3 py-1.5 text-[13px] bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 outline-none focus:border-blue-400 mb-2"
+  >
+  <div class="flex justify-end gap-2">
+    <button (click)="cancelLink()" class="px-3 py-1.5 text-[12px] text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Cancel</button>
+    <button (click)="confirmLink()" class="px-3 py-1.5 text-[12px] bg-[#18639c] hover:bg-[#145382] text-white rounded transition-colors font-medium">Apply</button>
+  </div>
+</div>

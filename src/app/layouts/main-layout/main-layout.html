@@ -3,7 +3,7 @@
 
   <!-- topbar fijo arriba -->
   <header
-    class="flex-shrink-0 bg-white dark:bg-[#181818] flex items-center z-30 relative"
+    class="flex-shrink-0 bg-white dark:bg-[#181818] flex items-center z-10 relative"
     style="height:48px; min-height:48px; border-bottom: 1px solid var(--color-gray-light);"
   >
     <app-topbar class="block w-full"></app-topbar>
@@ -19,8 +19,9 @@
       (click)="ui.toggleSidebar()"
     ></div>
 
-    <!-- sidebar -->
+    <!-- sidebar — oculto en la pantalla de login -->
     <aside
+      *ngIf="ui.currentView() !== 'login'"
       [ngClass]="{
         'w-[200px]': ui.isSidebarOpen(),
         'w-[48px]': !ui.isSidebarOpen()
@@ -32,8 +33,13 @@
              md:relative md:top-auto md:bottom-auto md:translate-x-0"
       style="border-right: 1px solid var(--color-gray-light);
              background: var(--color-white-2);"
-      (mouseenter)="!ui.isSidebarOpen() && ui.toggleSidebar()"
     >
+      <!-- hover zone que activa el sidebar sin bloquear el contenido -->
+      <div
+        *ngIf="!ui.isSidebarOpen()"
+        class="absolute inset-0 z-10 cursor-pointer"
+        (mouseenter)="ui.toggleSidebar()"
+      ></div>
       <app-sidebar></app-sidebar>
     </aside>
 
@@ -475,19 +481,21 @@
         <span class="text-[13px] text-gray-500 group-hover:text-gray-700 font-medium">Amazing</span>
       </button>
     </div>
-    <div *ngIf="ui.feedbackStep() === 2" class="relative mt-2 flex items-center pr-4">
+    <div *ngIf="ui.feedbackStep() === 2" class="mt-2">
       <textarea #feedbackTextarea placeholder="Write your message here"
-        class="w-full h-[140px] p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none outline-none focus:border-blue-500 text-[14px] text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800">
-      </textarea>
-      <button
-        (click)="submitFeedback()"
-        [disabled]="isFeedbackSubmitting()"
-        class="absolute -right-2 bg-black dark:bg-gray-700 text-white w-12 h-12 flex items-center justify-center rounded-full hover:scale-105 hover:bg-gray-800 transition-all shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
-      >
-        <span class="material-icons text-[20px] ml-1" [class.animate-spin]="isFeedbackSubmitting()">
-          {{ isFeedbackSubmitting() ? 'refresh' : 'send' }}
-        </span>
-      </button>
+        class="w-full h-[140px] p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none outline-none focus:border-blue-500 text-[14px] text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 block"
+      ></textarea>
+      <div class="flex justify-end mt-3">
+        <button
+          (click)="submitFeedback()"
+          [disabled]="isFeedbackSubmitting()"
+          class="bg-black dark:bg-gray-700 text-white w-12 h-12 flex items-center justify-center rounded-full hover:scale-105 hover:bg-gray-800 transition-all shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          <span class="material-icons text-[20px] ml-1" [class.animate-spin]="isFeedbackSubmitting()">
+            {{ isFeedbackSubmitting() ? 'refresh' : 'send' }}
+          </span>
+        </button>
+      </div>
     </div>
   </div>
 </div>

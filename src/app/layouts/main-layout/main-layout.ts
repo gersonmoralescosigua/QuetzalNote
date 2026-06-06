@@ -28,20 +28,8 @@ import { Note } from '../../core/models/note.model';
 import { FeedbackRating } from '../../core/models/feedback.model';
 import Swal from 'sweetalert2';
 
-/**
- * MainLayoutComponent
- * ─────────────────────────────────────────────────────────────────────────────
- * Esqueleto visual principal de la aplicación QuetzalNote.
- * Responsable: Gerson (layout, UX, distribución).
- *
- * Contiene:
- *  - Sidebar lateral
- *  - Topbar superior
- *  - Área central (editor / PDF / paraphraser)
- *  - Modales: Feedback, Login, Trash, All Notes, Search
- *
- * Blueprint §6: "UI Components: Solo visualización, diseño, eventos."
- */
+// main-layout.ts — shell principal: topbar, sidebar y área central.
+// Centraliza también los modales de feedback, papelera y búsqueda avanzada.
 @Component({
   selector: 'app-main-layout',
   standalone: true,
@@ -58,7 +46,7 @@ import Swal from 'sweetalert2';
   templateUrl: './main-layout.html',
 })
 export class MainLayoutComponent {
-  // ── Servicios ─────────────────────────────────────────────────────────────
+  // servicios
   ui = inject(UiService);
   notesService = inject(NotesService);
   feedbackService = inject(FeedbackService);
@@ -68,26 +56,24 @@ export class MainLayoutComponent {
   private parasSvc = inject(ParaphraserService);
   private router = inject(Router);
 
-  // ── Trash / All Notes ─────────────────────────────────────────────────────
+  // notas en modal y papelera
   trashedNotes = signal<Note[]>([]);
   allModalNotes = signal<Note[]>([]);
 
-  // ── Sort del modal All Notes ───────────────────────────────────────────────
   /** Modo de ordenación activo: recent | a→z | z→a */
   currentSort = signal<'recent' | 'az' | 'za'>('recent');
-  // ── Estado para el menú de tres puntos (All Notes) ──────────────────────────
   activeNoteMenu = signal<string | null>(null);
 
-  // ── Auth (refs de formulario email/password) ──────────────────────────────
+  // refs al formulario de login
   @ViewChild('emailInput') private emailInputRef!: ElementRef<HTMLInputElement>;
   @ViewChild('passwordInput') private passwordInputRef!: ElementRef<HTMLInputElement>;
   showPassword = signal(false);
 
-  // ── Feedback ──────────────────────────────────────────────────────────────
+  // feedback
   @ViewChild('feedbackTextarea') private feedbackTextareaRef!: ElementRef<HTMLTextAreaElement>;
   isFeedbackSubmitting = signal(false);
 
-  // ── PDF Editor (instancia Quill de la vista PDF) ──────────────────────────
+  // instancia Quill de la vista PDF (separada del editor de notas)
   /** Instancia del editor Quill de la vista PDF */
   private pdfQuillInstance: any = null;
   /** ¿Hay texto en el editor PDF? */
@@ -104,7 +90,7 @@ export class MainLayoutComponent {
   /** True mientras se genera el PDF */
   isPdfConverting = signal(false);
 
-  // ── Paraphraser ───────────────────────────────────────────────────────────
+  // paraphraser
   @ViewChild('paraphraserInput') private paraphraserInputRef!: ElementRef<HTMLTextAreaElement>;
   paraphraserOutput = signal('');
   isParaphrasing = signal(false);
@@ -114,7 +100,7 @@ export class MainLayoutComponent {
     const validViews = ['editor', 'pdf', 'paraphraser', 'contact', 'login'] as const;
     type ValidView = typeof validViews[number];
 
-    // ── URL → signal: usa NavigationEnd para leer la URL real (evita snapshot stale) ──
+    // NavigationEnd para leer la URL real y evitar el snapshot stale del router
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe((e) => {
@@ -125,7 +111,7 @@ export class MainLayoutComponent {
         }
       });
 
-    // ── signal → URL: navega cuando el signal cambia desde cualquier componente ──
+    // permite navegar con ui.currentView.set() desde cualquier componente
     effect(() => {
       const view = this.ui.currentView();
       const currentPath = this.router.url.split('/')[1];
@@ -134,7 +120,6 @@ export class MainLayoutComponent {
       }
     });
 
-    // ── Efectos de UI ─────────────────────────────────────────────────────────
     effect(() => {
       if (this.ui.isTrashOpen()) {
         this.loadTrashedNotes();
@@ -145,14 +130,12 @@ export class MainLayoutComponent {
     });
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // BUSCADOR AVANZADO "ALL NOTES" (Ctrl+K)
-  // ══════════════════════════════════════════════════════════════════════════
+  // buscador avanzado (Ctrl+K)
 
   private loadAllModalNotes(): void {
     this.notesService.getNotes().subscribe({
       next: (notes) => this.allModalNotes.set(notes.filter((n) => !n.deleted)),
-      error: () => {},
+      error: () => { },
     });
   }
 
@@ -206,7 +189,7 @@ export class MainLayoutComponent {
     this.ui.currentView.set('editor');
   }
 
-  // ── Menú de tres puntos (Rename / Remove) en All Notes ──────────────────────
+  // menú de tres puntos por nota en el modal All Notes
   toggleNoteMenu(noteId?: string): void {
     if (!noteId) return;
     if (this.activeNoteMenu() === noteId) {
@@ -294,9 +277,7 @@ export class MainLayoutComponent {
     }
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // AUTH — Google Sign-In + Email/Password
-  // ══════════════════════════════════════════════════════════════════════════
+  // login — Google y email/password
 
   signInWithEmailPassword(): void {
     const email = this.emailInputRef?.nativeElement?.value?.trim() || '';
@@ -341,9 +322,7 @@ export class MainLayoutComponent {
     this.authService.signOut();
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // FEEDBACK
-  // ══════════════════════════════════════════════════════════════════════════
+  // feedback
 
   selectRating(rating: FeedbackRating): void {
     this.ui.selectedRating.set(rating);
@@ -400,14 +379,12 @@ export class MainLayoutComponent {
       });
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // TRASH — Papelera
-  // ══════════════════════════════════════════════════════════════════════════
+  // papelera
 
   private loadTrashedNotes(): void {
     this.notesService.getNotes().subscribe({
       next: (notes) => this.trashedNotes.set(notes.filter((n) => n.deleted)),
-      error: () => {},
+      error: () => { },
     });
   }
 
@@ -427,7 +404,7 @@ export class MainLayoutComponent {
           this.loadTrashedNotes();
           this.notesService.triggerReload();
         },
-        error: () => {},
+        error: () => { },
       });
   }
 
@@ -450,15 +427,13 @@ export class MainLayoutComponent {
       if (result.isConfirmed) {
         this.notesService.deleteNote(note.id!).subscribe({
           next: () => this.loadTrashedNotes(),
-          error: () => {},
+          error: () => { },
         });
       }
     });
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // TEXT TO PDF — Vista PDF con editor Quill completo
-  // ══════════════════════════════════════════════════════════════════════════
+  // vista PDF
 
   /** Callback cuando el editor Quill de PDF está listo */
   onPdfEditorCreated(quill: any): void {
@@ -636,9 +611,7 @@ export class MainLayoutComponent {
     input.click();
   }
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // PARAPHRASER
-  // ══════════════════════════════════════════════════════════════════════════
+  // paraphraser
 
   paraphrase(): void {
     const text = this.paraphraserInputRef?.nativeElement?.value?.trim() || '';

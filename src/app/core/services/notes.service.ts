@@ -1,4 +1,4 @@
-// notes.service.ts — CRUD de notas contra Firebase Realtime Database REST API. Sin SDK.
+// notes.service.ts — CRUD de notas contra Firebase Realtime Database vía REST. Sin SDK.
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -25,7 +25,7 @@ export class NotesService {
 
   selectNote(note: Note | null) {
     this.selectedNote.set(note);
-    // Persiste el ID para restaurarlo en la próxima sesión/recarga
+    // Persiste el ID para restaurarlo en la próxima sesión
     if (note?.id) {
       localStorage.setItem('qn_lastNoteId', note.id);
     } else {
@@ -49,12 +49,8 @@ export class NotesService {
     return this.http.get<{ [key: string]: Note } | null>(`${this.apiUrl}.json`).pipe(
       map((response) => {
         if (!response) return [];
-        const notes = Object.keys(response).map((key) => ({
-          ...response[key],
-          id: key,
-        }));
-        // Más recientes primero — los IDs de Firebase push() son cronológicos,
-        // el generado más tarde es lexicográficamente mayor.
+        const notes = Object.keys(response).map((key) => ({ ...response[key], id: key }));
+        // Los push IDs de Firebase son cronológicos — orden lexicográfico descendente = más recientes primero
         return notes.sort((a, b) => (b.id || '').localeCompare(a.id || ''));
       }),
       catchError(this.handleError('cargar las notas')),
@@ -70,11 +66,7 @@ export class NotesService {
 
   createNote(note: Omit<Note, 'id'>): Observable<string> {
     const today = new Date().toISOString().split('T')[0];
-    const newNote: Omit<Note, 'id'> = {
-      ...note,
-      fechaCreacion: today,
-      fechaActualizacion: today,
-    };
+    const newNote: Omit<Note, 'id'> = { ...note, fechaCreacion: today, fechaActualizacion: today };
     return this.http.post<{ name: string }>(`${this.apiUrl}.json`, newNote).pipe(
       map((response) => response.name),
       catchError(this.handleError('crear la nota')),
@@ -83,10 +75,7 @@ export class NotesService {
 
   updateNote(id: string, note: Omit<Note, 'id'>): Observable<Note> {
     const today = new Date().toISOString().split('T')[0];
-    const updatedNote: Omit<Note, 'id'> = {
-      ...note,
-      fechaActualizacion: today,
-    };
+    const updatedNote: Omit<Note, 'id'> = { ...note, fechaActualizacion: today };
     return this.http.put<Note>(`${this.apiUrl}/${id}.json`, updatedNote).pipe(
       map((response) => ({ ...response, id })),
       catchError(this.handleError('actualizar la nota')),
@@ -102,17 +91,10 @@ export class NotesService {
   private handleError(accion: string) {
     return (error: HttpErrorResponse): Observable<never> => {
       let mensaje = `No se pudo ${accion}.`;
-
-      if (error.status === 0) {
-        mensaje = `No se pudo ${accion}. Verifica tu conexión a internet.`;
-      } else if (error.status === 401 || error.status === 403) {
-        mensaje = `No se pudo ${accion}. Permiso denegado en Firebase.`;
-      } else if (error.status === 404) {
-        mensaje = `No se pudo ${accion}. Recurso no encontrado.`;
-      } else if (error.status >= 500) {
-        mensaje = `No se pudo ${accion}. Firebase no está disponible.`;
-      }
-
+      if (error.status === 0) mensaje = `No se pudo ${accion}. Verifica tu conexión a internet.`;
+      else if (error.status === 401 || error.status === 403) mensaje = `No se pudo ${accion}. Permiso denegado en Firebase.`;
+      else if (error.status === 404) mensaje = `No se pudo ${accion}. Recurso no encontrado.`;
+      else if (error.status >= 500) mensaje = `No se pudo ${accion}. Firebase no está disponible.`;
       console.error(error);
       return throwError(() => new Error(mensaje));
     };

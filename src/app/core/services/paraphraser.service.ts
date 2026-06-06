@@ -1,10 +1,6 @@
-// paraphraser.service.ts
-// Lógica de parafraseo por sustitución léxica.
-// Desacoplada del componente para mantener la responsabilidad del servicio.
-// Responsable: Isidro
+// paraphraser.service.ts — motor de parafraseo por sustitución léxica.
 import { Injectable } from '@angular/core';
 
-// Diccionario de sinónimos — cada entrada mapea una palabra a sus alternativas
 const SYNONYM_MAP: Record<string, string[]> = {
   good:      ['excellent', 'great', 'fine', 'outstanding'],
   bad:       ['poor', 'terrible', 'inadequate', 'inferior'],
@@ -37,9 +33,7 @@ const SYNONYM_MAP: Record<string, string[]> = {
   so:        ['therefore', 'consequently', 'thus', 'as a result'],
 };
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class ParaphraserService {
 
   paraphrase(text: string): string {
@@ -47,8 +41,7 @@ export class ParaphraserService {
     return this.applyLexicalSubstitution(text);
   }
 
-  // Tokeniza por límites de palabra y reemplaza las que están en el diccionario,
-  // preservando la capitalización original
+  // Reemplaza palabras por sinónimos aleatorios preservando la capitalización original
   private applyLexicalSubstitution(text: string): string {
     return text.replace(/\b([a-zA-Z]+)\b/g, (match) => {
       const lower = match.toLowerCase();

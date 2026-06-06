@@ -700,16 +700,13 @@ export class EditorToolbar {
 
   // link popup flotante
 
-  /** Abre el popup de link solo si hay texto seleccionado */
   openLinkPopup(): void {
-    const range = this.quill?.getSelection();
-    if (!range || range.length === 0) {
-      // Sin selección — no hacer nada (o agregar link en posición actual)
-      return;
-    }
+    // getSelection(true) fuerza el foco en el editor antes de leer la selección
+    const range = this.quill?.getSelection(true);
+    if (!range) return;
     this.savedLinkRange = range;
 
-    // Calcular posición debajo del texto seleccionado
+    // Posicionar el popup debajo del cursor o de la selección
     const bounds = this.quill?.getBounds(range.index, range.length);
     const editorEl = this.quill?.root as HTMLElement;
     const editorRect = editorEl?.getBoundingClientRect();
@@ -720,7 +717,7 @@ export class EditorToolbar {
       });
     }
 
-    // Pre-llenar el input si ya hay un link
+    // Pre-llenar si el texto seleccionado ya tiene un link
     const format = this.quill?.getFormat(range);
     this.linkInputValue.set(format?.['link'] || 'https://');
     this.isLinkPopupOpen.set(true);
@@ -733,7 +730,14 @@ export class EditorToolbar {
       return;
     }
     if (this.savedLinkRange) {
-      this.quill?.formatText(this.savedLinkRange.index, this.savedLinkRange.length, 'link', url);
+      if (this.savedLinkRange.length > 0) {
+        // Hay texto seleccionado — aplicar el link sobre esa selección
+        this.quill?.formatText(this.savedLinkRange.index, this.savedLinkRange.length, 'link', url);
+      } else {
+        // Sin selección — insertar la URL como texto enlazado en la posición del cursor
+        this.quill?.insertText(this.savedLinkRange.index, url, 'link', url);
+        this.quill?.setSelection(this.savedLinkRange.index + url.length);
+      }
     }
     this.isLinkPopupOpen.set(false);
     this.savedLinkRange = null;
