@@ -129,11 +129,12 @@ export class NoteEditorComponent {
 
       const contenido = this.quillInstance?.root.innerHTML || '';
 
-      // Auto-título: si la nota es nueva, usamos la primera línea como título.
-      // Con isAutoTitle evitamos disparar triggerReload() y el flash del loader.
+      // Auto-título: si la nota es nueva (título tipo 'Untitled Document' o 'Untitled Document (N)'),
+      // usamos la primera línea del contenido como título.
       let titulo = note.titulo;
       let isAutoTitle = false;
-      if (titulo === 'Untitled Document' && text.length > 0) {
+      const isUntitled = titulo === 'Untitled Document' || /^Untitled Document \(\d+\)$/.test(titulo);
+      if (isUntitled && text.length > 0) {
         const firstLine = text.split('\n')[0].trim();
         if (firstLine) {
           titulo = firstLine.length > 60 ? firstLine.substring(0, 60) : firstLine;
@@ -159,9 +160,9 @@ export class NoteEditorComponent {
             this.notesService.selectNote(updated);
             this.ui.isSaving.set(false);
             this.ui.lastSaved.set(true);
-            // Solo recargamos el sidebar cuando el título cambió manualmente;
-            // si fue auto-asignado evitamos el flash del loader al escribir.
-            if (titulo !== note.titulo && !isAutoTitle) {
+            // Recargamos el sidebar cuando el título cambia (manual o auto-título)
+            // para que el sidebar refleje el nuevo nombre de inmediato.
+            if (titulo !== note.titulo) {
               this.notesService.triggerReload();
             }
           },
