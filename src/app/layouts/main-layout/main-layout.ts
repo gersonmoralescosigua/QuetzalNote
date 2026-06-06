@@ -202,8 +202,14 @@ export class MainLayoutComponent {
 
   selectNoteFromModal(note: Note): void {
     this.notesService.selectNote(note);
-    this.ui.isSearchModalOpen.set(false);
+    this.closeSearchModal();
     this.ui.currentView.set('editor');
+  }
+
+  /** Cierra el modal "All Notes" (Ctrl+K) y limpia el filtro de búsqueda */
+  closeSearchModal(): void {
+    this.ui.isSearchModalOpen.set(false);
+    this.notesService.setSearchQuery('');
   }
 
   // ── Menú de tres puntos (Rename / Remove) en All Notes ──────────────────────

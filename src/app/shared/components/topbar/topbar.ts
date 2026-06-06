@@ -101,17 +101,6 @@ export class TopbarComponent implements OnInit {
       this.isDarkMode.set(true);
       document.documentElement.classList.add('dark');
     }
-
-    // Evitar que Quill capture el foco del input de título
-    document.addEventListener(
-      'keydown',
-      (e) => {
-        if (document.activeElement === this.titleInput?.nativeElement) {
-          e.stopPropagation();
-        }
-      },
-      true,
-    ); // true = capture phase, antes de que Quill lo vea
   }
 
   // ── Tema claro / oscuro ───────────────────────────────────────────────────

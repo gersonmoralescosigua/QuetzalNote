@@ -803,13 +803,13 @@ export class EditorToolbar {
       <div style="display:flex;flex-direction:column;gap:10px;text-align:left">
         <div>
           <label style="font-size:12px;color:#9ca3af;display:block;margin-bottom:4px">Rows</label>
-          <input id="tbl-rows" type="number" value="5" min="1" max="50"
+          <input id="tbl-rows" type="number" value="5" min="1" max="50" class="stop-quill-events"
             style="width:100%;padding:8px 12px;border:1px solid ${theme.borderColor};border-radius:6px;
                    background:${theme.inputBg};color:${theme.color};font-size:14px;outline:none"/>
         </div>
         <div>
           <label style="font-size:12px;color:#9ca3af;display:block;margin-bottom:4px">Columns</label>
-          <input id="tbl-cols" type="number" value="5" min="1" max="20"
+          <input id="tbl-cols" type="number" value="5" min="1" max="20" class="stop-quill-events"
             style="width:100%;padding:8px 12px;border:1px solid ${theme.borderColor};border-radius:6px;
                    background:${theme.inputBg};color:${theme.color};font-size:14px;outline:none"/>
         </div>
@@ -911,7 +911,7 @@ export class EditorToolbar {
         </div>
         <div style="margin-bottom:6px">
           <label style="font-size:11px;color:#9ca3af;display:block;margin-bottom:4px;text-align:right">Equation</label>
-          <input id="eq-input" type="text" placeholder="e.g. E = mc²"
+          <input id="eq-input" type="text" placeholder="e.g. E = mc²" class="stop-quill-events"
             style="width:100%;padding:8px 12px;border:1px solid ${theme.borderColor};border-radius:6px;
                    background:${theme.inputBg};color:${theme.color};font-size:14px;outline:none"
             oninput="document.getElementById('eq-viz').textContent = this.value || '...'"/>
@@ -988,7 +988,7 @@ export class EditorToolbar {
       </div>
       
       <!-- Área editable (Agregamos la clase 'sticky-content' y un color gris inicial) -->
-      <div class="sticky-content" contenteditable="true" spellcheck="false" style="flex: 1; padding: 12px; outline: none; overflow-y: auto; font-size: 15px; line-height: 1.4; color: rgba(0,0,0,0.5);">Escribe aquí...</div>
+      <div class="sticky-content stop-quill-events" contenteditable="true" spellcheck="false" style="flex: 1; padding: 12px; outline: none; overflow-y: auto; font-size: 15px; line-height: 1.4; color: rgba(0,0,0,0.5);">Escribe aquí...</div>
       
       <!-- Efecto de esquina doblada -->
       <div style="position: absolute; bottom: 0; right: 0; border-width: 12px; border-style: solid; border-color: rgba(0,0,0,0.1) transparent transparent rgba(0,0,0,0.1); pointer-events: none;"></div>
@@ -1036,9 +1036,13 @@ export class EditorToolbar {
     // Impedir que Quill intercepte eventos del sticky note
     stickyEl.addEventListener('mousedown', (e: MouseEvent) => {
       e.stopPropagation();
+      // Limpiar la selección residual de Quill para que no recupere el foco
+      window.getSelection()?.removeAllRanges();
     });
     textArea.addEventListener('mousedown', (e: MouseEvent) => {
       e.stopPropagation();
+      // Limpiar la selección residual de Quill para que no recupere el foco
+      window.getSelection()?.removeAllRanges();
       // Forzar foco manual para que el contenteditable lo reciba siempre
       setTimeout(() => textArea.focus(), 0);
     });

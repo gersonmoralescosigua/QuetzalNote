@@ -150,11 +150,12 @@
         <input
           #titleInput
           (click)="$event.stopPropagation()"
+          (mousedown)="$event.stopPropagation()"
           type="text"
           [placeholder]="i18n.t('untitledDocument')"
           (blur)="updateTitle()"
           (keydown.enter)="updateTitle(); titleInput.blur()"
-          class="border-none focus:ring-0 text-gray-700 dark:text-gray-200 p-0 px-3 py-1.5 w-full outline-none bg-transparent truncate"
+          class="stop-quill-events border-none focus:ring-0 text-gray-700 dark:text-gray-200 p-0 px-3 py-1.5 w-full outline-none bg-transparent truncate"
           style="font-size:14px; font-weight:400; line-height:20px; max-height:32px;"
         />
       </div>
@@ -262,6 +263,26 @@
       <button (click)="toggleTheme()" class="min-w-[32px] min-h-[32px] flex items-center justify-center rounded border border-[#eceef0] dark:border-[#424242] hover:bg-[#F0F0F0] dark:hover:bg-[#252525] transition-colors">
         <img *ngIf="!isDarkMode()" src="assets/icons/mobile_dark_moon_icon.svg" class="w-5 h-5 icon-adaptive">
         <img *ngIf="isDarkMode()" src="assets/icons/sun_light_mode.svg" class="w-5 h-5" style="filter:var(--filter-inverse)">
+      </button>
+      <ng-container *ngTemplateOutlet="userBtn"></ng-container>
+    </div>
+  </ng-container>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- VISTA: LOGIN                                              -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="ui.currentView() === 'login'">
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <ng-container *ngTemplateOutlet="hamburger"></ng-container>
+      <ng-container *ngTemplateOutlet="logoBlock"></ng-container>
+    </div>
+    <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 flex-shrink-0">
+      <button (click)="toggleTheme()" class="min-w-[32px] min-h-[32px] flex items-center justify-center rounded border border-[#eceef0] dark:border-[#424242] hover:bg-[#F0F0F0] dark:hover:bg-[#252525] transition-colors">
+        <img *ngIf="!isDarkMode()" src="assets/icons/mobile_dark_moon_icon.svg" class="w-5 h-5 icon-adaptive">
+        <img *ngIf="isDarkMode()" src="assets/icons/sun_light_mode.svg" class="w-5 h-5" style="filter:var(--filter-inverse)">
+      </button>
+      <button (click)="ui.currentView.set('contact')" class="min-w-[32px] min-h-[32px] flex items-center justify-center rounded border border-[#eceef0] dark:border-[#424242] hover:bg-[#F0F0F0] dark:hover:bg-[#252525] transition-colors">
+        <img src="assets/icons/Chat.svg" class="w-5 h-5 icon-adaptive">
       </button>
       <ng-container *ngTemplateOutlet="userBtn"></ng-container>
     </div>
